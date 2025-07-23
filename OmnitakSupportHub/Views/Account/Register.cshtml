@@ -1,0 +1,262 @@
+﻿@model OmnitakSupportHub.Models.ViewModels.RegisterViewModel
+@{
+    ViewData["Title"] = "Create Account";
+    Layout = null; /* Remove layout for full control */
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #f0f2f5 0%, #e0e4e8 100%);
+            padding: 20px;
+        }
+
+        .registration-container {
+            width: 100%;
+            max-width: 500px;
+            background: #ffffff;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2e7d32 0%, #388e3c 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+            .header h1 {
+                font-size: 2.2rem;
+                margin-bottom: 10px;
+                font-weight: 700;
+            }
+
+            .header p {
+                font-size: 1.1rem;
+                opacity: 0.9;
+            }
+
+        .logo {
+            width: 70px;
+            height: 70px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .form-container {
+            padding: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+            .form-group label {
+                display: block;
+                font-weight: 600;
+                margin-bottom: 8px;
+                color: #2c3e50;
+                font-size: 1rem;
+            }
+
+        .form-control {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #e0e4e8;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+            .form-control:focus {
+                border-color: #2e7d32;
+                outline: none;
+                box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.2);
+            }
+
+        .validation-summary {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            border-left: 4px solid #dc3545;
+        }
+
+        .text-danger {
+            color: #e74c3c;
+            font-size: 0.9rem;
+            margin-top: 6px;
+            display: block;
+        }
+
+        .password-hint {
+            font-size: 0.85rem;
+            color: #7f8c8d;
+            margin-top: 6px;
+            padding-left: 5px;
+        }
+
+        .btn-register {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #2e7d32 0%, #388e3c 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s, background 0.3s;
+        }
+
+            .btn-register:hover {
+                transform: translateY(-3px);
+                background: linear-gradient(135deg, #1b5e20 0%, #2e7d32 100%);
+            }
+
+        .footer {
+            text-align: center;
+            padding-top: 20px;
+            font-size: 1rem;
+            color: #7f8c8d;
+        }
+
+            .footer a {
+                color: #2e7d32;
+                font-weight: 600;
+                text-decoration: none;
+                transition: color 0.3s;
+            }
+
+                .footer a:hover {
+                    color: #1b5e20;
+                    text-decoration: underline;
+                }
+
+        /* Responsive design */
+        (max-width: 576px) {
+            .header
+
+        {
+            padding: 20px 15px;
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+        }
+
+        .form-container {
+            padding: 20px 15px;
+        }
+
+        .form-control {
+            padding: 12px;
+        }
+
+        }
+
+        /* Animations */
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="registration-container">
+        <div class="header">
+            <div class="logo">O</div>
+            <h1>Create an account</h1>
+            <p>Join Omnitak Support Hub today</p>
+        </div>
+
+        <div class="form-container">
+            <form asp-action="Register" method="post">
+                @Html.AntiForgeryToken()
+
+                <div asp-validation-summary="All" class="validation-summary"></div>
+
+                <div class="form-group">
+                    <label asp-for="FullName">Full Name</label>
+                    <input asp-for="FullName" class="form-control" placeholder="Enter your full name" />
+                    <span asp-validation-for="FullName" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Email">Email</label>
+                    <input asp-for="Email" class="form-control" placeholder="Enter your email" />
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                    <small class="password-hint"></small>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Password">Password</label>
+                    <input asp-for="Password" class="form-control" type="password" placeholder="Enter your password" />
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                    <small class="password-hint">
+                        Must be at least 8 characters and include:
+                        uppercase, lowercase, number, and special character
+                    </small>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="ConfirmPassword">Confirm Password</label>
+                    <input asp-for="ConfirmPassword" class="form-control" type="password" placeholder="Confirm your password" />
+                    <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Department">Department</label>
+                    <select asp-for="Department" asp-items="Model.AvailableDepartments" class="form-control">
+                        <option value="">-- Select Department --</option>
+                    </select>
+                    <span asp-validation-for="Department" class="text-danger"></span>
+                </div>
+
+                <button type="submit" class="btn-register">Register</button>
+            </form>
+
+            <div class="footer">
+                Already have an account? <a asp-action="Login" asp-controller="Account">Sign in here</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.3/jquery.validate.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.12/jquery.validate.unobtrusive.min.js"></script>
+</body>
+</html>

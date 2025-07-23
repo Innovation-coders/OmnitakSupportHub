@@ -1,0 +1,292 @@
+﻿@model OmnitakSupportHub.Models.ViewModels.AdminDashboardViewModel
+@{
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+<style>
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        margin: 0;
+        min-height: 100vh;
+        background: linear-gradient(135deg, #f0f2f5 0%, #e0e4e8 100%);
+        display: flex;
+        overflow: auto;
+    }
+
+    .dashboard-container {
+        display: flex;
+        width: 100%;
+        max-width: 1400px;
+        margin: 20px auto;
+    }
+
+    .sidebar {
+        width: 250px;
+        background: linear-gradient(135deg, #2e7d32 0%, #388e3c 100%);
+        color: white;
+        padding: 20px;
+        min-height: calc(100vh - 40px);
+        position: sticky;
+        top: 20px;
+    }
+
+    .sidebar h3 {
+        font-size: 1.5rem;
+        margin-bottom: 20px;
+        text-align: center;
+        text-transform: uppercase;
+    }
+
+    .sidebar .nav-link {
+        color: white;
+        text-decoration: none;
+        display: block;
+        padding: 10px;
+        margin-bottom: 10px;
+        border-radius: 5px;
+        transition: background 0.3s ease;
+    }
+
+    .sidebar .nav-link:hover {
+        background: rgba(255, 255, 255, 0.3);
+        color: #e0e0e0;
+    }
+
+    .main-content {
+        flex: 1;
+        padding: 25px;
+        background: #ffffff;
+        border-radius: 15px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        margin-left: 20px;
+    }
+
+    .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+        flex-wrap: wrap;
+    }
+
+    .header h2 {
+        color: #2e7d32;
+        font-size: 2.2rem;
+        font-weight: 700;
+        margin: 0;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .header p {
+        color: #2e7d32;
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin: 5px 0 0;
+    }
+
+    .alert {
+        margin-bottom: 20px;
+        padding: 15px;
+        border-radius: 8px;
+        font-size: 1rem;
+        border-left: 5px solid;
+    }
+
+    .alert-success {
+        background-color: #d4edda;
+        border-left-color: #28a745;
+        color: #155724;
+    }
+
+    .alert-danger {
+        background-color: #f8d7da;
+        border-left-color: #dc3545;
+        color: #721c24;
+    }
+
+    .alert-info {
+        background-color: #cce5ff;
+        border-left-color: #007bff;
+        color: #004085;
+    }
+
+    .section-header {
+        background: linear-gradient(90deg, #2e7d32, #388e3c);
+        color: white;
+        padding: 10px 15px;
+        border-radius: 5px 5px 0 0;
+        margin-top: 25px;
+        font-size: 1.3rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        overflow: hidden;
+    }
+
+    th, td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+
+    th {
+        background-color: #2e7d32;
+        color: white;
+        font-weight: 600;
+    }
+
+    td {
+        background: #fafafa;
+    }
+
+    .form-select {
+        width: 100%;
+        padding: 6px;
+        font-size: 1rem;
+    }
+
+    .btn {
+        margin-right: 5px;
+    }
+
+    .btn-success {
+        background-color: #28a745;
+        border-color: #28a745;
+    }
+
+    .btn-danger {
+        background-color: #dc3545;
+        border-color: #dc3545;
+    }
+
+    .btn-warning {
+        background-color: #ffc107;
+        border-color: #ffc107;
+    }
+</style>
+
+<div class="dashboard-container">
+    <div class="sidebar">
+        <h3>Admin Menu</h3>
+        <a asp-controller="Admin" asp-action="Index" class="nav-link">Dashboard</a>
+        <a href="#" class="nav-link">User Management</a>
+        <a href="#" class="nav-link">Reports</a>
+        <form asp-controller="Account" asp-action="Logout" method="post" style="display:inline; margin-top: 20px;">
+            <button type="submit" class="nav-link logout-btn">Logout</button>
+        </form>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <h2>Welcome to the Admin Dashboard</h2>
+            <p>You are logged in as an Admin.</p>
+        </div>
+
+        @if (TempData["SuccessMessage"] != null)
+        {
+                <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+        }
+        @if (TempData["ErrorMessage"] != null)
+        {
+                <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+        }
+
+        @if (Model.PendingUsers != null && Model.PendingUsers.Any())
+        {
+                <div class="section-header">Pending User Approvals</div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Department</th>
+                            <th>Role</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var user in Model.PendingUsers)
+                    {
+                                <tr>
+                                    <form asp-action="ApproveUser" method="post">
+                                        <td>
+                                    @user.FullName
+                                            <input type="hidden" name="userId" value="@user.UserID" />
+                                        </td>
+                                        <td>@user.Email</td>
+                                        <td>
+                                            <select name="departmentId" asp-items="Model.AvailableDepartments" class="form-select">
+                                                <option value="">-- Select Department --</option>
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <select name="roleId" asp-items="Model.AvailableRoles" class="form-select">
+                                                <option value="">-- Select Role --</option>
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <button type="submit" class="btn btn-success btn-sm">Approve</button>
+                                            <a asp-action="EditUser" asp-route-id="@user.UserID" class="btn btn-warning btn-sm">Edit</a>
+                                            <form asp-action="RejectUser" method="post" style="display:inline;">
+                                                <input type="hidden" name="userId" value="@user.UserID" />
+                                                <button type="submit" class="btn btn-danger btn-sm">Reject</button>
+                                            </form>
+                                        </td>
+                                    </form>
+                                </tr>
+                    }
+                    </tbody>
+                </table>
+        }
+        else
+        {
+                <div class="alert alert-info mt-4">No users pending approval.</div>
+        }
+
+        @if (Model.ActiveUsers != null && Model.ActiveUsers.Any())
+        {
+                <div class="section-header">Active Users</div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Department</th>
+                            <th>Role</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var user in Model.ActiveUsers)
+                    {
+                                <tr>
+                                    <td>@user.FullName</td>
+                                    <td>@user.Email</td>
+                                    <td>@user.Department?.DepartmentName</td>
+                                    <td>@user.Role?.RoleName</td>
+                                    <td>
+                                        <a asp-action="EditUser" asp-route-id="@user.UserID" class="btn btn-warning btn-sm">Edit</a>
+                                        <form asp-action="ToggleUserStatus" asp-route-id="@user.UserID" method="post" style="display:inline;">
+                                            <button type="submit" class="btn btn-danger btn-sm">Deactivate</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                    }
+                    </tbody>
+                </table>
+        }
+        else
+        {
+                <div class="alert alert-info mt-4">No active users found.</div>
+        }
+    </div>
+</div>

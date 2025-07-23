@@ -1,199 +1,820 @@
 ﻿@model IEnumerable<OmnitakSupportHub.Models.Ticket>
 @{
-    ViewData["Title"] = "Employee Dashboard";
+    ViewData["Title"] = "Employee Dashboard - Omnitak Support Hub";
 }
 
 <style>
-    body {
-        font-family: Arial, sans-serif;
+    :root {
+        --primary-green: #10b981;
+        --primary-green-dark: #059669;
+        --primary-green-light: #34d399;
+        --secondary-green: #065f46;
+        --accent-green: #6ee7b7;
+        --bg-primary: #f8fafc;
+        --bg-secondary: #ffffff;
+        --text-primary: #0f172a;
+        --text-secondary: #64748b;
+        --text-muted: #94a3b8;
+        --border-color: #e2e8f0;
+        --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+        --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        --radius-sm: 0.375rem;
+        --radius-md: 0.5rem;
+        --radius-lg: 0.75rem;
+        --radius-xl: 1rem;
+    }
+
+    * {
+        box-sizing: border-box;
         margin: 0;
-        height: 100vh;
-        background: linear-gradient(135deg, #f0f2f5 0%, #e0e4e8 100%);
-        overflow: hidden;
+        padding: 0;
     }
 
-    .dashboard-container {
+    body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        line-height: 1.6;
+        overflow-x: hidden;
+    }
+
+    .dashboard-layout {
         display: flex;
-        width: 90%;
-        max-width: 1200px;
-        height: 90vh;
-        margin: 2rem auto;
-        background: white;
-        border-radius: 15px;
-        box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
-        overflow: hidden;
-        animation: fadeIn 1s ease-in;
+        min-height: 100vh;
+        max-width: 1440px;
+        margin: 0 auto;
+        background: var(--bg-secondary);
+        box-shadow: var(--shadow-lg);
     }
 
+    /* Sidebar Styles */
     .sidebar {
-        width: 250px;
-        background: linear-gradient(135deg, #2e7d32 0%, #388e3c 100%);
+        width: 280px;
+        background: linear-gradient(180deg, var(--primary-green) 0%, var(--secondary-green) 100%);
         color: white;
-        padding: 1.5rem;
+        padding: 0;
         display: flex;
         flex-direction: column;
-        align-items: center;
-        transition: transform 0.3s ease;
+        position: relative;
+        overflow: hidden;
     }
 
-        .sidebar:hover {
-            transform: scale(1.02);
+        .sidebar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><g fill="none" fill-rule="evenodd"><g fill="%23ffffff" fill-opacity="0.05"><circle cx="30" cy="30" r="1.5"/></g></svg>') repeat;
+            pointer-events: none;
         }
 
-    .logo {
-        width: 60px;
-        height: 60px;
-        background-color: #2e7d32;
-        border-radius: 50%;
-        margin-bottom: 1.5rem;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        font-size: 1.5rem;
-        color: white;
-        animation: slideIn 1s ease-out;
+    .sidebar-header {
+        padding: 2rem;
+        text-align: center;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        position: relative;
+        z-index: 1;
     }
 
-    .sidebar h3 {
-        font-size: 1.5rem;
-        margin-bottom: 1.5rem;
-        animation: fadeInUp 1s ease-out forwards;
+    .logo {
+        width: 70px;
+        height: 70px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: var(--radius-xl);
+        margin: 0 auto 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        font-weight: 700;
+        backdrop-filter: blur(10px);
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+        .logo:hover {
+            transform: scale(1.05);
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+    .sidebar-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        opacity: 0.95;
+    }
+
+    .sidebar-subtitle {
+        font-size: 0.875rem;
+        opacity: 0.8;
+        font-weight: 400;
+    }
+
+    .sidebar-nav {
+        flex: 1;
+        padding: 1.5rem 0;
+        position: relative;
+        z-index: 1;
+    }
+
+    .nav-section {
+        margin-bottom: 2rem;
+    }
+
+    .nav-section-title {
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: rgba(255, 255, 255, 0.7);
+        padding: 0 2rem;
+        margin-bottom: 1rem;
     }
 
     .nav-item {
-        margin-bottom: 1rem;
-        font-size: 1rem;
+        margin-bottom: 0.5rem;
     }
 
-        .nav-item a {
+    .nav-link {
+        display: flex;
+        align-items: center;
+        padding: 0.875rem 2rem;
+        color: rgba(255, 255, 255, 0.9);
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border-left: 4px solid transparent;
+        position: relative;
+    }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background: rgba(255, 255, 255, 0.1);
             color: white;
-            text-decoration: none;
-            transition: color 0.3s ease;
+            border-left-color: var(--accent-green);
+            transform: translateX(4px);
         }
 
-            .nav-item a:hover {
-                color: #d4e157;
-            }
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 0;
+            background: rgba(255, 255, 255, 0.05);
+            transition: width 0.3s ease;
+        }
 
+        .nav-link:hover::before {
+            width: 100%;
+        }
+
+    .nav-icon {
+        width: 20px;
+        height: 20px;
+        margin-right: 0.75rem;
+        opacity: 0.8;
+    }
+
+    .logout-form {
+        padding: 1.5rem 2rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        position: relative;
+        z-index: 1;
+    }
+
+    .logout-btn {
+        width: 100%;
+        padding: 0.875rem;
+        background: rgba(239, 68, 68, 0.2);
+        color: white;
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        border-radius: var(--radius-md);
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(10px);
+    }
+
+        .logout-btn:hover {
+            background: rgba(239, 68, 68, 0.3);
+            transform: translateY(-1px);
+        }
+
+    /* Main Content Styles */
     .main-content {
         flex: 1;
-        padding: 2rem;
+        background: var(--bg-primary);
         overflow-y: auto;
+        display: flex;
+        flex-direction: column;
     }
 
-    .welcome-header {
-        font-size: 2rem;
-        color: #2e7d32;
+    .content-header {
+        background: var(--bg-secondary);
+        padding: 2rem;
+        border-bottom: 1px solid var(--border-color);
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+
+    .header-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
         margin-bottom: 1rem;
-        animation: slideIn 1s ease-out;
     }
 
-    .welcome-message {
-        font-size: 1.2rem;
-        color: #333;
-        margin-bottom: 2rem;
-        animation: fadeInUp 1s ease-out forwards;
-        animation-delay: 0.5s;
+    .welcome-section h1 {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 0.25rem;
     }
 
-    .card {
-        background: #fff;
-        border-radius: 10px;
-        padding: 1.5rem;
-        margin-bottom: 1.5rem;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        transition: transform 0.3s ease;
+    .welcome-section p {
+        color: var(--text-secondary);
+        font-size: 1rem;
     }
 
-        .card:hover {
-            transform: translateY(-5px);
+    .header-actions {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .btn-primary {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.75rem 1.5rem;
+        background: linear-gradient(135deg, var(--primary-green) 0%, var(--primary-green-dark) 100%);
+        color: white;
+        text-decoration: none;
+        border-radius: var(--radius-md);
+        font-weight: 600;
+        font-size: 0.875rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: var(--shadow-sm);
+        border: none;
+        cursor: pointer;
+    }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+            background: linear-gradient(135deg, var(--primary-green-dark) 0%, var(--secondary-green) 100%);
         }
 
-    .ticket-button {
-        display: inline-block;
+    .btn-secondary {
+        display: inline-flex;
+        align-items: center;
         padding: 0.75rem 1.5rem;
-        background: linear-gradient(90deg, #2e7d32 0%, #388e3c 100%);
-        color: white;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        font-size: 1rem;
-        transition: transform 0.3s ease, background 0.3s ease;
+        background: var(--bg-secondary);
+        color: var(--text-secondary);
+        text-decoration: none;
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-md);
+        font-weight: 500;
+        font-size: 0.875rem;
+        transition: all 0.3s ease;
     }
 
-        .ticket-button:hover {
-            transform: translateY(-2px);
-            background: linear-gradient(90deg, #1b5e20 0%, #2e7d32 100%);}
-</style>
+        .btn-secondary:hover {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            border-color: var(--primary-green);
+        }
 
-<div class="dashboard-container">
+    .content-body {
+        flex: 1;
+        padding: 2rem;
+    }
+
+    /* Stats Cards */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: var(--bg-secondary);
+        padding: 1.5rem;
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-sm);
+        border: 1px solid var(--border-color);
+        transition: all 0.3s ease;
+    }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+    .stat-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+    }
+
+    .stat-title {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .stat-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: var(--radius-md);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+    }
+
+        .stat-icon.open {
+            background: rgba(239, 68, 68, 0.1);
+            color: #dc2626;
+        }
+
+        .stat-icon.progress {
+            background: rgba(245, 158, 11, 0.1);
+            color: #d97706;
+        }
+
+        .stat-icon.resolved {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--primary-green);
+        }
+
+        .stat-icon.total {
+            background: rgba(99, 102, 241, 0.1);
+            color: #6366f1;
+        }
+
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 0.25rem;
+    }
+
+    .stat-description {
+        font-size: 0.875rem;
+        color: var(--text-muted);
+    }
+
+    /* Tickets Table */
+    .tickets-section {
+        background: var(--bg-secondary);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-sm);
+        border: 1px solid var(--border-color);
+        overflow: hidden;
+    }
+
+    .section-header {
+        padding: 1.5rem;
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .section-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--text-primary);
+    }
+
+    .table-container {
+        overflow-x: auto;
+    }
+
+    .tickets-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        .tickets-table th {
+            background: var(--bg-primary);
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--border-color);
+            white-space: nowrap;
+        }
+
+        .tickets-table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.875rem;
+        }
+
+        .tickets-table tbody tr {
+            transition: background-color 0.2s ease;
+        }
+
+            .tickets-table tbody tr:hover {
+                background: var(--bg-primary);
+            }
+
+    .ticket-id {
+        font-family: 'Monaco', 'Menlo', monospace;
+        background: var(--bg-primary);
+        padding: 0.25rem 0.5rem;
+        border-radius: var(--radius-sm);
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .ticket-title {
+        font-weight: 600;
+        color: var(--text-primary);
+        max-width: 200px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .status-open {
+        background: rgba(239, 68, 68, 0.1);
+        color: #dc2626;
+    }
+
+    .status-progress {
+        background: rgba(245, 158, 11, 0.1);
+        color: #d97706;
+    }
+
+    .status-resolved {
+        background: rgba(16, 185, 129, 0.1);
+        color: var(--primary-green);
+    }
+
+    .priority-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .priority-high {
+        background: rgba(239, 68, 68, 0.1);
+        color: #dc2626;
+    }
+
+    .priority-medium {
+        background: rgba(245, 158, 11, 0.1);
+        color: #d97706;
+    }
+
+    .priority-low {
+        background: rgba(16, 185, 129, 0.1);
+        color: var(--primary-green);
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: var(--text-muted);
+    }
+
+    .empty-state-icon {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 1.5rem;
+        background: var(--bg-primary);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        color: var(--text-muted);
+    }
+
+    .empty-state h3 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--text-secondary);
+        margin-bottom: 0.5rem;
+    }
+
+    .empty-state p {
+        font-size: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    /* Alert Styles */
+    .alert {
+        position: fixed;
+        top: 2rem;
+        right: 2rem;
+        padding: 1rem 1.5rem;
+        border-radius: var(--radius-md);
+        font-weight: 500;
+        box-shadow: var(--shadow-lg);
+        z-index: 1000;
+        animation: slideInRight 0.5s ease, fadeOutUp 0.5s ease 4.5s forwards;
+        max-width: 400px;
+        backdrop-filter: blur(10px);
+    }
+
+    .alert-success {
+        background: rgba(16, 185, 129, 0.1);
+        color: var(--primary-green);
+        border: 1px solid rgba(16, 185, 129, 0.2);
+    }
+
+    @@keyframes slideInRight {
+        from
+
+    {
+        opacity: 0;
+        transform: translateX(100px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+
+    }
+
+    @@keyframes fadeOutUp {
+        to
+
+    {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    }
+
+    /* Responsive Design */
+    @@media (max-width: 1024px) {
+        .sidebar
+
+    {
+        width: 260px;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    }
+
+    }
+
+    @@media (max-width: 768px) {
+        .dashboard-layout
+
+    {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+        position: sticky;
+        top: 0;
+        z-index: 20;
+    }
+
+    .sidebar-nav {
+        display: none;
+    }
+
+    .content-header {
+        padding: 1.5rem;
+    }
+
+    .header-top {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .content-body {
+        padding: 1.5rem;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .table-container {
+        overflow-x: scroll;
+    }
+
+    }</style>
+
+<div class="dashboard-layout">
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["SuccessMessage"]
+        </div>
+    }
+
+    <!-- Sidebar -->
     <div class="sidebar">
-        <div class="logo">O</div>
-        <h3>Menu</h3>
-        <div class="nav-item"><a asp-action="Index" asp-controller="UserDashboard">Dashboard</a></div>
-        <div class="nav-item"><a asp-action="Profile" asp-controller="UserDashboard">Profile</a></div>
-        <div class="nav-item"><a asp-action="Index" asp-controller="UserDashboard">My Tickets</a></div>
-        <div class="nav-item">
+        <div class="sidebar-header">
+            <div class="logo">O</div>
+            <div class="sidebar-title">Support Hub</div>
+            <div class="sidebar-subtitle">Employee Portal</div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <div class="nav-section">
+                <div class="nav-section-title">Main</div>
+                <div class="nav-item">
+                    <a href="#" class="nav-link active">
+                        <span class="nav-icon">📊</span>
+                        Dashboard
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a asp-action="Index" asp-controller="UserDashboard" class="nav-link">
+                        <span class="nav-icon">🎫</span>
+                        My Tickets
+                    </a>
+                </div>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Account</div>
+                <div class="nav-item">
+                    <a asp-action="Profile" asp-controller="UserDashboard" class="nav-link">
+                        <span class="nav-icon">👤</span>
+                        Profile
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="#" class="nav-link">
+                        <span class="nav-icon">⚙️</span>
+                        Settings
+                    </a>
+                </div>
+            </div>
+        </nav>
+
+        <div class="logout-form">
             <form asp-action="Logout" asp-controller="Account" method="post">
                 @Html.AntiForgeryToken()
-                <button type="submit" class="btn btn-link text-white p-0" style="text-decoration: none; border: none; background: none;">
-                    Logout
+                <button type="submit" class="logout-btn">
+                    🚪 Sign Out
                 </button>
             </form>
         </div>
     </div>
 
+    <!-- Main Content -->
     <div class="main-content">
-        <h2 class="welcome-header">Welcome, @User.Identity.Name!</h2>
-
-        @if (TempData["SuccessMessage"] != null)
-        {
-            <div class="alert alert-success" style="margin-bottom: 1.5rem;">
-                @TempData["SuccessMessage"]
+        <div class="content-header">
+            <div class="header-top">
+                <div class="welcome-section">
+                    <h1>Welcome back, @(User.Identity.Name?.Split('@')[0] ?? "User")!</h1>
+                    <p>Here's what's happening with your support tickets today.</p>
+                </div>
+                <div class="header-actions">
+                    <a asp-action="Create" asp-controller="Ticket" class="btn-primary">
+                        ➕ New Ticket
+                    </a>
+                    <a href="#" class="btn-secondary">
+                        📋 View All
+                    </a>
+                </div>
             </div>
-        }
-
-        <div class="text-right mb-3">
-            <a asp-action="Create" asp-controller="Ticket" class="ticket-button">Submit New Ticket</a>
         </div>
 
-        @if (!Model.Any())
-        {
-            <div class="card">
-                <h4>No Tickets Found</h4>
-                <p>You haven't submitted any tickets yet. Click the button above to create one.</p>
+        <div class="content-body">
+            <!-- Statistics Cards -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-title">Total Tickets</div>
+                        <div class="stat-icon total">📊</div>
+                    </div>
+                    <div class="stat-value">@Model.Count()</div>
+                    <div class="stat-description">All submitted tickets</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-title">Open</div>
+                        <div class="stat-icon open">🔴</div>
+                    </div>
+                    <div class="stat-value">@Model.Count(t => t.Status?.StatusName?.ToLower() == "open")</div>
+                    <div class="stat-description">Awaiting response</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-title">In Progress</div>
+                        <div class="stat-icon progress">🟡</div>
+                    </div>
+                    <div class="stat-value">@Model.Count(t => t.Status?.StatusName?.ToLower() == "in progress")</div>
+                    <div class="stat-description">Being worked on</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-title">Resolved</div>
+                        <div class="stat-icon resolved">✅</div>
+                    </div>
+                    <div class="stat-value">@Model.Count(t => t.Status?.StatusName?.ToLower() == "resolved")</div>
+                    <div class="stat-description">Successfully closed</div>
+                </div>
             </div>
-        }
-        else
-        {
-            <div class="card">
-                <h4>My Tickets</h4>
-                <table class="table table-bordered table-striped">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Title</th>
-                            <th>Category</th>
-                            <th>Priority</th>
-                            <th>Status</th>
-                            <th>Created</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var ticket in Model)
-                        {
-                            <tr>
-                                <td>@ticket.TicketID</td>
-                                <td>@ticket.Title</td>
-                                <td>@ticket.Category?.CategoryName</td>
-                                <td>@ticket.Priority?.PriorityName</td>
-                                <td>@ticket.Status?.StatusName</td>
-                                <td>@ticket.CreatedAt.ToLocalTime().ToString("dd MMM yyyy")</td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
+
+            <!-- Tickets Table -->
+            <div class="tickets-section">
+                <div class="section-header">
+                    <h2 class="section-title">Recent Tickets</h2>
+                    <a asp-action="Create" asp-controller="Ticket" class="btn-primary" style="font-size: 0.8125rem; padding: 0.5rem 1rem;">
+                        ➕ Submit Ticket
+                    </a>
+                </div>
+
+                @if (!Model.Any())
+                {
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🎫</div>
+                        <h3>No tickets found</h3>
+                        <p>You haven't submitted any support tickets yet. Click the button above to create your first ticket.</p>
+                        <a asp-action="Create" asp-controller="Ticket" class="btn-primary">Create Your First Ticket</a>
+                    </div>
+                }
+                else
+                {
+                    <div class="table-container">
+                        <table class="tickets-table">
+                            <thead>
+                                <tr>
+                                    <th>Ticket ID</th>
+                                    <th>Title</th>
+                                    <th>Category</th>
+                                    <th>Priority</th>
+                                    <th>Status</th>
+                                    <th>Created</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var ticket in Model.OrderByDescending(t => t.CreatedAt).Take(10))
+                                {
+                                    <tr>
+                                        <td>
+                                            <span class="ticket-id">#@ticket.TicketID</span>
+                                        </td>
+                                        <td>
+                                            <div class="ticket-title" title="@ticket.Title">
+                                                @ticket.Title
+                                            </div>
+                                        </td>
+                                        <td>@ticket.Category?.CategoryName</td>
+                                        <td>
+                                            <span class="priority-badge priority-@(ticket.Priority?.PriorityName?.ToLower())">
+                                                @ticket.Priority?.PriorityName
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="status-badge status-@(ticket.Status?.StatusName?.ToLower()?.Replace(" ", ""))">
+                                                @ticket.Status?.StatusName
+                                            </span>
+                                        </td>
+                                        <td>@ticket.CreatedAt.ToLocalTime().ToString("MMM dd, yyyy")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
             </div>
-        }
+        </div>
     </div>
 </div>

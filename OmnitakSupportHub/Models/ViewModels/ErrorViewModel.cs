@@ -1,4 +1,4 @@
-namespace OmnitakSupportHub.Models
+namespace OmnitakSupportHub.Models.ViewModels
 {
     public class ErrorViewModel
     {

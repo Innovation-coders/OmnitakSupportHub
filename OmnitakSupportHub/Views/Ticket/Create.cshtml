@@ -1,0 +1,118 @@
+﻿@model OmnitakSupportHub.Models.ViewModels.CreateTicketViewModel
+@{
+    ViewData["Title"] = "Submit Ticket";
+}
+
+<style>
+    .create-container {
+        max-width: 700px;
+        margin: 2rem auto;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        padding: 2rem;
+        font-family: Arial, sans-serif;
+    }
+
+    .create-title {
+        font-size: 1.8rem;
+        color: #2e7d32;
+        margin-bottom: 1.5rem;
+        text-align: center;
+    }
+
+    .form-group {
+        margin-bottom: 1.2rem;
+    }
+
+        .form-group label {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 0.3rem;
+            display: block;
+        }
+
+    .form-control {
+        width: 100%;
+        padding: 0.6rem;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 1rem;
+    }
+
+    .text-danger {
+        color: #d32f2f;
+        font-size: 0.9rem;
+        margin-top: 0.3rem;
+        display: block;
+    }
+
+    .alert-danger {
+        background: #ffcdd2;
+        border-left: 5px solid #c62828;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+        border-radius: 5px;
+    }
+
+    .ticket-button {
+        background: linear-gradient(90deg, #2e7d32 0%, #388e3c 100%);
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 5px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: background 0.3s ease, transform 0.2s ease;
+    }
+
+        .ticket-button:hover {
+            background: linear-gradient(90deg, #1b5e20 0%, #2e7d32 100%);
+            transform: translateY(-2px);
+        }
+</style>
+
+<div class="create-container">
+    <h2 class="create-title">Submit a New Support Ticket</h2>
+
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="alert alert-danger">
+            <strong>Please correct the following:</strong>
+            <ul>
+                @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    <li>@error.ErrorMessage</li>
+                }
+            </ul>
+        </div>
+    }
+
+    <form asp-action="Create" method="post">
+        <div class="form-group">
+            <label asp-for="Title"></label>
+            <input asp-for="Title" class="form-control" />
+            <span asp-validation-for="Title" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Description"></label>
+            <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+            <span asp-validation-for="Description" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="CategoryId"></label>
+            <select asp-for="CategoryId" asp-items="Model.Categories" class="form-control"></select>
+            <span asp-validation-for="CategoryId" class="text-danger"></span>
+        </div>
+
+        <div class="form-group text-center">
+            <button type="submit" class="ticket-button">Submit Ticket</button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

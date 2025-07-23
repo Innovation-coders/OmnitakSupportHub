@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using OmnitakSupportHub.Models;
+using OmnitakSupportHub.Models.ViewModels;
 
 namespace OmnitakSupportHub.Controllers
 {

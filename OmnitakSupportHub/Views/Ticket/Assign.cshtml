@@ -1,0 +1,68 @@
+﻿@model OmnitakSupportHub.Models.Ticket
+@using Microsoft.AspNetCore.Mvc.Rendering
+@using Microsoft.AspNetCore.Authorization
+@inject IHttpContextAccessor HttpContextAccessor
+
+@{
+    ViewData["Title"] = "Create Ticket";
+}
+
+<h2>Create Ticket</h2>
+
+<form asp-action="Create" method="post">
+    <div class="form-group">
+        <label asp-for="Title" class="control-label"></label>
+        <input asp-for="Title" class="form-control" />
+        <span asp-validation-for="Title" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Description" class="control-label"></label>
+        <textarea asp-for="Description" class="form-control"></textarea>
+        <span asp-validation-for="Description" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="CategoryID" class="control-label"></label>
+        <select asp-for="CategoryID" class="form-control" asp-items="ViewBag.Categories"></select>
+        <span asp-validation-for="CategoryID" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="PriorityID" class="control-label"></label>
+        <select asp-for="PriorityID" class="form-control" asp-items="ViewBag.Priorities"></select>
+        <span asp-validation-for="PriorityID" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="StatusID" class="control-label"></label>
+        <select asp-for="StatusID" class="form-control" asp-items="ViewBag.Statuses"></select>
+        <span asp-validation-for="StatusID" class="text-danger"></span>
+    </div>
+
+    @if (User.IsInRole("Support Manager") || User.IsInRole("Administrator"))
+    {
+        <div class="form-group">
+            <label asp-for="TeamID" class="control-label">Assign to Team</label>
+            <select asp-for="TeamID" class="form-control" asp-items="ViewBag.Teams">
+                <option value="">-- Select Team --</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="AssignedTo" class="control-label">Assign to Agent</label>
+            <select asp-for="AssignedTo" class="form-control" asp-items="ViewBag.Users">
+                <option value="">-- Select Agent --</option>
+            </select>
+        </div>
+    }
+
+    <button type="submit" class="btn btn-primary">Create</button>
+    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

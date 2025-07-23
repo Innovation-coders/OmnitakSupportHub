@@ -1,0 +1,38 @@
+﻿@model IEnumerable<OmnitakSupportHub.Models.Ticket>
+@{
+    ViewData["Title"] = "Ticket List";
+}
+
+<h2>All Tickets</h2>
+
+<table class="table table-bordered table-striped">
+    <thead class="thead-dark">
+        <tr>
+            <th>Title</th>
+            <th>Status</th>
+            <th>Priority</th>
+            <th>Category</th>
+            <th>Assigned To</th>
+            <th>Team</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var ticket in Model)
+        {
+            <tr>
+                <td>@ticket.Title</td>
+                <td>@ticket.Status?.StatusName</td>
+                <td>@ticket.Priority?.PriorityName</td>
+                <td>@ticket.Category?.CategoryName</td>
+                <td>@(ticket.AssignedToUser?.FullName ?? "Unassigned")</td>
+                <td>@(ticket.Team?.TeamName ?? "-")</td>
+                <td>
+                    <a asp-controller="Ticket" asp-action="Assign" asp-route-id="@ticket.TicketID" class="btn btn-sm btn-outline-primary">
+                        Assign
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

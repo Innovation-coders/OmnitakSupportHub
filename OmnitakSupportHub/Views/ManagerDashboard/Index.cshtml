@@ -1,0 +1,255 @@
+﻿@model OmnitakSupportHub.Models.ViewModels.ManagerDashboardViewModel
+@{
+    ViewData["Title"] = "Manager Dashboard";
+}
+
+<style>
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        margin: 0;
+        min-height: 100vh;
+        background: linear-gradient(135deg, #f0f2f5 0%, #e0e4e8 100%);
+        display: flex;
+    }
+
+    .dashboard-container {
+        display: flex;
+        width: 100%;
+        max-width: 1400px;
+        margin: 20px auto;
+    }
+
+    .sidebar {
+        width: 250px;
+        background: linear-gradient(135deg, #2e7d32 0%, #388e3c 100%);
+        color: white;
+        padding: 20px;
+        min-height: calc(100vh - 40px);
+        position: sticky;
+        top: 20px;
+    }
+
+        .sidebar h3 {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            text-align: center;
+            text-transform: uppercase;
+        }
+
+        .sidebar .nav-link {
+            color: white;
+            text-decoration: none;
+            display: block;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            transition: background 0.3s ease;
+        }
+
+            .sidebar .nav-link:hover {
+                background: rgba(255, 255, 255, 0.3);
+                color: #e0e0e0;
+            }
+
+    .main-content {
+        flex: 1;
+        padding: 25px;
+        background: #ffffff;
+        border-radius: 15px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        margin-left: 20px;
+    }
+
+    .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+        flex-wrap: wrap;
+    }
+
+        .header h2 {
+            color: #2e7d32;
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .header p {
+            color: #2e7d32;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 5px 0 0;
+        }
+
+        .header .logout-btn {
+            padding: 0;
+            border: none;
+            background: none;
+            color: #2e7d32;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: color 0.3s ease;
+        }
+
+            .header .logout-btn:hover {
+                color: #1b5e20;
+            }
+
+    .section-header {
+        background: linear-gradient(90deg, #2e7d32, #388e3c);
+        color: white;
+        padding: 10px 15px;
+        border-radius: 5px 5px 0 0;
+        margin-top: 25px;
+        font-size: 1.3rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+    }
+
+    th, td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+
+    th {
+        background-color: #2e7d32;
+        color: white;
+        font-weight: 600;
+    }
+
+    td {
+        vertical-align: middle;
+        background: #fafafa;
+    }
+
+    @@media (max-width: 900px) {
+        .dashboard-container {
+            flex-direction: column;
+            margin: 10px;
+        }
+
+        .sidebar {
+            width: 100%;
+            min-height: auto;
+            margin-bottom: 20px;
+            position: static;
+        }
+
+        .main-content {
+            margin-left: 0;
+        }
+
+        table {
+            font-size: 0.9rem;
+        }
+
+        th, td {
+            padding: 8px;
+        }
+
+        .header h2 {
+            font-size: 1.8rem;
+        }
+
+        .header p {
+            font-size: 1rem;
+        }
+    }
+</style>
+
+<div class="dashboard-container">
+    <div class="sidebar">
+        <h3>Manager Menu</h3>
+        <a href="#" class="nav-link">Dashboard</a>
+        <form asp-controller="Account" asp-action="Logout" method="post" style="display:inline; margin-top: 20px;">
+            <button type="submit" class="nav-link logout-btn">Logout</button>
+        </form>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <h2>Welcome to the Manager Dashboard</h2>
+            <p>You are logged in as a Support Manager.</p>
+        </div>
+
+        <div class="section-header">Grouped Tickets by Category</div>
+        @if (Model.GroupedTickets != null && Model.GroupedTickets.Any())
+        {
+            @foreach (var group in Model.GroupedTickets)
+            {
+                <h4>@(group.Key?.CategoryName ?? "Unknown Category")</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Status</th>
+                            <th>Priority</th>
+                            <th>Created By</th>
+                            <th>Created At</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var ticket in group)
+                        {
+                            <tr>
+                                <td>@(ticket.Title ?? "No Title")</td>
+                                <td>@(ticket.Status?.StatusName ?? "No Status")</td>
+                                <td>@(ticket.Priority?.PriorityName ?? "No Priority")</td>
+                                <td>@(ticket.CreatedByUser?.FullName ?? "Unknown User")</td>
+                                <td>@ticket.CreatedAt.ToString("yyyy-MM-dd")</td>
+                                <td>
+                                    <a asp-controller="Ticket" asp-action="Details" asp-route-id="@ticket.TicketID" class="btn btn-sm btn-success">View</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        }
+        else
+        {
+            <div class="alert alert-info">No tickets found.</div>
+        }
+
+        <div class="section-header">Available Agents (Less than 5 Tickets)</div>
+        @if (Model.AvailableAgents != null && Model.AvailableAgents.Any())
+        {
+            <table>
+                <thead>
+                    <tr>
+                        <th>Full Name</th>
+                        <th>Email</th>
+                        <th>Tickets Assigned</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var agent in Model.AvailableAgents)
+                    {
+                        <tr>
+                            <td>@(agent.FullName ?? "No Name")</td>
+                            <td>@(agent.Email ?? "No Email")</td>
+                            <td>@(agent.AssignedTickets?.Count() ?? 0)</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <div class="alert alert-info">No available agents found with less than 5 tickets.</div>
+        }
+    </div>
+</div>

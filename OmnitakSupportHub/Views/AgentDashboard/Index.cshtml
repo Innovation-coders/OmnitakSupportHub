@@ -1,0 +1,127 @@
+﻿@model OmnitakSupportHub.Models.ViewModels.AgentDashboardViewModel
+@{
+    ViewData["Title"] = "Agent Dashboard";
+}
+
+<style>
+    .dashboard-container {
+        display: flex;
+        width: 90%;
+        max-width: 1200px;
+        margin: 2rem auto;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+        padding: 2rem;
+    }
+
+    .sidebar {
+        width: 220px;
+        background: linear-gradient(135deg, #2e7d32, #388e3c);
+        color: white;
+        padding: 1rem;
+        border-radius: 15px 0 0 15px;
+    }
+
+    .main-content {
+        flex: 1;
+        padding: 1rem 2rem;
+    }
+
+    .ticket-card {
+        margin-bottom: 2rem;
+        padding: 1rem;
+        border: 1px solid #ccc;
+        border-left: 5px solid #2e7d32;
+        border-radius: 8px;
+    }
+
+    .ticket-actions form {
+        display: inline-block;
+        margin-right: 10px;
+    }
+
+    .chat-history {
+        background: #f9f9f9;
+        padding: 0.75rem;
+        margin-top: 1rem;
+        border-radius: 5px;
+        max-height: 150px;
+        overflow-y: auto;
+    }
+
+    .chat-msg {
+        padding: 4px;
+        margin-bottom: 5px;
+        font-size: 0.9rem;
+    }
+
+    .chat-msg strong {
+        color: #2e7d32;
+    }
+</style>
+
+<div class="dashboard-container">
+    <div class="sidebar">
+        <h3>Agent Panel</h3>
+        <p><strong>@Model.AgentName</strong></p>
+        <p>@Model.TeamName</p>
+        <form asp-action="Logout" asp-controller="Account" method="post">
+            @Html.AntiForgeryToken()
+            <button class="btn btn-light mt-3">Logout</button>
+        </form>
+    </div>
+
+    <div class="main-content">
+        <h2 class="welcome-header">My Assigned Tickets</h2>
+
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success">
+                @TempData["SuccessMessage"]
+            </div>
+        }
+
+        @foreach (var ticket in Model.AssignedTickets)
+        {
+            <div class="ticket-card">
+                <h4>@ticket.Title</h4>
+                <p><strong>Status:</strong> @ticket.Status?.StatusName</p>
+                <p><strong>Priority:</strong> @ticket.Priority?.PriorityName</p>
+                <p><strong>Category:</strong> @ticket.Category?.CategoryName</p>
+                <p><strong>Submitted by:</strong> @ticket.CreatedByUser?.FullName</p>
+                <p><strong>Created at:</strong> @ticket.CreatedAt.ToLocalTime().ToString("dd MMM yyyy HH:mm")</p>
+
+                <div class="ticket-actions">
+                    <form asp-action="UpdateStatus" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="ticketId" value="@ticket.TicketID" />
+                        <select name="newStatus" class="form-control d-inline" style="width: auto; display: inline-block;">
+                            <option disabled selected>Change status</option>
+                            <option value="In Progress">In Progress</option>
+                            <option value="Resolved">Resolved</option>
+                        </select>
+                        <button type="submit" class="btn btn-success btn-sm">Update</button>
+                    </form>
+                </div>
+
+                <div class="chat-history">
+                    <strong>Chat History:</strong>
+                    @if (Model.TicketChats.TryGetValue(ticket.TicketID, out var messages) && messages.Any())
+                    {
+                        foreach (var msg in messages.OrderBy(m => m.SentAt))
+                        {
+                            <div class="chat-msg">
+                                <strong>@msg.User?.FullName:</strong> @msg.Message
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <p class="text-muted">No messages for this ticket.</p>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+</div>

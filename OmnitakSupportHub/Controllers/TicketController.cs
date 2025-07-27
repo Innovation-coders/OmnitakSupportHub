@@ -237,36 +237,208 @@ namespace OmnitakSupportHub.Controllers
             return View(groupedTickets);
         }
 
-        // Ticket Details for Support Manager
+        // Manager Create Ticket
         [HttpGet]
-        public async Task<IActionResult> Details(int id)
+        [Authorize(Roles = "Support Manager")]
+        public async Task<IActionResult> ManagerCreate()
         {
-            if (!User.IsInRole("Support Manager"))
-                return Forbid();
+            var model = new CreateTicketViewModel
+            {
+                Categories = await _context.Categories
+                    .Select(c => new SelectListItem { Value = c.CategoryID.ToString(), Text = c.CategoryName })
+                    .ToListAsync(),
+            };
 
+            ViewBag.Priorities = new SelectList(_context.Priorities, "PriorityID", "PriorityName");
+            ViewBag.Statuses = new SelectList(_context.Statuses, "StatusID", "StatusName");
+
+            // Get all active agents for immediate assignment
+            var agents = await _context.Users
+                .Include(u => u.Role)
+                .Where(u => u.IsActive && u.Role.RoleName == "Support Agent")
+                .ToListAsync();
+
+            ViewBag.Agents = new SelectList(agents, "UserID", "FullName");
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Support Manager")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ManagerCreate(CreateTicketViewModel model, int? assignedTo, int? priorityId, int? statusId)
+        {
+            if (!ModelState.IsValid)
+            {
+                model.Categories = await _context.Categories
+                    .Select(c => new SelectListItem { Value = c.CategoryID.ToString(), Text = c.CategoryName })
+                    .ToListAsync();
+                ViewBag.Priorities = new SelectList(_context.Priorities, "PriorityID", "PriorityName");
+                ViewBag.Statuses = new SelectList(_context.Statuses, "StatusID", "StatusName");
+
+                var agents = await _context.Users
+                    .Include(u => u.Role)
+                    .Where(u => u.IsActive && u.Role.RoleName == "Support Agent")
+                    .ToListAsync();
+                ViewBag.Agents = new SelectList(agents, "UserID", "FullName");
+
+                return View(model);
+            }
+
+            int userId = int.Parse(User.FindFirst("UserID")?.Value ?? "0");
+
+            var ticket = new Ticket
+            {
+                Title = model.Title,
+                Description = model.Description,
+                CategoryID = model.CategoryId,
+                PriorityID = priorityId ?? await _context.Priorities
+                    .Where(p => p.PriorityName == "Medium")
+                    .Select(p => p.PriorityID)
+                    .FirstOrDefaultAsync(),
+                CreatedBy = userId,
+                CreatedAt = DateTime.UtcNow,
+                StatusID = statusId ?? await _context.Statuses
+                    .Where(s => s.StatusName == "Open")
+                    .Select(s => s.StatusID)
+                    .FirstOrDefaultAsync(),
+                AssignedTo = assignedTo
+            };
+
+            _context.Tickets.Add(ticket);
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "Ticket created successfully!";
+            return RedirectToAction("Index", "ManagerDashboard");
+        }
+
+        // Manager Edit Ticket
+        [HttpGet]
+        [Authorize(Roles = "Support Manager")]
+        public async Task<IActionResult> Edit(int id)
+        {
             var ticket = await _context.Tickets
                 .Include(t => t.Category)
-                    .ThenInclude(c => c.RoutingRules)
-                        .ThenInclude(r => r.Team)
-                            .ThenInclude(st => st.Users)
-                .Include(t => t.Status)
                 .Include(t => t.Priority)
-                .Include(t => t.CreatedByUser)
+                .Include(t => t.Status)
                 .Include(t => t.AssignedToUser)
                 .FirstOrDefaultAsync(t => t.TicketID == id);
 
             if (ticket == null) return NotFound();
 
-            // Find the SupportTeam for this Category
-            var supportTeam = ticket.Category.RoutingRules.FirstOrDefault()?.Team;
+            var model = new CreateTicketViewModel
+            {
+                Title = ticket.Title,
+                Description = ticket.Description,
+                CategoryId = ticket.CategoryID,
+                Categories = await _context.Categories
+                    .Select(c => new SelectListItem
+                    {
+                        Value = c.CategoryID.ToString(),
+                        Text = c.CategoryName,
+                        Selected = c.CategoryID == ticket.CategoryID
+                    })
+                    .ToListAsync()
+            };
 
-            // Get available agents in that team
-            var availableAgents = supportTeam?.Users
-                .Where(u => u.IsActive && _context.Tickets.Count(t => t.AssignedTo == u.UserID && t.Status.StatusName != "Closed") < 5)
-                .ToList();
+            ViewBag.TicketId = ticket.TicketID;
+            ViewBag.Priorities = new SelectList(_context.Priorities, "PriorityID", "PriorityName", ticket.PriorityID);
+            ViewBag.Statuses = new SelectList(_context.Statuses, "StatusID", "StatusName", ticket.StatusID);
+
+            var agents = await _context.Users
+                .Include(u => u.Role)
+                .Where(u => u.IsActive && u.Role.RoleName == "Support Agent")
+                .ToListAsync();
+            ViewBag.Agents = new SelectList(agents, "UserID", "FullName", ticket.AssignedTo);
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Support Manager")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, CreateTicketViewModel model, int? assignedTo, int? priorityId, int? statusId)
+        {
+            var ticket = await _context.Tickets.FindAsync(id);
+            if (ticket == null) return NotFound();
+
+            if (!ModelState.IsValid)
+            {
+                model.Categories = await _context.Categories
+                    .Select(c => new SelectListItem
+                    {
+                        Value = c.CategoryID.ToString(),
+                        Text = c.CategoryName,
+                        Selected = c.CategoryID == model.CategoryId
+                    })
+                    .ToListAsync();
+
+                ViewBag.TicketId = id;
+                ViewBag.Priorities = new SelectList(_context.Priorities, "PriorityID", "PriorityName", priorityId);
+                ViewBag.Statuses = new SelectList(_context.Statuses, "StatusID", "StatusName", statusId);
+
+                var agents = await _context.Users
+                    .Include(u => u.Role)
+                    .Where(u => u.IsActive && u.Role.RoleName == "Support Agent")
+                    .ToListAsync();
+                ViewBag.Agents = new SelectList(agents, "UserID", "FullName", assignedTo);
+
+                return View(model);
+            }
+
+            ticket.Title = model.Title;
+            ticket.Description = model.Description;
+            ticket.CategoryID = model.CategoryId;
+            ticket.PriorityID = priorityId ?? ticket.PriorityID;
+            ticket.StatusID = statusId ?? ticket.StatusID;
+            ticket.AssignedTo = assignedTo;
+
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "Ticket updated successfully!";
+            return RedirectToAction("Details", new { id = id });
+        }
+
+        // Ticket Details for Support Manager
+        [HttpGet]
+        [Authorize(Roles = "Support Manager")]
+        public async Task<IActionResult> Details(int id)
+        {
+            var ticket = await _context.Tickets
+                .Include(t => t.Category)
+                .Include(t => t.Status)
+                .Include(t => t.Priority)
+                .Include(t => t.CreatedByUser)
+                .Include(t => t.AssignedToUser)
+                .Include(t => t.Team)
+                .FirstOrDefaultAsync(t => t.TicketID == id);
+
+            if (ticket == null) return NotFound();
+
+            // Get all available agents (not just from specific team)
+            var allAgents = await _context.Users
+                .Include(u => u.Role)
+                .Where(u => u.IsActive && u.Role.RoleName == "Support Agent")
+                .ToListAsync();
+
+            // Filter agents with less than 5 active tickets
+            var availableAgents = new List<User>();
+            foreach (var agent in allAgents)
+            {
+                var activeTicketCount = await _context.Tickets
+                    .CountAsync(t => t.AssignedTo == agent.UserID &&
+                               t.Status.StatusName != "Closed" &&
+                               t.Status.StatusName != "Resolved");
+
+                if (activeTicketCount < 5)
+                {
+                    availableAgents.Add(agent);
+                }
+            }
 
             ViewBag.AvailableAgents = availableAgents;
-            ViewBag.Priorities = new SelectList(_context.Priorities, "PriorityID", "PriorityName");
+            ViewBag.Priorities = new SelectList(_context.Priorities, "PriorityID", "PriorityName", ticket.PriorityID);
+            ViewBag.CurrentAssignedAgent = ticket.AssignedTo;
 
             return View(ticket);
         }
@@ -274,18 +446,55 @@ namespace OmnitakSupportHub.Controllers
         // Assign Agent to Ticket (Support Manager)
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Support Manager")]
         public async Task<IActionResult> AssignAgent(int ticketId, int agentId)
         {
-            if (!User.IsInRole("Support Manager"))
-                return Forbid();
+            var ticket = await _context.Tickets
+                .Include(t => t.Status)
+                .FirstOrDefaultAsync(t => t.TicketID == ticketId);
 
-            var ticket = await _context.Tickets.FindAsync(ticketId);
             if (ticket == null) return NotFound();
 
+            // Verify the agent exists and is active
+            var agent = await _context.Users
+                .Include(u => u.Role)
+                .FirstOrDefaultAsync(u => u.UserID == agentId && u.IsActive && u.Role.RoleName == "Support Agent");
+
+            if (agent == null)
+            {
+                TempData["ErrorMessage"] = "Selected agent is not valid or not active.";
+                return RedirectToAction(nameof(Details), new { id = ticketId });
+            }
+
+            var oldAssignedTo = ticket.AssignedTo;
             ticket.AssignedTo = agentId;
+
+            // Update status to "Assigned" if it's currently "Open"
+            if (ticket.Status.StatusName == "Open")
+            {
+                var assignedStatus = await _context.Statuses
+                    .FirstOrDefaultAsync(s => s.StatusName == "Assigned");
+                if (assignedStatus != null)
+                {
+                    ticket.StatusID = assignedStatus.StatusID;
+                }
+            }
+
             await _context.SaveChangesAsync();
 
-            TempData["SuccessMessage"] = "Ticket assigned successfully!";
+            // Log the assignment change
+            var userId = int.Parse(User.FindFirst("UserID")?.Value ?? "0");
+            _context.TicketTimelines.Add(new TicketTimeline
+            {
+                TicketID = ticketId,
+                ChangedByUserID = userId,
+                ChangeTime = DateTime.UtcNow,
+                OldStatus = oldAssignedTo?.ToString() ?? "Unassigned",
+                NewStatus = $"Assigned to {agent.FullName}"
+            });
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = $"Ticket successfully assigned to {agent.FullName}!";
             return RedirectToAction(nameof(Details), new { id = ticketId });
         }
 

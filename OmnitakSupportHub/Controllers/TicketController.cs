@@ -247,18 +247,20 @@ namespace OmnitakSupportHub.Controllers
                 Categories = await _context.Categories
                     .Select(c => new SelectListItem { Value = c.CategoryID.ToString(), Text = c.CategoryName })
                     .ToListAsync(),
+
+                Priorities = await _context.Priorities
+                    .Select(p => new SelectListItem { Value = p.PriorityID.ToString(), Text = p.PriorityName })
+                    .ToListAsync(),
+
+                Statuses = await _context.Statuses
+                    .Select(s => new SelectListItem { Value = s.StatusID.ToString(), Text = s.StatusName })
+                    .ToListAsync(),
+
+                Agents = await _context.Users
+                    .Where(u => u.IsActive && u.Role.RoleName == "Support Agent")
+                    .Select(u => new SelectListItem { Value = u.UserID.ToString(), Text = u.FullName })
+                    .ToListAsync()
             };
-
-            ViewBag.Priorities = new SelectList(_context.Priorities, "PriorityID", "PriorityName");
-            ViewBag.Statuses = new SelectList(_context.Statuses, "StatusID", "StatusName");
-
-            // Get all active agents for immediate assignment
-            var agents = await _context.Users
-                .Include(u => u.Role)
-                .Where(u => u.IsActive && u.Role.RoleName == "Support Agent")
-                .ToListAsync();
-
-            ViewBag.Agents = new SelectList(agents, "UserID", "FullName");
 
             return View(model);
         }

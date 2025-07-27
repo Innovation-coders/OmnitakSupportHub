@@ -1,28 +1,351 @@
-﻿@model OmnitakSupportHub.Models.ViewModels.TicketDto
+﻿@model OmnitakSupportHub.Models.ViewModels.CreateTicketViewModel
+@{
+    ViewData["Title"] = "Edit Ticket";
+    var priorities = ViewBag.Priorities as SelectList;
+    var statuses = ViewBag.Statuses as SelectList;
+    var agents = ViewBag.Agents as SelectList;
+    var ticketId = ViewBag.TicketId as int?;
+}
 
-<h2>Edit Ticket</h2>
+<style>
+    .edit-container {
+        max-width: 900px;
+        margin: 2rem auto;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        padding: 2rem;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
 
-<form asp-action="Edit">
-    <input type="hidden" asp-for="TicketID" />
-    <div class="form-group">
-        <label asp-for="Title"></label>
-        <input asp-for="Title" class="form-control" />
-    </div>
-    <div class="form-group">
-        <label asp-for="Description"></label>
-        <textarea asp-for="Description" class="form-control"></textarea>
-    </div>
-    <div class="form-group">
-        <label asp-for="CategoryID"></label>
-        <select asp-for="CategoryID" asp-items="ViewBag.Categories" class="form-control"></select>
-    </div>
-    <div class="form-group">
-        <label asp-for="PriorityID"></label>
-        <select asp-for="PriorityID" asp-items="ViewBag.Priorities" class="form-control"></select>
-    </div>
-    <div class="form-group">
-        <label asp-for="StatusID"></label>
-        <select asp-for="StatusID" asp-items="ViewBag.Statuses" class="form-control"></select>
-    </div>
-    <button type="submit" class="btn btn-primary">Save</button>
-</form>
+    .edit-title {
+        font-size: 2.5rem;
+        color: #1976d2;
+        margin-bottom: 0.5rem;
+        text-align: center;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .edit-subtitle {
+        text-align: center;
+        color: #666;
+        margin-bottom: 2rem;
+        font-size: 1.1rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-row {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .form-col {
+        flex: 1;
+        min-width: 250px;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        color: #1976d2;
+        font-size: 1rem;
+    }
+
+    .required {
+        color: #d32f2f;
+    }
+
+    input[type="text"],
+    textarea,
+    select {
+        width: 100%;
+        padding: 0.75rem;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        box-sizing: border-box;
+    }
+
+        input[type="text"]:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: #1976d2;
+            box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.1);
+        }
+
+    textarea {
+        min-height: 120px;
+        resize: vertical;
+    }
+
+    .form-section {
+        background: #f8f9fa;
+        padding: 1.5rem;
+        border-radius: 10px;
+        margin-bottom: 1.5rem;
+        border-left: 4px solid #1976d2;
+    }
+
+    .section-title {
+        font-size: 1.3rem;
+        color: #1976d2;
+        margin-bottom: 1rem;
+        font-weight: 600;
+    }
+
+    .button-group {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-top: 2rem;
+        flex-wrap: wrap;
+    }
+
+    .btn {
+        padding: 0.75rem 2rem;
+        border: none;
+        border-radius: 8px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+        text-align: center;
+        min-width: 150px;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+        color: white;
+    }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(25, 118, 210, 0.3);
+        }
+
+    .btn-secondary {
+        background: #f5f5f5;
+        color: #1976d2;
+        border: 2px solid #1976d2;
+    }
+
+        .btn-secondary:hover {
+            background: #1976d2;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+    .btn-danger {
+        background: linear-gradient(135deg, #d32f2f 0%, #c62828 100%);
+        color: white;
+    }
+
+        .btn-danger:hover {
+            background: linear-gradient(135deg, #c62828 0%, #b71c1c 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(211, 47, 47, 0.3);
+        }
+
+    .validation-summary {
+        background: #ffebee;
+        border: 1px solid #f44336;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+        color: #c62828;
+    }
+
+        .validation-summary ul {
+            margin: 0;
+            padding-left: 1.5rem;
+        }
+
+    .field-validation-error {
+        color: #d32f2f;
+        font-size: 0.9rem;
+        margin-top: 0.25rem;
+        display: block;
+    }
+
+    .form-control.input-validation-error {
+        border-color: #d32f2f;
+    }
+
+    .help-text {
+        font-size: 0.9rem;
+        color: #666;
+        margin-top: 0.25rem;
+        font-style: italic;
+    }
+
+    .current-info {
+        background: #e3f2fd;
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+        border-left: 4px solid #1976d2;
+    }
+
+        .current-info h4 {
+            color: #1976d2;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .current-info p {
+            margin: 0.25rem 0;
+            color: #555;
+        }
+
+    @@media (max-width: 768px) {
+        .edit-container {
+            margin: 1rem;
+            padding: 1.5rem;
+        }
+
+        .edit-title {
+            font-size: 2rem;
+        }
+
+        .form-row {
+            flex-direction: column;
+        }
+
+        .form-col {
+            min-width: 100%;
+        }
+
+        .button-group {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .btn {
+            width: 100%;
+            max-width: 300px;
+        }
+    }
+</style>
+
+<div class="edit-container">
+    <h1 class="edit-title">📝 Edit Ticket</h1>
+    <p class="edit-subtitle">Update the ticket details below</p>
+
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="validation-summary">
+            <strong>Please correct the following errors:</strong>
+            <div asp-validation-summary="All"></div>
+        </div>
+    }
+
+    <form asp-action="Edit" asp-route-id="@ticketId" method="post">
+        @Html.AntiForgeryToken()
+
+        <div class="form-section">
+            <h3 class="section-title">📋 Basic Information</h3>
+
+            <div class="form-group">
+                <label asp-for="Title">Title <span class="required">*</span></label>
+                <input asp-for="Title" type="text" placeholder="Enter a descriptive title for the ticket" class="form-control" />
+                <span asp-validation-for="Title" class="field-validation-error"></span>
+                <small class="help-text">Provide a clear, concise title that describes the issue</small>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Description">Description <span class="required">*</span></label>
+                <textarea asp-for="Description" placeholder="Provide detailed description of the issue..." class="form-control"></textarea>
+                <span asp-validation-for="Description" class="field-validation-error"></span>
+                <small class="help-text">Include as much detail as possible to help resolve the issue quickly</small>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="CategoryId">Category <span class="required">*</span></label>
+                <select asp-for="CategoryId" asp-items="Model.Categories" class="form-control">
+                    <option value="">-- Select a Category --</option>
+                </select>
+                <span asp-validation-for="CategoryId" class="field-validation-error"></span>
+                <small class="help-text">Choose the most appropriate category for this ticket</small>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h3 class="section-title">⚙️ Status & Assignment</h3>
+
+            <div class="form-row">
+                <div class="form-col">
+                    <label for="priorityId">Priority</label>
+                    <select name="priorityId" class="form-control">
+                        @if (priorities != null)
+                        {
+                            @foreach (var priority in priorities)
+                            {
+                                <option value="@priority.Value" selected="@priority.Selected">@priority.Text</option>
+                            }
+                        }
+                    </select>
+                    <small class="help-text">Set the priority level for this ticket</small>
+                </div>
+
+                <div class="form-col">
+                    <label for="statusId">Status</label>
+                    <select name="statusId" class="form-control">
+                        @if (statuses != null)
+                        {
+                            @foreach (var status in statuses)
+                            {
+                                <option value="@status.Value" selected="@status.Selected">@status.Text</option>
+                            }
+                        }
+                    </select>
+                    <small class="help-text">Update the current status of the ticket</small>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="assignedTo">Assigned Agent</label>
+                <select name="assignedTo" class="form-control">
+                    <option value="">-- Unassigned --</option>
+                    @if (agents != null)
+                    {
+                        @foreach (var agent in agents)
+                        {
+                            <option value="@agent.Value" selected="@agent.Selected">@agent.Text</option>
+                        }
+                    }
+                </select>
+                <small class="help-text">Assign or reassign this ticket to a specific agent</small>
+            </div>
+        </div>
+
+        <div class="button-group">
+            <button type="submit" class="btn btn-primary">
+                💾 Update Ticket
+            </button>
+            <a asp-action="Details" asp-route-id="@ticketId" class="btn btn-secondary">
+                👁️ View Details
+            </a>
+            <a asp-controller="ManagerDashboard" asp-action="Index" class="btn btn-secondary">
+                🏠 Back to Dashboard
+            </a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

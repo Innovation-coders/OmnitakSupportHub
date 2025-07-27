@@ -1,0 +1,28 @@
+﻿@model OmnitakSupportHub.Models.ViewModels.TicketDto
+
+<h2>Edit Ticket</h2>
+
+<form asp-action="Edit">
+    <input type="hidden" asp-for="TicketID" />
+    <div class="form-group">
+        <label asp-for="Title"></label>
+        <input asp-for="Title" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label asp-for="Description"></label>
+        <textarea asp-for="Description" class="form-control"></textarea>
+    </div>
+    <div class="form-group">
+        <label asp-for="CategoryID"></label>
+        <select asp-for="CategoryID" asp-items="ViewBag.Categories" class="form-control"></select>
+    </div>
+    <div class="form-group">
+        <label asp-for="PriorityID"></label>
+        <select asp-for="PriorityID" asp-items="ViewBag.Priorities" class="form-control"></select>
+    </div>
+    <div class="form-group">
+        <label asp-for="StatusID"></label>
+        <select asp-for="StatusID" asp-items="ViewBag.Statuses" class="form-control"></select>
+    </div>
+    <button type="submit" class="btn btn-primary">Save</button>
+</form>

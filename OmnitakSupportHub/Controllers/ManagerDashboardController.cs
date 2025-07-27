@@ -48,35 +48,26 @@ namespace OmnitakSupportHub.Controllers
             var groupedTickets = tickets.GroupBy(t => t.Category).ToList();
 
             // Get all support agents
-            var allAgents = await _context.Users
-                .Include(u => u.Role)
-                .Include(u => u.AssignedTickets.Where(t => t.Status.StatusName != "Closed" && t.Status.StatusName != "Resolved"))
-                    .ThenInclude(t => t.Status)
+            var agentTicketCounts = await _context.Users
                 .Where(u => u.IsActive && u.Role.RoleName == "Support Agent")
+                .Select(u => new
+                {
+                    Agent = u,
+                    ActiveTicketCount = u.AssignedTickets
+                        .Count(t => t.Status.StatusName != "Closed" && t.Status.StatusName != "Resolved")
+                })
                 .ToListAsync();
 
-            // Filter agents with less than 5 active tickets
-            var availableAgents = new List<User>();
-            foreach (var agent in allAgents)
-            {
-                var activeTicketCount = await _context.Tickets
-                    .CountAsync(t => t.AssignedTo == agent.UserID &&
-                               t.Status.StatusName != "Closed" &&
-                               t.Status.StatusName != "Resolved");
-
-                if (activeTicketCount < 5)
+            var availableAgents = agentTicketCounts
+                .Where(x => x.ActiveTicketCount < 5)
+                .Select(x =>
                 {
-                    // Set the count for display purposes
-                    agent.AssignedTickets = await _context.Tickets
-                        .Include(t => t.Status)
-                        .Where(t => t.AssignedTo == agent.UserID &&
-                                   t.Status.StatusName != "Closed" &&
-                                   t.Status.StatusName != "Resolved")
-                        .ToListAsync();
-
-                    availableAgents.Add(agent);
-                }
-            }
+                    x.Agent.AssignedTickets = x.Agent.AssignedTickets
+                        .Where(t => t.Status.StatusName != "Closed" && t.Status.StatusName != "Resolved")
+                        .ToList();
+                    return x.Agent;
+                })
+                .ToList();
 
             var viewModel = new ManagerDashboardViewModel
             {

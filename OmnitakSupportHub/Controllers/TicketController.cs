@@ -424,19 +424,17 @@ namespace OmnitakSupportHub.Controllers
                 .ToListAsync();
 
             // Filter agents with less than 5 active tickets
-            var availableAgents = new List<User>();
-            foreach (var agent in allAgents)
-            {
-                var activeTicketCount = await _context.Tickets
-                    .CountAsync(t => t.AssignedTo == agent.UserID &&
-                               t.Status.StatusName != "Closed" &&
-                               t.Status.StatusName != "Resolved");
-
-                if (activeTicketCount < 5)
+            var availableAgents = await _context.Users
+                .Where(u => u.IsActive && u.Role.RoleName == "Support Agent")
+                .Select(u => new
                 {
-                    availableAgents.Add(agent);
-                }
-            }
+                    Agent = u,
+                    ActiveTicketCount = u.AssignedTickets
+                        .Count(t => t.Status.StatusName != "Closed" && t.Status.StatusName != "Resolved")
+                })
+                .Where(x => x.ActiveTicketCount < 5)
+                .Select(x => x.Agent)
+                .ToListAsync();
 
             ViewBag.AvailableAgents = availableAgents;
             ViewBag.Priorities = new SelectList(_context.Priorities, "PriorityID", "PriorityName", ticket.PriorityID);

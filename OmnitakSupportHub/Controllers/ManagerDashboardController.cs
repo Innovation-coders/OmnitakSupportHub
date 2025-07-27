@@ -21,6 +21,11 @@ namespace OmnitakSupportHub.Controllers
 
         public async Task<IActionResult> Index(DateTime? startDate, DateTime? endDate)
         {
+            // Default to last 30 days if no filter specified
+            startDate ??= DateTime.UtcNow.AddDays(-30);
+            endDate ??= DateTime.UtcNow;
+
+
             var ticketsQuery = _context.Tickets
                 .Include(t => t.Category)
                 .Include(t => t.Status)
@@ -39,18 +44,39 @@ namespace OmnitakSupportHub.Controllers
             }
 
             var tickets = await ticketsQuery.ToListAsync();
+
             var groupedTickets = tickets.GroupBy(t => t.Category).ToList();
 
-            var agents = await _context.Users
+            // Get all support agents
+            var allAgents = await _context.Users
                 .Include(u => u.Role)
-                .Where(u => u.Role.RoleName == "Support Agent")
+                .Include(u => u.AssignedTickets.Where(t => t.Status.StatusName != "Closed" && t.Status.StatusName != "Resolved"))
+                    .ThenInclude(t => t.Status)
+                .Where(u => u.IsActive && u.Role.RoleName == "Support Agent")
                 .ToListAsync();
 
-            var availableAgents = agents
-                .Where(agent =>
-                    _context.Tickets
-                        .Count(t => t.AssignedTo == agent.UserID && t.Status.StatusName != "Closed") < 5)
-                .ToList();
+            // Filter agents with less than 5 active tickets
+            var availableAgents = new List<User>();
+            foreach (var agent in allAgents)
+            {
+                var activeTicketCount = await _context.Tickets
+                    .CountAsync(t => t.AssignedTo == agent.UserID &&
+                               t.Status.StatusName != "Closed" &&
+                               t.Status.StatusName != "Resolved");
+
+                if (activeTicketCount < 5)
+                {
+                    // Set the count for display purposes
+                    agent.AssignedTickets = await _context.Tickets
+                        .Include(t => t.Status)
+                        .Where(t => t.AssignedTo == agent.UserID &&
+                                   t.Status.StatusName != "Closed" &&
+                                   t.Status.StatusName != "Resolved")
+                        .ToListAsync();
+
+                    availableAgents.Add(agent);
+                }
+            }
 
             var viewModel = new ManagerDashboardViewModel
             {

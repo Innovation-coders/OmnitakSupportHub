@@ -1,14 +1,13 @@
 ﻿@model OmnitakSupportHub.Models.ViewModels.CreateTicketViewModel
 @{
-    ViewData["Title"] = "Edit Ticket";
+    ViewData["Title"] = "Create New Ticket";
     var priorities = ViewBag.Priorities as SelectList;
     var statuses = ViewBag.Statuses as SelectList;
     var agents = ViewBag.Agents as SelectList;
-    var ticketId = ViewBag.TicketId as int?;
 }
 
 <style>
-    .edit-container {
+    .create-container {
         max-width: 900px;
         margin: 2rem auto;
         background: white;
@@ -18,9 +17,9 @@
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
 
-    .edit-title {
+    .create-title {
         font-size: 2.5rem;
-        color: #1976d2;
+        color: #2e7d32;
         margin-bottom: 0.5rem;
         text-align: center;
         font-weight: 700;
@@ -28,7 +27,7 @@
         letter-spacing: 1px;
     }
 
-    .edit-subtitle {
+    .create-subtitle {
         text-align: center;
         color: #666;
         margin-bottom: 2rem;
@@ -54,7 +53,7 @@
         display: block;
         margin-bottom: 0.5rem;
         font-weight: 600;
-        color: #1976d2;
+        color: #2e7d32;
         font-size: 1rem;
     }
 
@@ -74,13 +73,13 @@
         box-sizing: border-box;
     }
 
-        input[type="text"]:focus,
-        textarea:focus,
-        select:focus {
-            outline: none;
-            border-color: #1976d2;
-            box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.1);
-        }
+    input[type="text"]:focus,
+    textarea:focus,
+    select:focus {
+        outline: none;
+        border-color: #2e7d32;
+        box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.1);
+    }
 
     textarea {
         min-height: 120px;
@@ -92,12 +91,12 @@
         padding: 1.5rem;
         border-radius: 10px;
         margin-bottom: 1.5rem;
-        border-left: 4px solid #1976d2;
+        border-left: 4px solid #2e7d32;
     }
 
     .section-title {
         font-size: 1.3rem;
-        color: #1976d2;
+        color: #2e7d32;
         margin-bottom: 1rem;
         font-weight: 600;
     }
@@ -125,38 +124,27 @@
     }
 
     .btn-primary {
-        background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+        background: linear-gradient(135deg, #2e7d32 0%, #388e3c 100%);
         color: white;
     }
 
-        .btn-primary:hover {
-            background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(25, 118, 210, 0.3);
-        }
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #1b5e20 0%, #2e7d32 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(46, 125, 50, 0.3);
+    }
 
     .btn-secondary {
         background: #f5f5f5;
-        color: #1976d2;
-        border: 2px solid #1976d2;
+        color: #2e7d32;
+        border: 2px solid #2e7d32;
     }
 
-        .btn-secondary:hover {
-            background: #1976d2;
-            color: white;
-            transform: translateY(-2px);
-        }
-
-    .btn-danger {
-        background: linear-gradient(135deg, #d32f2f 0%, #c62828 100%);
+    .btn-secondary:hover {
+        background: #2e7d32;
         color: white;
+        transform: translateY(-2px);
     }
-
-        .btn-danger:hover {
-            background: linear-gradient(135deg, #c62828 0%, #b71c1c 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(211, 47, 47, 0.3);
-        }
 
     .validation-summary {
         background: #ffebee;
@@ -167,10 +155,10 @@
         color: #c62828;
     }
 
-        .validation-summary ul {
-            margin: 0;
-            padding-left: 1.5rem;
-        }
+    .validation-summary ul {
+        margin: 0;
+        padding-left: 1.5rem;
+    }
 
     .field-validation-error {
         color: #d32f2f;
@@ -190,32 +178,13 @@
         font-style: italic;
     }
 
-    .current-info {
-        background: #e3f2fd;
-        padding: 1rem;
-        border-radius: 8px;
-        margin-bottom: 1.5rem;
-        border-left: 4px solid #1976d2;
-    }
-
-        .current-info h4 {
-            color: #1976d2;
-            margin-bottom: 0.5rem;
-            font-size: 1.1rem;
-        }
-
-        .current-info p {
-            margin: 0.25rem 0;
-            color: #555;
-        }
-
     @@media (max-width: 768px) {
-        .edit-container {
+        .create-container {
             margin: 1rem;
             padding: 1.5rem;
         }
 
-        .edit-title {
+        .create-title {
             font-size: 2rem;
         }
 
@@ -239,9 +208,9 @@
     }
 </style>
 
-<div class="edit-container">
-    <h1 class="edit-title">📝 Edit Ticket</h1>
-    <p class="edit-subtitle">Update the ticket details below</p>
+<div class="create-container">
+    <h1 class="create-title">Create New Ticket</h1>
+    <p class="create-subtitle">Fill in the details below to create a new support ticket</p>
 
     @if (!ViewData.ModelState.IsValid)
     {
@@ -251,7 +220,7 @@
         </div>
     }
 
-    <form asp-action="Edit" asp-route-id="@ticketId" method="post">
+    <form asp-action="ManagerCreate" method="post">
         @Html.AntiForgeryToken()
 
         <div class="form-section">
@@ -282,63 +251,62 @@
         </div>
 
         <div class="form-section">
-            <h3 class="section-title">⚙️ Status & Assignment</h3>
+            <h3 class="section-title">⚙️ Assignment & Priority</h3>
 
             <div class="form-row">
                 <div class="form-col">
                     <label for="priorityId">Priority</label>
-                    <select name="priorityId" class="form-control">
+                    <select asp-for="PriorityID" asp-items="Model.Priorities" class="form-control">
+                        <option value="">-- Select Priority --</option>
                         @if (priorities != null)
                         {
                             @foreach (var priority in priorities)
                             {
-                                <option value="@priority.Value" selected="@priority.Selected">@priority.Text</option>
+                                <option value="@priority.Value">@priority.Text</option>
                             }
                         }
                     </select>
-                    <small class="help-text">Set the priority level for this ticket</small>
+                    <small class="help-text">Default: Medium priority if not specified</small>
                 </div>
 
                 <div class="form-col">
-                    <label for="statusId">Status</label>
-                    <select name="statusId" class="form-control">
+                    <label for="statusId">Initial Status</label>
+                    <select asp-for="StatusID" asp-items="Model.Statuses" class="form-control">
+                        <option value="">-- Select Status --</option>
                         @if (statuses != null)
                         {
                             @foreach (var status in statuses)
                             {
-                                <option value="@status.Value" selected="@status.Selected">@status.Text</option>
+                                <option value="@status.Value">@status.Text</option>
                             }
                         }
                     </select>
-                    <small class="help-text">Update the current status of the ticket</small>
+                    <small class="help-text">Default: Open status if not specified</small>
                 </div>
             </div>
 
             <div class="form-group">
-                <label for="assignedTo">Assigned Agent</label>
-                <select name="assignedTo" class="form-control">
-                    <option value="">-- Unassigned --</option>
+                <label for="assignedTo">Assign to Agent (Optional)</label>
+                <select asp-for="AssignedTo" asp-items="Model.Agents" class="form-control">
+                    <option value="">-- Leave Unassigned --</option>
                     @if (agents != null)
                     {
                         @foreach (var agent in agents)
                         {
-                            <option value="@agent.Value" selected="@agent.Selected">@agent.Text</option>
+                            <option value="@agent.Value">@agent.Text</option>
                         }
                     }
                 </select>
-                <small class="help-text">Assign or reassign this ticket to a specific agent</small>
+                <small class="help-text">You can assign this ticket to a specific agent or leave it unassigned for automatic routing</small>
             </div>
         </div>
 
         <div class="button-group">
             <button type="submit" class="btn btn-primary">
-                💾 Update Ticket
+                ✅ Create Ticket
             </button>
-            <a asp-action="Details" asp-route-id="@ticketId" class="btn btn-secondary">
-                👁️ View Details
-            </a>
             <a asp-controller="ManagerDashboard" asp-action="Index" class="btn btn-secondary">
-                🏠 Back to Dashboard
+                ❌ Cancel
             </a>
         </div>
     </form>

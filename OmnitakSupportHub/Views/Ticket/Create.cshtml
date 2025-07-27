@@ -4,115 +4,359 @@
 }
 
 <style>
+    .ticket-form-wrapper {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        min-height: 100vh;
+        padding: 2rem 0;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
     .create-container {
-        max-width: 700px;
-        margin: 2rem auto;
+        max-width: 800px;
+        margin: 0 auto;
         background: white;
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        position: relative;
+    }
+
+    .form-header {
+        background: linear-gradient(135deg, #2e7d32 0%, #4caf50 100%);
+        color: white;
+        padding: 2.5rem 2rem;
+        text-align: center;
+        position: relative;
+    }
+
+        .form-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)" /></svg>');
+            opacity: 0.3;
+        }
+
+    .create-title {
+        font-size: 2.2rem;
+        font-weight: 600;
+        margin: 0;
+        position: relative;
+        z-index: 1;
+    }
+
+    .form-subtitle {
+        font-size: 1.1rem;
+        margin-top: 0.5rem;
+        opacity: 0.9;
+        position: relative;
+        z-index: 1;
+    }
+
+    .form-content {
+        padding: 2.5rem;
+    }
+
+    .form-group {
+        margin-bottom: 2rem;
+        position: relative;
+    }
+
+        .form-group label {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 0.75rem;
+            display: block;
+            font-size: 1.1rem;
+            position: relative;
+        }
+
+            .form-group label::after {
+                content: '*';
+                color: #e74c3c;
+                margin-left: 4px;
+                font-weight: normal;
+            }
+
+    .form-control {
+        width: 100%;
+        padding: 1rem;
+        border: 2px solid #e1e8ed;
+        border-radius: 12px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background: #fafbfc;
+        box-sizing: border-box;
+    }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #4caf50;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .form-control:hover {
+            border-color: #c8d6e5;
+            background: white;
+        }
+
+    textarea.form-control {
+        resize: vertical;
+        min-height: 120px;
+        font-family: inherit;
+    }
+
+    select.form-control {
+        background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23666"><path d="M7 10l5 5 5-5z"/></svg>');
+        background-repeat: no-repeat;
+        background-position: right 12px center;
+        background-size: 20px;
+        padding-right: 45px;
+        appearance: none;
+        cursor: pointer;
+    }
+
+    .text-danger {
+        color: #e74c3c;
+        font-size: 0.9rem;
+        margin-top: 0.5rem;
+        display: block;
+        font-weight: 500;
+    }
+
+    .alert-danger {
+        background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+        border: none;
+        border-left: 5px solid #e74c3c;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(231, 76, 60, 0.1);
+    }
+
+        .alert-danger strong {
+            color: #c62828;
+            font-weight: 600;
+        }
+
+        .alert-danger ul {
+            margin: 0.5rem 0 0 0;
+            padding-left: 1.5rem;
+        }
+
+        .alert-danger li {
+            margin-bottom: 0.25rem;
+            color: #d32f2f;
+        }
+
+    .button-group {
+        text-align: center;
+        margin-top: 2.5rem;
+    }
+
+    .ticket-button {
+        background: linear-gradient(135deg, #2e7d32 0%, #4caf50 100%);
+        color: white;
+        border: none;
+        padding: 1rem 2.5rem;
+        border-radius: 50px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+        position: relative;
+        overflow: hidden;
+    }
+
+        .ticket-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .ticket-button:hover {
+            background: linear-gradient(135deg, #1b5e20 0%, #2e7d32 100%);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(76, 175, 80, 0.4);
+        }
+
+            .ticket-button:hover::before {
+                left: 100%;
+            }
+
+        .ticket-button:active {
+            transform: translateY(-1px);
+        }
+
+    .form-icon {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        margin-right: 8px;
+        vertical-align: middle;
+    }
+
+    /* Responsive Design */
+    @@media (max-width: 768px) {
+        .ticket-form-wrapper
+
+    {
+        padding: 1rem;
+    }
+
+    .create-container {
+        margin: 0;
         border-radius: 15px;
-        box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-        padding: 2rem;
-        font-family: Arial, sans-serif;
+    }
+
+    .form-header {
+        padding: 2rem 1.5rem;
     }
 
     .create-title {
         font-size: 1.8rem;
-        color: #2e7d32;
-        margin-bottom: 1.5rem;
-        text-align: center;
     }
 
-    .form-group {
-        margin-bottom: 1.2rem;
+    .form-content {
+        padding: 2rem 1.5rem;
     }
-
-        .form-group label {
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 0.3rem;
-            display: block;
-        }
 
     .form-control {
-        width: 100%;
-        padding: 0.6rem;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-        font-size: 1rem;
-    }
-
-    .text-danger {
-        color: #d32f2f;
-        font-size: 0.9rem;
-        margin-top: 0.3rem;
-        display: block;
-    }
-
-    .alert-danger {
-        background: #ffcdd2;
-        border-left: 5px solid #c62828;
-        padding: 1rem;
-        margin-bottom: 1.5rem;
-        border-radius: 5px;
+        padding: 0.875rem;
     }
 
     .ticket-button {
-        background: linear-gradient(90deg, #2e7d32 0%, #388e3c 100%);
-        color: white;
-        border: none;
-        padding: 0.75rem 1.5rem;
-        border-radius: 5px;
+        padding: 0.875rem 2rem;
         font-size: 1rem;
-        cursor: pointer;
-        transition: background 0.3s ease, transform 0.2s ease;
     }
 
-        .ticket-button:hover {
-            background: linear-gradient(90deg, #1b5e20 0%, #2e7d32 100%);
-            transform: translateY(-2px);
-        }
+    }
+
+    /* Loading state */
+    .ticket-button:disabled {
+        background: #bdbdbd;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+    }
+
+    /* Focus indicators for accessibility */
+    .ticket-button:focus {
+        outline: 3px solid rgba(76, 175, 80, 0.5);
+        outline-offset: 2px;
+    }
 </style>
 
-<div class="create-container">
-    <h2 class="create-title">Submit a New Support Ticket</h2>
-
-    @if (!ViewData.ModelState.IsValid)
-    {
-        <div class="alert alert-danger">
-            <strong>Please correct the following:</strong>
-            <ul>
-                @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
-                {
-                    <li>@error.ErrorMessage</li>
-                }
-            </ul>
-        </div>
-    }
-
-    <form asp-action="Create" method="post">
-        <div class="form-group">
-            <label asp-for="Title"></label>
-            <input asp-for="Title" class="form-control" />
-            <span asp-validation-for="Title" class="text-danger"></span>
+<div class="ticket-form-wrapper">
+    <div class="create-container">
+        <div class="form-header">
+            <h1 class="create-title">
+                <svg class="form-icon" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M20 6L9 17L4 12L5.41 10.59L9 14.17L18.59 4.59L20 6Z" />
+                </svg>
+                Submit Support Ticket
+            </h1>
+            <p class="form-subtitle">We're here to help! Please provide details about your issue.</p>
         </div>
 
-        <div class="form-group">
-            <label asp-for="Description"></label>
-            <textarea asp-for="Description" class="form-control" rows="4"></textarea>
-            <span asp-validation-for="Description" class="text-danger"></span>
-        </div>
+        <div class="form-content">
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="alert alert-danger">
+                    <strong>⚠️ Please correct the following issues:</strong>
+                    <ul>
+                        @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                        {
+                            <li>@error.ErrorMessage</li>
+                        }
+                    </ul>
+                </div>
+            }
 
-        <div class="form-group">
-            <label asp-for="CategoryId"></label>
-            <select asp-for="CategoryId" asp-items="Model.Categories" class="form-control"></select>
-            <span asp-validation-for="CategoryId" class="text-danger"></span>
-        </div>
+            <form asp-action="Create" method="post" novalidate>
+                <div class="form-group">
+                    <label asp-for="Title">
+                        <svg class="form-icon" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M3 17.25V21H6.75L17.81 9.94L14.06 6.19L3 17.25ZM20.71 7.04C21.1 6.65 21.1 6.02 20.71 5.63L18.37 3.29C17.98 2.9 17.35 2.9 16.96 3.29L15.13 5.12L18.88 8.87L20.71 7.04Z" />
+                        </svg>
+                        Ticket Title
+                    </label>
+                    <input asp-for="Title" class="form-control" placeholder="Brief description of your issue" />
+                    <span asp-validation-for="Title" class="text-danger"></span>
+                </div>
 
-        <div class="form-group text-center">
-            <button type="submit" class="ticket-button">Submit Ticket</button>
+                <div class="form-group">
+                    <label asp-for="Description">
+                        <svg class="form-icon" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M14 17H4V19H14V17ZM20 9H4V11H20V9ZM4 15H18V13H4V15ZM4 5V7H20V5H4Z" />
+                        </svg>
+                        Description
+                    </label>
+                    <textarea asp-for="Description" class="form-control" rows="5" placeholder="Please provide detailed information about your issue, including steps to reproduce if applicable..."></textarea>
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="CategoryId">
+                        <svg class="form-icon" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M10 4H4C2.89 4 2 4.89 2 6V18C2 19.11 2.89 20 4 20H20C21.11 20 22 19.11 22 18V8C22 6.89 21.11 6 20 6H12L10 4Z" />
+                        </svg>
+                        Category
+                    </label>
+                    <select asp-for="CategoryId" asp-items="Model.Categories" class="form-control">
+                        <option value="">-- Select a category --</option>
+                    </select>
+                    <span asp-validation-for="CategoryId" class="text-danger"></span>
+                </div>
+
+                <div class="button-group">
+                    <button type="submit" class="ticket-button">
+                        <svg class="form-icon" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M2 21L23 12L2 3V10L17 12L2 14V21Z" />
+                        </svg>
+                        Submit Ticket
+                    </button>
+                </div>
+            </form>
         </div>
-    </form>
+    </div>
 </div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Enhanced form interactions
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('form');
+            const submitButton = document.querySelector('.ticket-button');
+
+            // Add loading state on form submission
+            form.addEventListener('submit', function() {
+                submitButton.disabled = true;
+                submitButton.innerHTML = '<svg class="form-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4V2C13.3 2 14.6 2.3 15.8 2.8L14.9 4.7C14 4.3 13 4 12 4ZM12 20V22C10.7 22 9.4 21.7 8.2 21.2L9.1 19.3C10 19.7 11 20 12 20ZM20 12H22C22 13.3 21.7 14.6 21.2 15.8L19.3 14.9C19.7 14 20 13 20 12ZM4 12H2C2 10.7 2.3 9.4 2.8 8.2L4.7 9.1C4.3 10 4 11 4 12Z"/></svg> Processing...';
+            });
+
+            // Auto-resize textarea
+            const textarea = document.querySelector('textarea');
+            if (textarea) {
+                textarea.addEventListener('input', function() {
+                    this.style.height = 'auto';
+                    this.style.height = Math.max(120, this.scrollHeight) + 'px';
+                });
+            }
+        });
+    </script>
 }

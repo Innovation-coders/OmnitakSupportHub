@@ -107,7 +107,7 @@ namespace OmnitakSupportHub.Controllers
                 }
                 else if (result.User.Role?.RoleName == "Support Agent")
                 {
-                    return RedirectToAction("Index", "Agent Dashboard");
+                    return RedirectToAction("Index", "AgentDashboard");
                 }
                 else
                 {

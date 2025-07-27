@@ -4,3 +4,7 @@
 
 /.vs/OmnitakSupportHub/v17
 /.gitignore
+/OmnitakSupportHub/Services/EmailService.cs
+/OmnitakSupportHub/appsettings.json
+/OmnitakSupportHub/appsettings.json
+/OmnitakSupportHub/Services/EmailService.cs

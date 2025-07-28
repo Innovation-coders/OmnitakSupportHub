@@ -1,0 +1,12 @@
+﻿@model OmnitakSupportHub.Models.Department
+@{
+    ViewData["Title"] = "Delete Department";
+}
+
+<h2>Delete Department</h2>
+<form asp-action="Delete" method="post">
+    <input type="hidden" asp-for="DepartmentId" />
+    <p>Are you sure you want to delete <strong>@Model.DepartmentName</strong>?</p>
+    <button type="submit" class="btn btn-danger">Delete</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>

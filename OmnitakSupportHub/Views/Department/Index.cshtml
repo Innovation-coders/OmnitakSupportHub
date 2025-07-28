@@ -1,0 +1,38 @@
+﻿@model IEnumerable<OmnitakSupportHub.Models.Department>
+@{
+    ViewData["Title"] = "Departments";
+}
+
+<h2>Departments</h2>
+<a asp-action="Create" class="btn btn-success">Create New Department</a>
+<a asp-controller="AdminDashboard" asp-action="Index" class="btn btn-secondary" style="margin-right: 10px;">
+    ← Back to Admin Dashboard
+</a>
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+}
+<table class="table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Created At</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var dept in Model)
+        {
+            <tr>
+                <td>@dept.DepartmentName</td>
+                <td>@dept.Description</td>
+                <td>@dept.CreatedAt.ToString("yyyy-MM-dd")</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@dept.DepartmentId" class="btn btn-warning btn-sm">Edit</a>
+                    <a asp-action="Delete" asp-route-id="@dept.DepartmentId" class="btn btn-danger btn-sm">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

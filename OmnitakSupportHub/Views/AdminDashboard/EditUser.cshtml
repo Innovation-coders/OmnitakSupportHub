@@ -1,45 +1,463 @@
 ﻿@using OmnitakSupportHub.Models.ViewModels
 @model EditUserViewModel
-
 @{
     ViewData["Title"] = "Edit User";
 }
 
-<h2>Edit User</h2>
+<style>
+    .edit-user-wrapper {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        min-height: 100vh;
+        padding: 2rem 0;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
 
-<form asp-action="EditUser" method="post">
-    <input type="hidden" asp-for="UserId" />
+    .edit-container {
+        max-width: 750px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+        position: relative;
+    }
 
-    <div class="form-group">
-        <label asp-for="FullName"></label>
-        <input asp-for="FullName" class="form-control" />
-        <span asp-validation-for="FullName" class="text-danger"></span>
+    .form-header {
+        background: linear-gradient(135deg, #2e7d32 0%, #4caf50 100%);
+        color: white;
+        padding: 2.5rem 2rem;
+        text-align: center;
+        position: relative;
+    }
+
+        .form-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="dots" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="10" cy="10" r="1.5" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23dots)" /></svg>');
+            opacity: 0.4;
+        }
+
+    .edit-title {
+        font-size: 2rem;
+        font-weight: 700;
+        margin: 0;
+        position: relative;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+    }
+
+    .form-subtitle {
+        font-size: 1rem;
+        margin-top: 0.5rem;
+        opacity: 0.9;
+        position: relative;
+        z-index: 1;
+        font-weight: 300;
+    }
+
+    .form-content {
+        padding: 2.5rem;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.8rem;
+        position: relative;
+    }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1rem;
+        }
+
+    .field-icon {
+        width: 18px;
+        height: 18px;
+        fill: #4caf50;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 1rem;
+        border: 2px solid #e1e8ed;
+        border-radius: 12px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background: #fafbfc;
+        box-sizing: border-box;
+        font-family: inherit;
+    }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #4caf50;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .form-control:hover {
+            border-color: #c8d6e5;
+            background: white;
+        }
+
+    select.form-control {
+        background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%234caf50"><path d="M7 10l5 5 5-5z"/></svg>');
+        background-repeat: no-repeat;
+        background-position: right 12px center;
+        background-size: 20px;
+        padding-right: 45px;
+        appearance: none;
+        cursor: pointer;
+    }
+
+    .optional-badge {
+        background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%);
+        color: #2e7d32;
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: 12px;
+        font-weight: 500;
+        margin-left: auto;
+    }
+
+    .text-danger {
+        color: #e74c3c;
+        font-size: 0.875rem;
+        margin-top: 0.5rem;
+        display: block;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+        .text-danger::before {
+            content: '⚠️';
+            font-size: 0.75rem;
+        }
+
+    .button-group {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-top: 2.5rem;
+        flex-wrap: wrap;
+    }
+
+    .btn {
+        padding: 1rem 2rem;
+        border-radius: 50px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        border: none;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #2e7d32 0%, #4caf50 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+    }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #1b5e20 0%, #2e7d32 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(76, 175, 80, 0.4);
+            color: white;
+            text-decoration: none;
+        }
+
+    .btn-secondary {
+        background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
+    }
+
+        .btn-secondary:hover {
+            background: linear-gradient(135deg, #495057 0%, #343a40 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(108, 117, 125, 0.4);
+            color: white;
+            text-decoration: none;
+        }
+
+    .user-info-card {
+        background: linear-gradient(135deg, #e8f5e8 0%, #f1f8e9 100%);
+        border: 1px solid #c8e6c9;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        position: relative;
+    }
+
+        .user-info-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(135deg, #2e7d32 0%, #4caf50 100%);
+            border-radius: 0 2px 2px 0;
+        }
+
+    .user-info-title {
+        color: #2e7d32;
+        font-weight: 600;
+        margin: 0 0 0.5rem 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .user-info-text {
+        color: #4a6741;
+        font-size: 0.9rem;
+        margin: 0;
+    }
+
+    /* Responsive Design */
+    @@media (max-width: 768px) {
+        .edit-user-wrapper
+
+    {
+        padding: 1rem;
+    }
+
+    .edit-container {
+        margin: 0;
+        border-radius: 15px;
+    }
+
+    .form-header {
+        padding: 2rem 1.5rem;
+    }
+
+    .edit-title {
+        font-size: 1.75rem;
+    }
+
+    .form-content {
+        padding: 2rem 1.5rem;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+
+    .button-group {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .btn {
+        justify-content: center;
+    }
+
+    }
+
+    /* Loading and disabled states */
+    .btn:disabled {
+        background: #bdbdbd !important;
+        cursor: not-allowed;
+        transform: none !important;
+        box-shadow: none !important;
+    }
+
+    .btn:focus {
+        outline: 3px solid rgba(76, 175, 80, 0.3);
+        outline-offset: 2px;
+    }
+
+    /* Form validation styling */
+    .form-control.input-validation-error {
+        border-color: #e74c3c;
+        background-color: #ffebee;
+    }
+
+        .form-control.input-validation-error:focus {
+            border-color: #e74c3c;
+            box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1);
+        }
+</style>
+
+<div class="edit-user-wrapper">
+    <div class="edit-container">
+        <div class="form-header">
+            <h1 class="edit-title">
+                <svg class="field-icon" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 12C14.21 12 16 10.21 16 8S14.21 4 12 4 8 5.79 8 8 9.79 12 12 12ZM12 14C9.33 14 4 15.34 4 18V20H20V18C20 15.34 14.67 14 12 14Z" />
+                </svg>
+                Edit User Profile
+            </h1>
+            <p class="form-subtitle">Update user information and permissions</p>
+        </div>
+
+        <div class="form-content">
+            <div class="user-info-card">
+                <h3 class="user-info-title">
+                    <svg class="field-icon" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M11 7H13V9H11V7ZM12 17C12.55 17 13 16.55 13 16V12C13 11.45 12.55 11 12 11S11 11.45 11 12V16C11 16.55 11.45 17 12 17ZM12 2C6.48 2 2 6.48 2 12S6.48 22 12 22 22 17.52 22 12 17.52 2 12 2ZM12 20C7.59 20 4 16.41 4 12S7.59 4 12 4 20 7.59 20 12 16.41 20 12 20Z" />
+                    </svg>
+                    User Management
+                </h3>
+                <p class="user-info-text">Modify user details, department assignment, role permissions, and team associations.</p>
+            </div>
+
+            <form asp-action="EditUser" method="post" novalidate>
+                <input type="hidden" asp-for="UserId" />
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label asp-for="FullName">
+                            <svg class="field-icon" viewBox="0 0 24 24">
+                                <path d="M12 6C13.1 6 14 6.9 14 8S13.1 10 12 10 10 9.1 10 8 10.9 6 12 6ZM12 16C9.33 16 4 17.34 4 20V22H20V20C20 17.34 14.67 16 12 16Z" />
+                            </svg>
+                            Full Name
+                        </label>
+                        <input asp-for="FullName" class="form-control" placeholder="Enter full name" />
+                        <span asp-validation-for="FullName" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="Department">
+                            <svg class="field-icon" viewBox="0 0 24 24">
+                                <path d="M12 7V3H2V21H22V7H12ZM6 19H4V17H6V19ZM6 15H4V13H6V15ZM6 11H4V9H6V11ZM6 7H4V5H6V7ZM10 19H8V17H10V19ZM10 15H8V13H10V15ZM10 11H8V9H10V11ZM10 7H8V5H10V7ZM20 19H12V17H14V15H12V13H14V11H12V9H20V19ZM18 11H16V13H18V11ZM18 15H16V17H18V15Z" />
+                            </svg>
+                            Department
+                        </label>
+                        <input asp-for="Department" class="form-control" placeholder="Enter department" />
+                        <span asp-validation-for="Department" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label asp-for="RoleId">
+                            <svg class="field-icon" viewBox="0 0 24 24">
+                                <path d="M12 1L3 5V11C3 16.55 6.84 21.74 12 23C17.16 21.74 21 16.55 21 11V5L12 1ZM10 17L6 13L7.41 11.59L10 14.17L16.59 7.58L18 9L10 17Z" />
+                            </svg>
+                            Role
+                        </label>
+                        <select asp-for="RoleId" asp-items="@(new SelectList(Model.AvailableRoles, "RoleID", "RoleName"))" class="form-control">
+                            <option value="">-- Select a role --</option>
+                        </select>
+                        <span asp-validation-for="RoleId" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="TeamId">
+                            <svg class="field-icon" viewBox="0 0 24 24">
+                                <path d="M16 4C18.2 4 20 5.8 20 8S18.2 12 16 12C15.7 12 15.4 11.9 15.1 11.9C16.6 10.9 17.5 9.5 17.5 8S16.6 5.1 15.1 4.1C15.4 4.1 15.7 4 16 4ZM12.5 11.5C14.4 11.5 16 9.9 16 8S14.4 4.5 12.5 4.5 9 6.1 9 8 10.6 11.5 12.5 11.5ZM8 4C8.3 4 8.6 4.1 8.9 4.1C7.4 5.1 6.5 6.5 6.5 8S7.4 10.9 8.9 11.9C8.6 11.9 8.3 12 8 12C5.8 12 4 10.2 4 8S5.8 4 8 4ZM12.5 13C10.67 13 7 13.92 7 15.75V18H18V15.75C18 13.92 14.33 13 12.5 13ZM1 15.75C1 14.58 3.58 13.75 5.25 13.75C5.83 13.75 6.58 13.83 7.33 14C6.5 14.67 6 15.58 6 15.75V18H1V15.75ZM23 15.75V18H19V15.75C19 15.58 18.5 14.67 17.67 14C18.42 13.83 19.17 13.75 19.75 13.75C21.42 13.75 24 14.58 24 15.75H23Z" />
+                            </svg>
+                            Team
+                            <span class="optional-badge">Optional</span>
+                        </label>
+                        <input asp-for="TeamId" class="form-control" placeholder="Enter team ID (optional)" />
+                        <span asp-validation-for="TeamId" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button type="submit" class="btn btn-primary">
+                        <svg class="field-icon" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M21 7L9 19L3.5 13.5L4.91 12.09L9 16.17L19.59 5.59L21 7Z" />
+                        </svg>
+                        Save Changes
+                    </button>
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <svg class="field-icon" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 2C6.47 2 2 6.47 2 12S6.47 22 12 22 22 17.53 22 12 17.53 2 12 2ZM15.59 7L12 10.59L8.41 7L7 8.41L10.59 12L7 15.59L8.41 17L12 13.41L15.59 17L17 15.59L13.41 12L17 8.41L15.59 7Z" />
+                        </svg>
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
     </div>
-
-    <div class="form-group">
-        <label asp-for="Department"></label>
-        <input asp-for="Department" class="form-control" />
-        <span asp-validation-for="Department" class="text-danger"></span>
-    </div>
-
-    <div class="form-group">
-        <label asp-for="RoleId">Role</label>
-        <select asp-for="RoleId" asp-items="@(new SelectList(Model.AvailableRoles, "RoleID", "RoleName"))" class="form-control"></select>
-        <span asp-validation-for="RoleId" class="text-danger"></span>
-    </div>
-
-    <div class="form-group">
-        <label asp-for="TeamId">Team (optional)</label>
-        <input asp-for="TeamId" class="form-control" />
-        <span asp-validation-for="TeamId" class="text-danger"></span>
-    </div>
-
-    <button type="submit" class="btn btn-primary">Save Changes</button>
-    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
-</form>
+</div>
 
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+    <script>
+        // Enhanced form interactions
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('form');
+            const submitButton = document.querySelector('.btn-primary');
+
+            // Add loading state on form submission
+            form.addEventListener('submit', function() {
+                submitButton.disabled = true;
+                submitButton.innerHTML = '<svg class="field-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4V2C13.3 2 14.6 2.3 15.8 2.8L14.9 4.7C14 4.3 13 4 12 4ZM12 20V22C10.7 22 9.4 21.7 8.2 21.2L9.1 19.3C10 19.7 11 20 12 20ZM20 12H22C22 13.3 21.7 14.6 21.2 15.8L19.3 14.9C19.7 14 20 13 20 12ZM4 12H2C2 10.7 2.3 9.4 2.8 8.2L4.7 9.1C4.3 10 4 11 4 12Z"/></svg> Saving...';
+            });
+
+            // Auto-focus first input
+            const firstInput = document.querySelector('input[type="text"]:not([type="hidden"])');
+            if (firstInput) {
+                firstInput.focus();
+            }
+
+            // Form field animations
+            const formControls = document.querySelectorAll('.form-control');
+            formControls.forEach(control => {
+                control.addEventListener('focus', function() {
+                    this.parentElement.classList.add('focused');
+                });
+
+                control.addEventListener('blur', function() {
+                    this.parentElement.classList.remove('focused');
+                });
+            });
+        });
+    </script>
 }

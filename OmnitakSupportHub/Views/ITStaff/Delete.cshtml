@@ -1,0 +1,8 @@
+﻿@model OmnitakSupportHub.Models.ITStaff
+
+<h2>Delete IT Staff</h2>
+<p>Are you sure you want to delete @Model.Name?</p>
+<form asp-action="Delete">
+    <input type="hidden" asp-for="Id" />
+    <button type="submit">Delete</button>
+</form>

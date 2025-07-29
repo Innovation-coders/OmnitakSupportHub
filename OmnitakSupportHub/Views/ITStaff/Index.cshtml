@@ -1,0 +1,17 @@
+﻿@model IEnumerable<OmnitakSupportHub.Models.ITStaff>
+
+<h2>IT Staff</h2>
+<a asp-action="Create">Create New</a>
+<table>
+    @foreach (var staff in Model)
+    {
+        <tr>
+            <td>@staff.Name</td>
+            <td>@staff.Specialization</td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@staff.Id">Edit</a> |
+                <a asp-action="Delete" asp-route-id="@staff.Id">Delete</a>
+            </td>
+        </tr>
+    }
+</table>

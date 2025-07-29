@@ -1,0 +1,9 @@
+﻿@model OmnitakSupportHub.Models.ITStaff
+
+<h2>Edit IT Staff</h2>
+<form asp-action="Edit">
+    <input type="hidden" asp-for="Id" />
+    <input asp-for="Name" /><br />
+    <input asp-for="Specialization" /><br />
+    <button type="submit">Save</button>
+</form>

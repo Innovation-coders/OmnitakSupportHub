@@ -24,7 +24,6 @@ namespace OmnitakSupportHub
         public DbSet<TicketTimeline> TicketTimelines { get; set; }
         public DbSet<ChatMessage> ChatMessages { get; set; }
         public DbSet<PasswordResetToken> PasswordResetTokens { get; set; }
-        public DbSet<ITStaff> ITStaff { get; set; }
 
         public OmnitakContext(DbContextOptions<OmnitakContext> options) : base(options)
         {

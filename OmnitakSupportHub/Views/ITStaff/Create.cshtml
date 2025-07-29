@@ -1,8 +1,46 @@
-﻿@model OmnitakSupportHub.Models.ITStaff
+﻿@model OmnitakSupportHub.ViewModels.ITStaffSpecializationViewModel
+@{
+    ViewData["Title"] = "Assign IT Staff Specialization";
+}
 
-<h2>Create IT Staff</h2>
-<form asp-action="Create">
-    <input asp-for="Name" placeholder="Name" /><br />
-    <input asp-for="Specialization" placeholder="Specialization" /><br />
-    <button type="submit">Create</button>
-</form>
+<div class="p-4" style="background-color: #e6f2e6; border-radius: 8px;">
+    <a asp-controller="AdminDashboard" asp-action="Index" class="btn btn-outline-success mb-3 fw-bold">
+        ← Back to Admin Dashboard
+    </a>
+    <h2 class="mb-4 text-success">@ViewData["Title"]</h2>
+
+    <form asp-action="Create" method="post">
+        <div class="form-group mb-3">
+            <label asp-for="SelectedUserId" class="form-label fw-bold">Select IT Staff</label>
+            <select asp-for="SelectedUserId" class="form-control" asp-items="Model.AvailableUsers">
+                <option value="">-- Select IT Staff --</option>
+            </select>
+            <span asp-validation-for="SelectedUserId" class="text-danger"></span>
+        </div>
+
+        <div class="form-group mb-3">
+            <label asp-for="SelectedSupportTeamId" class="form-label fw-bold">Assign to Existing Team</label>
+            <select asp-for="SelectedSupportTeamId" class="form-control" asp-items="Model.AvailableSupportTeams">
+                <option value="">-- Select Team --</option>
+            </select>
+            <span asp-validation-for="SelectedSupportTeamId" class="text-danger"></span>
+        </div>
+
+        <div class="form-group mb-4">
+            <label asp-for="NewSupportTeamName" class="form-label fw-bold">Or Create New Team</label>
+            <input asp-for="NewSupportTeamName" class="form-control" placeholder="Enter new team name (optional)" />
+            <span asp-validation-for="NewSupportTeamName" class="text-danger"></span>
+        </div>
+
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-warning text-dark fw-bold">Assign Specialization</button>
+            <a asp-action="Index" class="btn btn-danger fw-bold">Cancel</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

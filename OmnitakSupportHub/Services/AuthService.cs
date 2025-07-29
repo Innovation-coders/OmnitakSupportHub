@@ -145,6 +145,7 @@ namespace OmnitakSupportHub.Services
         public async Task<List<User>> GetPendingUsersAsync()
         {
             return await _context.Users
+                .Include(u => u.Department)
                 .Where(u => !u.IsApproved && u.IsActive)
                 .OrderByDescending(u => u.CreatedAt)
                 .ToListAsync();
@@ -217,6 +218,7 @@ namespace OmnitakSupportHub.Services
         public async Task<List<User>> GetActiveUsersAsync()
         {
             return await _context.Users
+                .Include(u => u.Department)
                 .Where(u => u.IsActive && u.IsApproved)
                 .OrderByDescending(u => u.CreatedAt)
                 .ToListAsync();

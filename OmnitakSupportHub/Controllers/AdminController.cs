@@ -133,6 +133,7 @@ namespace OmnitakSupportHub.Controllers
             var viewModel = new AdminDashboardViewModel
             {
                 PendingUsers = await _context.Users
+                    .Include(u => u.Department)
                     .Where(u => !u.IsApproved && u.IsActive)
                     .ToListAsync(),
 

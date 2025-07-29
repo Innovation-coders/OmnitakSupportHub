@@ -1,8 +1,17 @@
-﻿@model OmnitakSupportHub.Models.ITStaff
+﻿@model OmnitakSupportHub.Models.User
 
-<h2>Delete IT Staff</h2>
-<p>Are you sure you want to delete @Model.Name?</p>
-<form asp-action="Delete">
-    <input type="hidden" asp-for="Id" />
-    <button type="submit">Delete</button>
+@{
+    ViewData["Title"] = "Unassign IT Staff Specialization";
+}
+
+<h2>Remove Specialization</h2>
+
+<div class="alert alert-warning">
+    <p>Are you sure you want to remove <strong>@Model.FullName</strong> from team <strong>@Model.Team?.TeamName</strong>?</p>
+</div>
+
+<form asp-action="DeleteConfirmed" method="post">
+    <input type="hidden" asp-for="UserID" />
+    <button type="submit" class="btn btn-danger">Yes, Remove</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
 </form>

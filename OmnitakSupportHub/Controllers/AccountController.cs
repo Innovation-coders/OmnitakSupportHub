@@ -13,6 +13,35 @@ namespace OmnitakSupportHub.Controllers
 {
     public class AccountController : Controller
     {
+
+        // Brute Force Protection (simple in-memory lockout)
+        private static readonly Dictionary<string, int> FailedLoginAttempts = new();
+        private static readonly Dictionary<string, DateTime> LockoutUntil = new();
+
+        private bool IsLockedOut(string username)
+        {
+            return LockoutUntil.ContainsKey(username) && LockoutUntil[username] > DateTime.UtcNow;
+        }
+
+        private void RecordFailedAttempt(string username)
+        {
+            if (!FailedLoginAttempts.ContainsKey(username))
+                FailedLoginAttempts[username] = 0;
+
+            FailedLoginAttempts[username]++;
+            if (FailedLoginAttempts[username] >= 5) // Lock after 5 failed attempts
+            {
+                LockoutUntil[username] = DateTime.UtcNow.AddMinutes(5); // Lock for 5 minutes
+                FailedLoginAttempts[username] = 0; // Reset counter
+            }
+        }
+
+        private void ResetFailedAttempts(string username)
+        {
+            if (FailedLoginAttempts.ContainsKey(username))
+                FailedLoginAttempts[username] = 0;
+        }
+
         private readonly IAuthService _authService;
         private readonly OmnitakContext _context;
         private readonly EmailService _emailService;
@@ -39,6 +68,13 @@ namespace OmnitakSupportHub.Controllers
         [HttpPost]
         public async Task<IActionResult> Login(LoginViewModel model)
         {
+            if (IsLockedOut(model.Email))
+            {
+                ModelState.AddModelError(string.Empty, "Account temporarily locked. Try again after 5 minutes.");
+                RecordFailedAttempt(model.Email);
+                return View(model);
+            }
+
             if (!ModelState.IsValid)
                 return View(model);
 
@@ -51,6 +87,7 @@ namespace OmnitakSupportHub.Controllers
 
             var result = await _authService.LoginAsync(loginModel);
 
+            ResetFailedAttempts(model.Email);
             if (result.Success && result.User != null)
             {
                 // Create claims for the authenticated user

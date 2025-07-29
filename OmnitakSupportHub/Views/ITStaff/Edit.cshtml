@@ -1,9 +1,35 @@
-﻿@model OmnitakSupportHub.Models.ITStaff
+﻿@model OmnitakSupportHub.ViewModels.ITStaffSpecializationViewModel
 
-<h2>Edit IT Staff</h2>
-<form asp-action="Edit">
-    <input type="hidden" asp-for="Id" />
-    <input asp-for="Name" /><br />
-    <input asp-for="Specialization" /><br />
-    <button type="submit">Save</button>
+@{
+    ViewData["Title"] = "Edit IT Staff Specialization";
+}
+
+<h2>Edit Specialization</h2>
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="SelectedUserId" />
+
+    <div class="form-group">
+        <label>User</label>
+        <input class="form-control" value="@Model.AvailableUsers.FirstOrDefault(u => u.Value == Model.SelectedUserId.ToString())?.Text" disabled />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="SelectedSupportTeamId">Change to Existing Team</label>
+        <select asp-for="SelectedSupportTeamId" asp-items="Model.AvailableSupportTeams" class="form-control"></select>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="NewSupportTeamName">Or Create New Team</label>
+        <input asp-for="NewSupportTeamName" class="form-control" placeholder="e.g. Endpoint Support" />
+    </div>
+
+    <button type="submit" class="btn btn-success">Save Changes</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
 </form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

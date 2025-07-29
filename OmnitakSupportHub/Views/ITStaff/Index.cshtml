@@ -1,17 +1,47 @@
-﻿@model IEnumerable<OmnitakSupportHub.Models.ITStaff>
+﻿@model IEnumerable<OmnitakSupportHub.Models.User>
+@{
+    ViewData["Title"] = "IT Staff Specializations";
+}
 
-<h2>IT Staff</h2>
-<a asp-action="Create">Create New</a>
-<table>
-    @foreach (var staff in Model)
+<div class="p-4" style="background-color: #e6f9e6; border-radius: 8px;">
+    <a asp-controller="AdminDashboard" asp-action="Index" class="btn btn-outline-success mb-3 fw-bold">
+        ← Back to Admin Dashboard
+    </a>
+    <h2 class="text-success">@ViewData["Title"]</h2>
+
+    @if (TempData["Success"] != null)
     {
-        <tr>
-            <td>@staff.Name</td>
-            <td>@staff.Specialization</td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@staff.Id">Edit</a> |
-                <a asp-action="Delete" asp-route-id="@staff.Id">Delete</a>
-            </td>
-        </tr>
+        <div class="alert alert-success mt-2">@TempData["Success"]</div>
     }
-</table>
+
+    <p>
+        <a asp-action="Create" class="btn btn-warning text-dark fw-bold mt-3">Assign New Specialization</a>
+    </p>
+
+    <table class="table table-striped table-bordered mt-3">
+        <thead class="table-success">
+            <tr>
+                <th>Full Name</th>
+                <th>Email</th>
+                <th>Team</th>
+                <th>Specialization</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var staff in Model)
+            {
+                <tr>
+                    <td>@staff.FullName</td>
+                    <td>@staff.Email</td>
+                    <td>@(staff.Team?.TeamName ?? "Unassigned")</td>
+                    <td>@(staff.Team?.Specialization ?? "-")</td>
+                    <td>
+                        <a asp-action="Edit" asp-route-id="@staff.UserID" class="btn btn-sm btn-warning text-dark fw-bold">Edit</a>
+                        <a asp-action="Delete" asp-route-id="@staff.UserID" class="btn btn-sm btn-danger fw-bold">Unassign</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using OmnitakSupportHub.Models;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Collections.Generic;
 
 namespace OmnitakSupportHub.Models.ViewModels
@@ -10,16 +10,19 @@ namespace OmnitakSupportHub.Models.ViewModels
 
         [Required]
         [StringLength(100)]
-        public required string FullName { get; set; }
+        public required string FullName { get; set; } = string.Empty;
 
-        [StringLength(50)]
-        public string? Department { get; set; }
+        [Required]
+        [Display(Name = "Department")]
+        public int? DepartmentId { get; set; }
+
+        public List<SelectListItem> AvailableDepartments { get; set; } = new();
 
         [Required]
         public int RoleId { get; set; }
 
         public int? TeamId { get; set; }
 
-        public List<Role> AvailableRoles { get; set; } = new();
+        public List<SelectListItem> AvailableRoles { get; set; } = new();
     }
 }

@@ -294,100 +294,109 @@ input:focus, textarea:focus, select:focus {
 
         @if (TempData["SuccessMessage"] != null)
         {
-                <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+            <div class="alert alert-success">@TempData["SuccessMessage"]</div>
         }
         @if (TempData["ErrorMessage"] != null)
         {
-                <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+            <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
         }
 
         @if (Model.PendingUsers != null && Model.PendingUsers.Any())
         {
-                <div class="section-header">Pending User Approvals</div>
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Email</th>
-                            <th>Department</th>
-                            <th>Role</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
+            <div class="section-header">Pending User Approvals</div>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Department</th>
+                        <th>Role</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
                     @foreach (var user in Model.PendingUsers)
                     {
-                                <tr>
-                                    <form asp-action="ApproveUser" method="post">
-                                        <td>
-                                    @user.FullName
-                                            <input type="hidden" name="userId" value="@user.UserID" />
-                                        </td>
-                                        <td>@user.Email</td>
-                                        <td>
-                                            <select name="departmentId" asp-items="Model.AvailableDepartments" class="form-select">
-                                                <option value="">-- Select Department --</option>
-                                            </select>
-                                        </td>
-                                        <td>
-                                            <select name="roleId" asp-items="Model.AvailableRoles" class="form-select">
-                                                <option value="">-- Select Role --</option>
-                                            </select>
-                                        </td>
-                                        <td>
-                                            <button type="submit" class="btn btn-success btn-sm">Approve</button>
-                                            <a asp-action="EditUser" asp-route-id="@user.UserID" class="btn btn-warning btn-sm">Edit</a>
-                                            <form asp-action="RejectUser" method="post" style="display:inline;">
-                                                <input type="hidden" name="userId" value="@user.UserID" />
-                                                <button type="submit" class="btn btn-danger btn-sm">Reject</button>
-                                            </form>
-                                        </td>
-                                    </form>
-                                </tr>
+                        <tr>
+                            <form asp-action="ApproveUser" method="post">
+                            <td>
+                                @user.FullName
+                                <input type="hidden" name="userId" value="@user.UserID" />
+                            </td>
+                            <td>@user.Email</td>
+                            <td>
+                                @* Assuming user.Department is pre-loaded or null, and DepartmentName is a property *@
+                                @if (user.Department != null)
+                                {
+                                    <span>@user.Department.DepartmentName</span>
+                                    <input type="hidden" name="departmentId" value="@user.Department.DepartmentId" />
+                                }
+                                else
+                                {
+                                    <span>Not Assigned</span>
+                                    <input type="hidden" name="departmentId" value="" />
+             // Or handle this case based on your logic
+                                }
+                            </td>
+                            <td>
+                                <select name="roleId" asp-items="Model.AvailableRoles" class="form-select">
+                                    <option value="">-- Select Role --</option>
+                                </select>
+                            </td>
+                            <td>
+                                <button type="submit" class="btn btn-success btn-sm">Approve</button>
+                                <a asp-action="EditUser" asp-route-id="@user.UserID" class="btn btn-warning btn-sm">Edit</a>
+                                <form asp-action="RejectUser" method="post" style="display:inline;">
+                                    <input type="hidden" name="userId" value="@user.UserID" />
+                                    <button type="submit" class="btn btn-danger btn-sm">Reject</button>
+                                </form>
+                            </td>
+                            </form>
+                        </tr>
                     }
-                    </tbody>
-                </table>
+                </tbody>
+            </table>
         }
         else
         {
-                <div class="alert alert-info mt-4">No users pending approval.</div>
+            <div class="alert alert-info mt-4">No users pending approval.</div>
         }
 
         @if (Model.ActiveUsers != null && Model.ActiveUsers.Any())
         {
-                <div class="section-header">Active Users</div>
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Email</th>
-                            <th>Department</th>
-                            <th>Role</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
+            <div class="section-header">Active Users</div>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Department</th>
+                        <th>Role</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
                     @foreach (var user in Model.ActiveUsers)
                     {
-                                <tr>
-                                    <td>@user.FullName</td>
-                                    <td>@user.Email</td>
-                                    <td>@user.Department?.DepartmentName</td>
-                                    <td>@user.Role?.RoleName</td>
-                                    <td>
-                                        <a asp-action="EditUser" asp-route-id="@user.UserID" class="btn btn-warning btn-sm">Edit</a>
-                                        <form asp-action="ToggleUserStatus" asp-route-id="@user.UserID" method="post" style="display:inline;">
-                                            <button type="submit" class="btn btn-danger btn-sm">Deactivate</button>
-                                        </form>
-                                    </td>
-                                </tr>
+                        <tr>
+                            <td>@user.FullName</td>
+                            <td>@user.Email</td>
+                            <td>@user.Department?.DepartmentName</td>
+                            <td>@user.Role?.RoleName</td>
+                            <td>
+                                <a asp-action="EditUser" asp-route-id="@user.UserID" class="btn btn-warning btn-sm">Edit</a>
+                                <form asp-action="ToggleUserStatus" asp-route-id="@user.UserID" method="post" style="display:inline;">
+                                    <button type="submit" class="btn btn-danger btn-sm">Deactivate</button>
+                                </form>
+                            </td>
+                        </tr>
                     }
-                    </tbody>
-                </table>
+                </tbody>
+            </table>
         }
         else
         {
-                <div class="alert alert-info mt-4">No active users found.</div>
+            <div class="alert alert-info mt-4">No active users found.</div>
         }
     </div>
 </div>

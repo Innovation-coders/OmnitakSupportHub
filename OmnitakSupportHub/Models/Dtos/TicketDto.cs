@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace OmnitakSupportHub.Models.ViewModels
+namespace OmnitakSupportHub.Models.Dtos
 {
     public class TicketDto
     {

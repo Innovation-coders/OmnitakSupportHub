@@ -1,5 +1,5 @@
 ﻿// ChatMessageDto.cs
-namespace OmnitakSupportHub.Models.DTOs
+namespace OmnitakSupportHub.Models.Dtos
 {
     public class ChatMessageDto
     {

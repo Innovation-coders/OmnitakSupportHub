@@ -5,7 +5,7 @@ using OmnitakSupportHub.Models;
 
 namespace OmnitakSupportHub.Controllers
 {
-    [Authorize(Roles = "Administrator")]
+    [Authorize(Roles = "Administrator, Support Manager")]
     public class ITStaffController : Controller
     {
         private readonly OmnitakContext _context;

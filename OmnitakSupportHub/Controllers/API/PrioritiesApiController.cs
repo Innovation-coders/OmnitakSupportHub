@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using OmnitakSupportHub.Models;
-using OmnitakSupportHub.Models.DTOs;
+using OmnitakSupportHub.Models.Dtos;
 
 namespace OmnitakSupportHub.Controllers.Api
 {

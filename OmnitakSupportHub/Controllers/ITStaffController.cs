@@ -7,6 +7,8 @@ using System.Linq;
 
 namespace OmnitakSupportHub.Controllers
 {
+
+    [Authorize(Roles = "Administrator, Support Manager")]
     public class ITStaffController : Controller
     {
         private readonly OmnitakContext _context;

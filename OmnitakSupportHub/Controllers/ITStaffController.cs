@@ -4,6 +4,8 @@ using Microsoft.EntityFrameworkCore;
 using OmnitakSupportHub.Models;
 using OmnitakSupportHub.ViewModels;
 using System.Linq;
+using Microsoft.AspNetCore.Authorization;
+
 
 namespace OmnitakSupportHub.Controllers
 {

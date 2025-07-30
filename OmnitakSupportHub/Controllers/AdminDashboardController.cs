@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using OmnitakSupportHub.Services;
 using OmnitakSupportHub.Models.ViewModels;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 
 namespace OmnitakSupportHub.Controllers
 {
@@ -11,27 +12,47 @@ namespace OmnitakSupportHub.Controllers
     public class AdminDashboardController : Controller
     {
         private readonly IAuthService _authService;
+        private readonly OmnitakContext _context;
 
-        public AdminDashboardController(IAuthService authService)
+        public AdminDashboardController(IAuthService authService, OmnitakContext context)
         {
             _authService = authService;
+            _context = context;
         }
 
         public async Task<IActionResult> Index()
         {
             var roles = await _authService.GetAvailableRolesAsync();
-            var selectListRoles = roles.Select(role => new SelectListItem
-            {
-                Value = role.RoleID.ToString(),
-                Text = role.RoleName
-            }).ToList();
+            var departments = await _context.Departments.ToListAsync();
 
-            var model = new OmnitakSupportHub.Models.ViewModels.AdminDashboardViewModel
+            var activeUsers = await _context.Users
+                .Include(u => u.Department)
+                .Include(u => u.Role)
+                .Where(u => u.IsActive)
+                .ToListAsync();
+
+            var pendingUsers = await _context.Users
+                .Include(u => u.Department)
+                .Include(u => u.Role)
+                .Where(u => !u.IsApproved)
+                .ToListAsync();
+
+            var model = new AdminDashboardViewModel
             {
-                PendingUsers = await _authService.GetPendingUsersAsync(),
-                AvailableRoles = selectListRoles,
-                ActiveUsers = await _authService.GetActiveUsersAsync()
+                ActiveUsers = activeUsers,
+                PendingUsers = pendingUsers,
+                AvailableRoles = roles.Select(role => new SelectListItem
+                {
+                    Value = role.RoleID.ToString(),
+                    Text = role.RoleName
+                }).ToList(),
+                AvailableDepartments = departments.Select(d => new SelectListItem
+                {
+                    Value = d.DepartmentId.ToString(),
+                    Text = d.DepartmentName
+                }).ToList()
             };
+
             return View(model);
         }
 
@@ -75,20 +96,33 @@ namespace OmnitakSupportHub.Controllers
         [HttpGet]
         public async Task<IActionResult> EditUser(int id)
         {
-            var user = await _authService.GetUserByIdAsync(id);
+            var user = await _context.Users
+                .Include(u => u.Department)
+                .FirstOrDefaultAsync(u => u.UserID == id);
+
             if (user == null)
                 return NotFound();
 
-            var roles = await _authService.GetAvailableRolesAsync();
+            var departments = await _context.Departments.ToListAsync();
+            var roles = await _context.Roles.ToListAsync();
 
             var model = new EditUserViewModel
             {
                 UserId = user.UserID,
                 FullName = user.FullName,
-                Department = user.Department?.DepartmentName,
+                DepartmentId = user.DepartmentId,
                 RoleId = user.RoleID ?? 0,
                 TeamId = user.TeamID,
-                AvailableRoles = roles
+                AvailableDepartments = departments.Select(d => new SelectListItem
+                {
+                    Value = d.DepartmentId.ToString(),
+                    Text = d.DepartmentName
+                }).ToList(),
+                AvailableRoles = roles.Select(r => new SelectListItem
+                {
+                    Value = r.RoleID.ToString(),
+                    Text = r.RoleName
+                }).ToList()
             };
 
             return View(model);
@@ -101,25 +135,24 @@ namespace OmnitakSupportHub.Controllers
         {
             if (!ModelState.IsValid)
             {
-                model.AvailableRoles = await _authService.GetAvailableRolesAsync();
+                // Reload dropdowns if validation fails
+                model.AvailableDepartments = (await _context.Departments.ToListAsync())
+                    .Select(d => new SelectListItem { Value = d.DepartmentId.ToString(), Text = d.DepartmentName }).ToList();
+                model.AvailableRoles = (await _context.Roles.ToListAsync())
+                    .Select(r => new SelectListItem { Value = r.RoleID.ToString(), Text = r.RoleName }).ToList();
                 return View(model);
             }
 
-            int modifiedById = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
-            bool result = await _authService.UpdateUserAsync(
-                model.UserId,
-                model.FullName,
-                model.Department,
-                model.RoleId,
-                model.TeamId,
-                modifiedById
-            );
+            var user = await _context.Users.FindAsync(model.UserId);
+            if (user == null)
+                return NotFound();
 
-            if (result)
-                TempData["SuccessMessage"] = "User details updated successfully.";
-            else
-                TempData["ErrorMessage"] = "Failed to update user details.";
+            user.FullName = model.FullName;
+            user.DepartmentId = model.DepartmentId;
+            user.RoleID = model.RoleId;
+            user.TeamID = model.TeamId;
 
+            await _context.SaveChangesAsync();
             return RedirectToAction("Index");
         }
 

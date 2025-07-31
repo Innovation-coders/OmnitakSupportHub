@@ -1,152 +1,170 @@
 ﻿@model OmnitakSupportHub.Models.Ticket
+
 @{
     ViewData["Title"] = "Ticket Details";
-    var agents = ViewBag.AvailableAgents as List<OmnitakSupportHub.Models.User>;
-    var priorities = ViewBag.Priorities as SelectList;
 }
 
 <style>
-    .details-container {
-        max-width: 800px;
-        margin: 3rem auto;
-        background: white;
-        border-radius: 15px;
-        box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-        padding: 2rem;
-        font-family: Arial, sans-serif;
+    .dashboard-container {
+        max-width: 900px;
+        margin: 40px auto;
+        background: var(--bg-secondary, #fff);
+        box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        border-radius: 0.75rem;
+        padding: 32px;
+        font-family: 'Inter', 'Segoe UI', sans-serif;
     }
-
-    .details-title {
-        font-size: 2rem;
-        color: #2e7d32;
-        margin-bottom: 1rem;
-        text-align: center;
-    }
-
-    .details-item {
-        margin-bottom: 1rem;
-    }
-
-        .details-item strong {
-            color: #388e3c;
-            display: inline-block;
-            width: 140px;
-        }
-
     .section-header {
-        font-size: 1.4rem;
-        color: #2e7d32;
-        margin-top: 2rem;
-        margin-bottom: 1rem;
-        border-bottom: 2px solid #2e7d32;
-        padding-bottom: 5px;
+        background: linear-gradient(90deg, #10b981, #065f46);
+        color: white;
+        padding: 16px 24px;
+        border-radius: 0.5rem 0.5rem 0 0;
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin-bottom: 24px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
     }
-
+    .details-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 24px;
+    }
+    .details-table th, .details-table td {
+        padding: 12px 16px;
+        border-bottom: 1px solid #e2e8f0;
+        text-align: left;
+    }
+    .details-table th {
+        background: #10b981;
+        color: #fff;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+    .details-table td {
+        background: #f8fafc;
+    }
     .form-section {
-        margin-bottom: 1.5rem;
+        background: #f8fafc;
+        padding: 20px;
+        border-radius: 0.5rem;
+        margin-bottom: 24px;
+        box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
     }
-
-        .form-section select,
-        .form-section button {
-            padding: 0.5rem 1rem;
-            font-size: 1rem;
-            margin-right: 0.5rem;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-
-        .form-section button {
-            background: #2e7d32;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-
-            .form-section button:hover {
-                background: #1b5e20;
-            }
-
-    .back-link {
+    .btn {
         display: inline-block;
-        margin-top: 2rem;
-        text-decoration: none;
-        color: #2e7d32;
-        font-weight: bold;
+        padding: 0.5rem 1.25rem;
+        font-size: 1rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+        margin-right: 8px;
+        transition: background 0.3s, color 0.3s;
+        text-transform: uppercase;
     }
-
-        .back-link:hover {
-            text-decoration: underline;
-        }
-
-    .alert {
-        padding: 10px;
-        margin-bottom: 1rem;
-        border: 1px solid transparent;
-        border-radius: 5px;
+    .btn-primary {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
     }
-
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #059669 0%, #065f46 100%);
+    }
+    .btn-danger {
+        background-color: #dc3545;
+        color: white;
+    }
+    .btn-danger:hover {
+        background-color: #b91c1c;
+    }
     .alert-success {
-        color: #155724;
-        background-color: #d4edda;
-        border-color: #c3e6cb;
+        border-left: 5px solid #10b981;
+        background: rgba(16, 185, 129, 0.1);
+        color: #10b981;
+        padding: 16px;
+        border-radius: 0.5rem;
+        margin-bottom: 24px;
+        font-weight: 500;
     }
 </style>
 
-<div class="details-container">
-    <h2 class="details-title">Ticket Details</h2>
+<div class="dashboard-container">
+    <div class="section-header">Ticket Details</div>
 
     @if (TempData["SuccessMessage"] != null)
     {
-        <div class="alert alert-success">
-            @TempData["SuccessMessage"]
-        </div>
+        <div class="alert-success">@TempData["SuccessMessage"]</div>
     }
 
-    <div class="details-item"><strong>Title:</strong> @Model.Title</div>
-    <div class="details-item"><strong>Description:</strong> @Model.Description</div>
-    <div class="details-item"><strong>Status:</strong> @Model.Status?.StatusName</div>
-    <div class="details-item"><strong>Priority:</strong> @Model.Priority?.PriorityName</div>
-    <div class="details-item"><strong>Category:</strong> @Model.Category?.CategoryName</div>
-    <div class="details-item"><strong>Support Team:</strong> @Model.Team?.TeamName</div>
-    <div class="details-item"><strong>Created By:</strong> @Model.CreatedByUser?.FullName</div>
-    <div class="details-item"><strong>Created At:</strong> @Model.CreatedAt.ToString("yyyy-MM-dd")</div>
+    <table class="details-table">
+        <tr>
+            <th>Title</th>
+            <td>@Model.Title</td>
+        </tr>
+        <tr>
+            <th>Description</th>
+            <td>@Model.Description</td>
+        </tr>
+        <tr>
+            <th>Status</th>
+            <td>@Model.Status?.StatusName</td>
+        </tr>
+        <tr>
+            <th>Priority</th>
+            <td>@Model.Priority?.PriorityName</td>
+        </tr>
+        <tr>
+            <th>Category</th>
+            <td>@Model.Category?.CategoryName</td>
+        </tr>
+        <tr>
+            <th>Support Team</th>
+            <td>@Model.Team?.TeamName</td>
+        </tr>
+        <tr>
+            <th>Created By</th>
+            <td>@Model.CreatedByUser?.FullName</td>
+        </tr>
+        <tr>
+            <th>Created At</th>
+            <td>@Model.CreatedAt.ToString("yyyy-MM-dd")</td>
+        </tr>
+    </table>
 
     <div class="section-header">Assign to Agent</div>
     <form asp-action="AssignAgent" method="post" class="form-section">
         <input type="hidden" name="ticketId" value="@Model.TicketID" />
         <select name="agentId">
-            @if (agents != null && agents.Any())
+            <option value="0">-- None --</option>
+            @if (ViewBag.AvailableAgents != null && ((IEnumerable<OmnitakSupportHub.Models.User>)ViewBag.AvailableAgents).Any())
             {
-                foreach (var agent in agents)
+                foreach (var agent in (IEnumerable<OmnitakSupportHub.Models.User>)ViewBag.AvailableAgents)
                 {
-                    <option value="@agent.UserID">@agent.FullName</option>
+                    var isSelected = Model.AssignedTo == agent.UserID ? "selected" : "";
+                    <option value="@agent.UserID" selected="@isSelected">@agent.FullName</option>
                 }
             }
-            else
-            {
-                <option disabled>No agents available</option>
-            }
         </select>
-        <button type="submit">Assign</button>
+        <button type="submit" class="btn btn-primary">Assign/Reassign</button>
     </form>
 
     <div class="section-header">Set Priority</div>
     <form asp-action="SetPriority" method="post" class="form-section">
         <input type="hidden" name="ticketId" value="@Model.TicketID" />
         <select name="priorityId">
-            @foreach (var p in priorities)
+            @foreach (var p in ViewBag.Priorities)
             {
                 <option value="@p.Value" selected="@(Model.PriorityID.ToString() == p.Value?.ToString())">@p.Text</option>
             }
         </select>
-        <button type="submit">Update Priority</button>
+        <button type="submit" class="btn btn-primary">Update Priority</button>
     </form>
 
     <div class="section-header">Close Ticket</div>
     <form asp-action="CloseTicket" method="post" class="form-section">
         <input type="hidden" name="ticketId" value="@Model.TicketID" />
-        <button type="submit">Close Ticket</button>
+        <button type="submit" class="btn btn-danger">Close Ticket</button>
     </form>
 
-    <a asp-controller="ManagerDashboard" asp-action="Index" class="back-link">← Back to Dashboard</a>
+    <a asp-controller="ManagerDashboard" asp-action="Index" class="btn btn-secondary">← Back to Dashboard</a>
 </div>

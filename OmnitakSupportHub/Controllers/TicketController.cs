@@ -76,6 +76,7 @@ namespace OmnitakSupportHub.Controllers
             TempData["SuccessMessage"] = "Ticket successfully assigned!";
             return RedirectToAction(nameof(Index));
         }
+
         // GET: /Ticket/Delete/5
         public async Task<IActionResult> Delete(int id)
         {
@@ -107,6 +108,7 @@ namespace OmnitakSupportHub.Controllers
 
             return RedirectToAction(nameof(Index));
         }
+
         // GET: /Ticket/TestError
         [HttpGet("/Ticket/TestError")]
         [AllowAnonymous] // Optional: test without login
@@ -455,46 +457,18 @@ namespace OmnitakSupportHub.Controllers
 
             if (ticket == null) return NotFound();
 
-            // Verify the agent exists and is active
-            var agent = await _context.Users
-                .Include(u => u.Role)
-                .FirstOrDefaultAsync(u => u.UserID == agentId && u.IsActive && u.Role.RoleName == "Support Agent");
-
-            if (agent == null)
+            if (agentId == 0)
             {
-                TempData["ErrorMessage"] = "Selected agent is not valid or not active.";
-                return RedirectToAction(nameof(Details), new { id = ticketId });
+                ticket.AssignedTo = null;
+                TempData["SuccessMessage"] = "Ticket unassigned successfully!";
             }
-
-            var oldAssignedTo = ticket.AssignedTo;
-            ticket.AssignedTo = agentId;
-
-            // Update status to "Assigned" if it's currently "Open"
-            if (ticket.Status.StatusName == "Open")
+            else
             {
-                var assignedStatus = await _context.Statuses
-                    .FirstOrDefaultAsync(s => s.StatusName == "Assigned");
-                if (assignedStatus != null)
-                {
-                    ticket.StatusID = assignedStatus.StatusID;
-                }
+                ticket.AssignedTo = agentId;
+                TempData["SuccessMessage"] = "Ticket assigned/reassigned successfully!";
             }
 
             await _context.SaveChangesAsync();
-
-            // Log the assignment change
-            var userId = int.Parse(User.FindFirst("UserID")?.Value ?? "0");
-            _context.TicketTimelines.Add(new TicketTimeline
-            {
-                TicketID = ticketId,
-                ChangedByUserID = userId,
-                ChangeTime = DateTime.UtcNow,
-                OldStatus = oldAssignedTo?.ToString() ?? "Unassigned",
-                NewStatus = $"Assigned to {agent.FullName}"
-            });
-            await _context.SaveChangesAsync();
-
-            TempData["SuccessMessage"] = $"Ticket successfully assigned to {agent.FullName}!";
             return RedirectToAction(nameof(Details), new { id = ticketId });
         }
 
@@ -554,6 +528,5 @@ namespace OmnitakSupportHub.Controllers
             TempData["SuccessMessage"] = "Ticket closed!";
             return RedirectToAction(nameof(Details), new { id = ticketId });
         }
-
     }
 }

@@ -77,10 +77,30 @@
         .back-link:hover {
             text-decoration: underline;
         }
+
+    .alert {
+        padding: 10px;
+        margin-bottom: 1rem;
+        border: 1px solid transparent;
+        border-radius: 5px;
+    }
+
+    .alert-success {
+        color: #155724;
+        background-color: #d4edda;
+        border-color: #c3e6cb;
+    }
 </style>
 
 <div class="details-container">
     <h2 class="details-title">Ticket Details</h2>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["SuccessMessage"]
+        </div>
+    }
 
     <div class="details-item"><strong>Title:</strong> @Model.Title</div>
     <div class="details-item"><strong>Description:</strong> @Model.Description</div>

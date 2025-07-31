@@ -512,8 +512,26 @@ namespace OmnitakSupportHub.Controllers
             ticket.PriorityID = priorityId;
             await _context.SaveChangesAsync();
 
-            TempData["SuccessMessage"] = "Priority updated successfully!";
-            return RedirectToAction(nameof(Details), new { id = ticketId });
+            TempData["SuccessMessage"] = "Priority updated successfully.";
+            return RedirectToAction("Details", new { id = ticketId });
+        }
+
+        // Update Ticket Status (Support Manager)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateStatus(int ticketId, int statusId)
+        {
+            if (!User.IsInRole("Support Manager"))
+                return Forbid();
+
+            var ticket = await _context.Tickets.FindAsync(ticketId);
+            if (ticket == null) return NotFound();
+
+            ticket.StatusID = statusId;
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "Status updated successfully.";
+            return RedirectToAction("Details", new { id = ticketId });
         }
 
         // Close Ticket (Support Manager)

@@ -2,7 +2,28 @@
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="container mt-5">
+    <div class="text-center">
+        <h1 class="display-4 mb-4">Welcome to Omnitak Support Hub</h1>
+        <p class="lead">Manage tickets, view reports, and oversee your support team efficiently.</p>
+    </div>
+
+    <div class="d-flex justify-content-center mt-4 gap-3 flex-wrap">
+        <a class="btn btn-primary btn-lg" href="/Ticket/Create">
+            🎫 Create Ticket
+        </a>
+        <a class="btn btn-outline-secondary btn-lg" href="/Ticket/List">
+            📋 View Tickets
+        </a>
+        <a class="btn btn-success btn-lg" href="/ManagerDashboard">
+            🧑‍💼 Manager Dashboard
+        </a>
+        <a class="btn btn-dark btn-lg" href="/Admin">
+            🛠️ Admin Panel
+        </a>
+    </div>
+
+    <div class="text-center mt-5">
+        <img src="~/images/support-team.svg" class="img-fluid" alt="Support Illustration" style="max-height: 300px;" />
+    </div>
 </div>

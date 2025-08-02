@@ -1,0 +1,75 @@
+﻿@model IEnumerable<OmnitakSupportHub.Models.Ticket>
+@{
+    Func<string, string> getStatusColor = status => status switch
+    {
+        "New" => "badge bg-primary text-white",
+        "In Progress" => "badge bg-warning text-dark",
+        "Resolved" => "badge bg-success text-white",
+        "Closed" => "badge bg-secondary text-white",
+        _ => "badge bg-secondary text-white"
+    };
+
+    Func<string, string> getPriorityColor = priority => priority switch
+    {
+        "High" => "text-danger",
+        "Medium" => "text-warning",
+        "Low" => "text-success",
+        _ => "text-muted"
+    };
+}
+
+@if (!Model.Any())
+{
+    <div class="card text-center p-5">
+        <i class="bi bi-chat-left-text fs-1 text-muted mb-3"></i>
+        <h3 class="fw-semibold">No tickets found</h3>
+        <p class="text-muted">You haven't submitted any support tickets yet.</p>
+        <a href="@Url.Action("Create", "Ticket")" class="btn btn-primary">Submit Your First Ticket</a>
+    </div>
+}
+else
+{
+    <div class="row row-cols-1 g-4">
+        @foreach (var ticket in Model)
+        {
+            <div class="col">
+                <div class="card shadow-sm border-hover">
+                    <div class="card-header d-flex justify-content-between align-items-start">
+                        <div>
+                            <h5 class="mb-1">@ticket.Title</h5>
+                            <small class="text-muted">
+                                Ticket ID: @ticket.TicketID • Category: @ticket.Category?.CategoryName
+                            </small>
+                        </div>
+                        <div class="text-end">
+                            <span class="@getStatusColor(ticket.Status?.StatusName)">
+                                @ticket.Status?.StatusName
+                            </span>
+                            <div class="@getPriorityColor(ticket.Priority?.PriorityName) mt-2">
+                                <i class="bi bi-exclamation-circle"></i>
+                                @ticket.Priority?.PriorityName
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row text-muted small mb-3">
+                            <div class="col-md-4">
+                                <i class="bi bi-clock me-1"></i> Created: @ticket.CreatedAt.ToString("yyyy-MM-dd")
+                            </div>
+                            <div class="col-md-4">
+                                Last Update: @ticket.CreatedAt.ToString("yyyy-MM-dd") ?? "-"
+                            </div>
+                            <div class="col-md-4">
+                                Assigned to: @ticket.AssignedToUser?.FullName ?? "Unassigned"
+                            </div>
+                        </div>
+                        <div>
+                            <a class="btn btn-outline-primary btn-sm me-2" href="@Url.Action("Details", "Ticket", new { id = ticket.TicketID })">View Details</a>
+                            <a class="btn btn-outline-secondary btn-sm">Add Comment</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

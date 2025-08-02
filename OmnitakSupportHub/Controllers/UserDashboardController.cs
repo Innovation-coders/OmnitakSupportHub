@@ -23,10 +23,13 @@ namespace OmnitakSupportHub.Controllers
                 .Include(t => t.Category)
                 .Include(t => t.Priority)
                 .Include(t => t.Status)
+                .Include(t => t.AssignedToUser)
                 .Where(t => t.CreatedBy == userId)
                 .OrderByDescending(t => t.CreatedAt)
                 .ToListAsync();
 
+            // Set active tab for highlighting
+            ViewData["ActiveTab"] = "my-tickets";
             return View(myTickets);
         }
     }

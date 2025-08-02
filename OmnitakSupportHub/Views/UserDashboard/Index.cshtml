@@ -39,6 +39,16 @@
         overflow-x: hidden;
     }
 
+    /* Smooth scrolling */
+    html {
+        scroll-behavior: smooth;
+    }
+
+    /* Ensure section has some spacing when scrolled to */
+    #recent-tickets {
+        scroll-margin-top: 20px;
+    }
+
     .dashboard-layout {
         display: flex;
         min-height: 100vh;
@@ -373,7 +383,7 @@
         color: var(--text-muted);
     }
 
-    /* Tickets Table */
+    /* Tickets Section */
     .tickets-section {
         background: var(--bg-secondary);
         border-radius: var(--radius-lg);
@@ -396,139 +406,23 @@
         color: var(--text-primary);
     }
 
-    .table-container {
-        overflow-x: auto;
+    /* Card styles */
+    .border-hover {
+        transition: all 0.3s ease;
+        border: 1px solid var(--border-color);
     }
 
-    .tickets-table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-
-        .tickets-table th {
-            background: var(--bg-primary);
-            padding: 1rem;
-            text-align: left;
-            font-weight: 600;
-            font-size: 0.875rem;
-            color: var(--text-secondary);
-            border-bottom: 1px solid var(--border-color);
-            white-space: nowrap;
+        .border-hover:hover {
+            border-color: var(--primary-green);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
         }
 
-        .tickets-table td {
-            padding: 1rem;
-            border-bottom: 1px solid var(--border-color);
-            font-size: 0.875rem;
-        }
-
-        .tickets-table tbody tr {
-            transition: background-color 0.2s ease;
-        }
-
-            .tickets-table tbody tr:hover {
-                background: var(--bg-primary);
-            }
-
-    .ticket-id {
-        font-family: 'Monaco', 'Menlo', monospace;
-        background: var(--bg-primary);
-        padding: 0.25rem 0.5rem;
-        border-radius: var(--radius-sm);
+    /* Bootstrap badge overrides */
+    .badge {
         font-size: 0.75rem;
         font-weight: 600;
-    }
-
-    .ticket-title {
-        font-weight: 600;
-        color: var(--text-primary);
-        max-width: 200px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-
-    .status-badge {
-        display: inline-flex;
-        align-items: center;
-        padding: 0.25rem 0.75rem;
-        border-radius: 9999px;
-        font-size: 0.75rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-    }
-
-    .status-open {
-        background: rgba(239, 68, 68, 0.1);
-        color: #dc2626;
-    }
-
-    .status-progress {
-        background: rgba(245, 158, 11, 0.1);
-        color: #d97706;
-    }
-
-    .status-resolved {
-        background: rgba(16, 185, 129, 0.1);
-        color: var(--primary-green);
-    }
-
-    .priority-badge {
-        display: inline-flex;
-        align-items: center;
-        padding: 0.25rem 0.75rem;
-        border-radius: 9999px;
-        font-size: 0.75rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-    }
-
-    .priority-high {
-        background: rgba(239, 68, 68, 0.1);
-        color: #dc2626;
-    }
-
-    .priority-medium {
-        background: rgba(245, 158, 11, 0.1);
-        color: #d97706;
-    }
-
-    .priority-low {
-        background: rgba(16, 185, 129, 0.1);
-        color: var(--primary-green);
-    }
-
-    .empty-state {
-        text-align: center;
-        padding: 4rem 2rem;
-        color: var(--text-muted);
-    }
-
-    .empty-state-icon {
-        width: 80px;
-        height: 80px;
-        margin: 0 auto 1.5rem;
-        background: var(--bg-primary);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 2rem;
-        color: var(--text-muted);
-    }
-
-    .empty-state h3 {
-        font-size: 1.25rem;
-        font-weight: 600;
-        color: var(--text-secondary);
-        margin-bottom: 0.5rem;
-    }
-
-    .empty-state p {
-        font-size: 1rem;
-        margin-bottom: 2rem;
+        padding: 0.35em 0.65em;
     }
 
     /* Alert Styles */
@@ -553,85 +447,70 @@
     }
 
     @@keyframes slideInRight {
-        from
+        from {
+            opacity: 0;
+            transform: translateX(100px);
+        }
 
-    {
-        opacity: 0;
-        transform: translateX(100px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
-
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
     }
 
     @@keyframes fadeOutUp {
-        to
-
-    {
-        opacity: 0;
-        transform: translateY(-20px);
-    }
-
+        to {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
     }
 
     /* Responsive Design */
     @@media (max-width: 1024px) {
-        .sidebar
+        .sidebar {
+            width: 260px;
+        }
 
-    {
-        width: 260px;
-    }
-
-    .stats-grid {
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    }
-
+        .stats-grid {
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        }
     }
 
     @@media (max-width: 768px) {
-        .dashboard-layout
+        .dashboard-layout {
+            flex-direction: column;
+        }
 
-    {
-        flex-direction: column;
+        .sidebar {
+            width: 100%;
+            position: sticky;
+            top: 0;
+            z-index: 20;
+        }
+
+        .sidebar-nav {
+            display: none;
+        }
+
+        .content-header {
+            padding: 1.5rem;
+        }
+
+        .header-top {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .content-body {
+            padding: 1.5rem;
+        }
+
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
     }
-
-    .sidebar {
-        width: 100%;
-        position: sticky;
-        top: 0;
-        z-index: 20;
-    }
-
-    .sidebar-nav {
-        display: none;
-    }
-
-    .content-header {
-        padding: 1.5rem;
-    }
-
-    .header-top {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 1rem;
-    }
-
-    .content-body {
-        padding: 1.5rem;
-    }
-
-    .stats-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .table-container {
-        overflow-x: scroll;
-    }
-
-    }</style>
+</style>
 
 <div class="dashboard-layout">
     @if (TempData["SuccessMessage"] != null)
@@ -653,13 +532,13 @@
             <div class="nav-section">
                 <div class="nav-section-title">Main</div>
                 <div class="nav-item">
-                    <a href="#" class="nav-link active">
+                    <a href="#" class="nav-link">
                         <span class="nav-icon">📊</span>
                         Dashboard
                     </a>
                 </div>
                 <div class="nav-item">
-                    <a asp-action="Index" asp-controller="UserDashboard" class="nav-link">
+                    <a href="#recent-tickets" class="nav-link active">
                         <span class="nav-icon">🎫</span>
                         My Tickets
                     </a>
@@ -752,66 +631,79 @@
                 </div>
             </div>
 
-            <!-- Tickets Table -->
-            <div class="tickets-section">
+            <!-- Tickets Section with ID for scrolling -->
+            <div id="recent-tickets" class="tickets-section">
                 <div class="section-header">
                     <h2 class="section-title">Recent Tickets</h2>
                     <a asp-action="Create" asp-controller="Ticket" class="btn-primary" style="font-size: 0.8125rem; padding: 0.5rem 1rem;">
                         ➕ Submit Ticket
                     </a>
                 </div>
-
+                
                 @if (!Model.Any())
                 {
-                    <div class="empty-state">
-                        <div class="empty-state-icon">🎫</div>
-                        <h3>No tickets found</h3>
-                        <p>You haven't submitted any support tickets yet. Click the button above to create your first ticket.</p>
-                        <a asp-action="Create" asp-controller="Ticket" class="btn-primary">Create Your First Ticket</a>
+                    <div class="card text-center p-5">
+                        <i class="bi bi-chat-left-text fs-1 text-muted mb-3"></i>
+                        <h3 class="fw-semibold">No tickets found</h3>
+                        <p class="text-muted">You haven't submitted any support tickets yet.</p>
+                        <a href="@Url.Action("Create", "Ticket")" class="btn btn-primary">Submit Your First Ticket</a>
                     </div>
                 }
                 else
                 {
-                    <div class="table-container">
-                        <table class="tickets-table">
-                            <thead>
-                                <tr>
-                                    <th>Ticket ID</th>
-                                    <th>Title</th>
-                                    <th>Category</th>
-                                    <th>Priority</th>
-                                    <th>Status</th>
-                                    <th>Created</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var ticket in Model.OrderByDescending(t => t.CreatedAt).Take(10))
-                                {
-                                    <tr>
-                                        <td>
-                                            <span class="ticket-id">#@ticket.TicketID</span>
-                                        </td>
-                                        <td>
-                                            <div class="ticket-title" title="@ticket.Title">
-                                                @ticket.Title
-                                            </div>
-                                        </td>
-                                        <td>@ticket.Category?.CategoryName</td>
-                                        <td>
-                                            <span class="priority-badge priority-@(ticket.Priority?.PriorityName?.ToLower())">
-                                                @ticket.Priority?.PriorityName
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <span class="status-badge status-@(ticket.Status?.StatusName?.ToLower()?.Replace(" ", ""))">
+                    <div class="row row-cols-1 g-4">
+                        @foreach (var ticket in Model)
+                        {
+                            <div class="col">
+                                <div class="card shadow-sm border-hover">
+                                    <div class="card-header d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <h5 class="mb-1">@ticket.Title</h5>
+                                            <small class="text-muted">
+                                                Ticket ID: @ticket.TicketID • Category: @ticket.Category?.CategoryName
+                                            </small>
+                                        </div>
+                                        <div class="text-end">
+                                            <span class="@(ticket.Status?.StatusName switch {
+                                                "New" => "badge bg-primary text-white",
+                                                "In Progress" => "badge bg-warning text-dark",
+                                                "Resolved" => "badge bg-success text-white",
+                                                "Closed" => "badge bg-secondary text-white",
+                                                _ => "badge bg-secondary text-white"
+                                            })">
                                                 @ticket.Status?.StatusName
                                             </span>
-                                        </td>
-                                        <td>@ticket.CreatedAt.ToLocalTime().ToString("MMM dd, yyyy")</td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
+                                            <div class="@(ticket.Priority?.PriorityName switch {
+                                                "High" => "text-danger",
+                                                "Medium" => "text-warning",
+                                                "Low" => "text-success",
+                                                _ => "text-muted"
+                                            }) mt-2">
+                                                <i class="bi bi-exclamation-circle"></i>
+                                                @ticket.Priority?.PriorityName
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row text-muted small mb-3">
+                                            <div class="col-md-4">
+                                                <i class="bi bi-clock me-1"></i> Created: @ticket.CreatedAt.ToString("yyyy-MM-dd")
+                                            </div>
+                                            <div class="col-md-4">
+                                                Last Update: @ticket.CreatedAt.ToString("yyyy-MM-dd") ?? "-"
+                                            </div>
+                                            <div class="col-md-4">
+                                                Assigned to: @ticket.AssignedToUser?.FullName ?? "Unassigned"
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <a class="btn btn-outline-primary btn-sm me-2" href="@Url.Action("Details", "Ticket", new { id = ticket.TicketID })">View Details</a>
+                                            <a class="btn btn-outline-secondary btn-sm">Add Comment</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
                     </div>
                 }
             </div>

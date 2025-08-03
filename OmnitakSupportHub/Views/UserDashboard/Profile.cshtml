@@ -1,0 +1,133 @@
+﻿@model OmnitakSupportHub.Models.ViewModels.ProfileViewModel
+@{
+    ViewData["Title"] = "Profile";
+    ViewData["ActiveTab"] = "profile";
+}
+
+<div class="space-y-6">
+    <div>
+        <h1 class="text-3xl font-bold">Profile</h1>
+        <p class="text-muted-foreground">Manage your account information and preferences</p>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["SuccessMessage"]
+        </div>
+    }
+
+    <div class="grid gap-6 md:grid-cols-3">
+        <!-- Profile Overview -->
+        <div class="card">
+            <div class="card-header text-center">
+                <div class="avatar w-24 h-24 mx-auto mb-4">
+                    <div class="avatar-fallback text-2xl">@Model.AvatarInitials</div>
+                </div>
+                <h3 class="card-title">@Model.FirstName @Model.LastName</h3>
+                <p class="text-muted-foreground">@Model.JobTitle</p>
+            </div>
+            <div class="card-content space-y-4">
+                <div class="flex items-center gap-2 text-sm">
+                    <i class="bi bi-envelope text-muted-foreground"></i>
+                    @Model.Email
+                </div>
+                <div class="flex items-center gap-2 text-sm">
+                    <i class="bi bi-telephone text-muted-foreground"></i>
+                    @(string.IsNullOrEmpty(Model.Phone) ? "Not provided" : Model.Phone)
+                </div>
+                <div class="flex items-center gap-2 text-sm">
+                    <i class="bi bi-building text-muted-foreground"></i>
+                    @Model.Department
+                </div>
+                <div class="flex items-center gap-2 text-sm">
+                    <i class="bi bi-calendar text-muted-foreground"></i>
+                    Member since @Model.MemberSince
+                </div>
+
+                <hr class="my-4" />
+
+                <div class="space-y-2">
+                    <label class="text-sm font-medium">Account Status</label>
+                    <span class="badge bg-green-100 text-green-800">@Model.AccountStatus</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Edit Profile Form -->
+        <div class="card md:col-span-2">
+            <div class="card-header">
+                <h3 class="card-title">Personal Information</h3>
+                <p class="text-muted-foreground">
+                    Update your personal details and contact information
+                </p>
+            </div>
+            <div class="card-content">
+                <form asp-action="Profile" method="post" class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="form-group">
+                            <label asp-for="FirstName" class="form-label"></label>
+                            <input asp-for="FirstName" class="form-control" placeholder="Enter your first name" />
+                            <span asp-validation-for="FirstName" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="LastName" class="form-label"></label>
+                            <input asp-for="LastName" class="form-control" placeholder="Enter your last name" />
+                            <span asp-validation-for="LastName" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="Email" class="form-label"></label>
+                        <input asp-for="Email" class="form-control" placeholder="Enter your email" />
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="Phone" class="form-label"></label>
+                        <input asp-for="Phone" class="form-control" placeholder="Enter your phone number" />
+                        <span asp-validation-for="Phone" class="text-danger"></span>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="form-group">
+                            <label asp-for="Department" class="form-label"></label>
+                            <select asp-for="Department" class="form-select">
+                                <option value="">Select department</option>
+                                <option value="IT">IT</option>
+                                <option value="Marketing">Marketing</option>
+                                <option value="Sales">Sales</option>
+                                <option value="HR">Human Resources</option>
+                                <option value="Finance">Finance</option>
+                                <option value="Operations">Operations</option>
+                            </select>
+                            <span asp-validation-for="Department" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="JobTitle" class="form-label"></label>
+                            <input asp-for="JobTitle" class="form-control" placeholder="Enter your job title" />
+                            <span asp-validation-for="JobTitle" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-4">
+                        <button type="submit" class="btn btn-primary">
+                            Update Profile
+                        </button>
+                        <a asp-action="Index" class="btn btn-outline-secondary">
+                            Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

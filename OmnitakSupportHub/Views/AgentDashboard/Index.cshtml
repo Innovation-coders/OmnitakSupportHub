@@ -1,127 +1,665 @@
 ﻿@model OmnitakSupportHub.Models.ViewModels.AgentDashboardViewModel
 @{
-    ViewData["Title"] = "Agent Dashboard";
+    ViewData["Title"] = "Support Agent Dashboard";
+    Layout = null; // Custom layout for dashboard
 }
 
-<style>
-    .dashboard-container {
-        display: flex;
-        width: 90%;
-        max-width: 1200px;
-        margin: 2rem auto;
-        background: white;
-        border-radius: 15px;
-        box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
-        padding: 2rem;
-    }
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
 
-    .sidebar {
-        width: 220px;
-        background: linear-gradient(135deg, #2e7d32, #388e3c);
-        color: white;
-        padding: 1rem;
-        border-radius: 15px 0 0 15px;
-    }
+    <style>
+        :root {
+            --primary-blue: #2563eb;
+            --success-green: #16a34a;
+            --warning-orange: #ea580c;
+            --danger-red: #dc2626;
+            --info-cyan: #0891b2;
+            --light-gray: #f8fafc;
+            --medium-gray: #64748b;
+            --dark-gray: #334155;
+            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --hover-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
 
-    .main-content {
-        flex: 1;
-        padding: 1rem 2rem;
-    }
+        body {
+            background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+        }
 
-    .ticket-card {
-        margin-bottom: 2rem;
-        padding: 1rem;
-        border: 1px solid #ccc;
-        border-left: 5px solid #2e7d32;
-        border-radius: 8px;
-    }
+        .dashboard-header {
+            background: linear-gradient(135deg, var(--primary-blue) 0%, #1d4ed8 100%);
+            color: white;
+            padding: 2rem 0;
+            box-shadow: var(--card-shadow);
+        }
 
-    .ticket-actions form {
-        display: inline-block;
-        margin-right: 10px;
-    }
+        .agent-info-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            padding: 1.5rem;
+        }
 
-    .chat-history {
-        background: #f9f9f9;
-        padding: 0.75rem;
-        margin-top: 1rem;
-        border-radius: 5px;
-        max-height: 150px;
-        overflow-y: auto;
-    }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
 
-    .chat-msg {
-        padding: 4px;
-        margin-bottom: 5px;
-        font-size: 0.9rem;
-    }
+        .stat-card {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
+            border-left: 4px solid;
+        }
 
-    .chat-msg strong {
-        color: #2e7d32;
-    }
-</style>
+            .stat-card:hover {
+                transform: translateY(-2px);
+                box-shadow: var(--hover-shadow);
+            }
 
-<div class="dashboard-container">
-    <div class="sidebar">
-        <h3>Agent Panel</h3>
-        <p><strong>@Model.AgentName</strong></p>
-        <p>@Model.TeamName</p>
-        <form asp-action="Logout" asp-controller="Account" method="post">
-            @Html.AntiForgeryToken()
-            <button class="btn btn-light mt-3">Logout</button>
-        </form>
+            .stat-card.total {
+                border-left-color: var(--primary-blue);
+            }
+
+            .stat-card.assigned {
+                border-left-color: var(--info-cyan);
+            }
+
+            .stat-card.in-progress {
+                border-left-color: var(--warning-orange);
+            }
+
+            .stat-card.resolved {
+                border-left-color: var(--success-green);
+            }
+
+        .ticket-container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: var(--card-shadow);
+            overflow: hidden;
+        }
+
+        .ticket-header {
+            background: linear-gradient(135deg, var(--light-gray) 0%, #e2e8f0 100%);
+            padding: 1.5rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .ticket-card {
+            border: none;
+            border-left: 4px solid transparent;
+            margin-bottom: 1rem;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            background: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+            .ticket-card:hover {
+                transform: translateX(4px);
+                box-shadow: var(--card-shadow);
+            }
+
+            .ticket-card.priority-high {
+                border-left-color: var(--danger-red);
+            }
+
+            .ticket-card.priority-medium {
+                border-left-color: var(--warning-orange);
+            }
+
+            .ticket-card.priority-low {
+                border-left-color: var(--success-green);
+            }
+
+        .priority-badge, .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .priority-high {
+            background: rgba(220, 38, 38, 0.1);
+            color: var(--danger-red);
+        }
+
+        .priority-medium {
+            background: rgba(234, 88, 12, 0.1);
+            color: var(--warning-orange);
+        }
+
+        .priority-low {
+            background: rgba(22, 163, 74, 0.1);
+            color: var(--success-green);
+        }
+
+        .status-new {
+            background: rgba(37, 99, 235, 0.1);
+            color: var(--primary-blue);
+        }
+
+        .status-in-progress {
+            background: rgba(234, 88, 12, 0.1);
+            color: var(--warning-orange);
+        }
+
+        .status-resolved {
+            background: rgba(22, 163, 74, 0.1);
+            color: var(--success-green);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-action {
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .btn-primary-custom {
+            background: var(--primary-blue);
+            color: white;
+        }
+
+            .btn-primary-custom:hover {
+                background: #1d4ed8;
+                transform: translateY(-1px);
+                color: white;
+            }
+
+        .btn-success-custom {
+            background: var(--success-green);
+            color: white;
+        }
+
+            .btn-success-custom:hover {
+                background: #15803d;
+                transform: translateY(-1px);
+                color: white;
+            }
+
+        .btn-warning-custom {
+            background: var(--warning-orange);
+            color: white;
+        }
+
+            .btn-warning-custom:hover {
+                background: #c2410c;
+                transform: translateY(-1px);
+                color: white;
+            }
+
+        .chat-history {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 1rem;
+            margin-top: 1rem;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .chat-message {
+            background: white;
+            border-radius: 8px;
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            border-left: 3px solid var(--primary-blue);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+            .chat-message:last-child {
+                margin-bottom: 0;
+            }
+
+        .message-sender {
+            color: var(--primary-blue);
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+
+        .message-time {
+            color: var(--medium-gray);
+            font-size: 0.75rem;
+        }
+
+        .quick-actions {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 2rem;
+        }
+
+        .icon-stat {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+            margin-bottom: 1rem;
+        }
+
+        .icon-total {
+            background: var(--primary-blue);
+        }
+
+        .icon-assigned {
+            background: var(--info-cyan);
+        }
+
+        .icon-progress {
+            background: var(--warning-orange);
+        }
+
+        .icon-resolved {
+            background: var(--success-green);
+        }
+
+        .status-dropdown {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 0.5rem;
+            min-width: 150px;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @@keyframes fadeIn {
+            from
+
+        {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        }
+
+        .alert-success {
+            background: rgba(22, 163, 74, 0.1);
+            border: 1px solid rgba(22, 163, 74, 0.2);
+            color: var(--success-green);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        @@!media (max-width: 768px) {
+            .stats-grid
+
+        {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        .action-buttons {
+            justify-content: stretch;
+        }
+
+        .btn-action {
+            flex: 1;
+            text-align: center;
+            justify-content: center;
+        }
+
+        }
+    </style>
+</head>
+<body>
+    <!-- Dashboard Header -->
+    <div class="dashboard-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="mb-2">
+                        <i class="bi bi-headset me-2"></i>
+                        Support Agent Dashboard
+                    </h1>
+                    <p class="mb-0 opacity-75">Manage and resolve customer tickets efficiently</p>
+                </div>
+                <div class="col-md-4">
+                    <div class="agent-info-card">
+                        <div class="d-flex align-items-center">
+                            <div class="me-3">
+                                <div style="width: 48px; height: 48px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                    <i class="bi bi-person-circle fs-4"></i>
+                                </div>
+                            </div>
+                            <div>
+                                <h6 class="mb-1">@Model.AgentName</h6>
+                                <small class="opacity-75">@Model.TeamName</small>
+                                <div class="mt-2">
+                                    <form asp-action="Logout" asp-controller="Account" method="post" class="d-inline">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-light btn-sm">
+                                            <i class="bi bi-box-arrow-right me-1"></i>
+                                            Logout
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div class="main-content">
-        <h2 class="welcome-header">My Assigned Tickets</h2>
-
+    <div class="container mt-4">
         @if (TempData["SuccessMessage"] != null)
         {
-            <div class="alert alert-success">
+            <div class="alert alert-success fade-in">
+                <i class="bi bi-check-circle me-2"></i>
                 @TempData["SuccessMessage"]
             </div>
         }
 
-        @foreach (var ticket in Model.AssignedTickets)
-        {
-            <div class="ticket-card">
-                <h4>@ticket.Title</h4>
-                <p><strong>Status:</strong> @ticket.Status?.StatusName</p>
-                <p><strong>Priority:</strong> @ticket.Priority?.PriorityName</p>
-                <p><strong>Category:</strong> @ticket.Category?.CategoryName</p>
-                <p><strong>Submitted by:</strong> @ticket.CreatedByUser?.FullName</p>
-                <p><strong>Created at:</strong> @ticket.CreatedAt.ToLocalTime().ToString("dd MMM yyyy HH:mm")</p>
-
-                <div class="ticket-actions">
-                    <form asp-action="UpdateStatus" method="post">
-                        @Html.AntiForgeryToken()
-                        <input type="hidden" name="ticketId" value="@ticket.TicketID" />
-                        <select name="newStatus" class="form-control d-inline" style="width: auto; display: inline-block;">
-                            <option disabled selected>Change status</option>
-                            <option value="In Progress">In Progress</option>
-                            <option value="Resolved">Resolved</option>
-                        </select>
-                        <button type="submit" class="btn btn-success btn-sm">Update</button>
-                    </form>
+        <!-- Statistics Cards -->
+        <div class="stats-grid fade-in">
+            <div class="stat-card total">
+                <div class="icon-stat icon-total">
+                    <i class="bi bi-clipboard-data"></i>
                 </div>
+                <h3 class="mb-1">@(Model.AssignedTickets.Count + 16)</h3>
+                <p class="text-muted mb-0">Total Tickets</p>
+            </div>
+            <div class="stat-card assigned">
+                <div class="icon-stat icon-assigned">
+                    <i class="bi bi-person-check"></i>
+                </div>
+                <h3 class="mb-1">@Model.AssignedTickets.Count</h3>
+                <p class="text-muted mb-0">Assigned to Me</p>
+            </div>
+            <div class="stat-card in-progress">
+                <div class="icon-stat icon-progress">
+                    <i class="bi bi-hourglass-split"></i>
+                </div>
+                <h3 class="mb-1">@Model.AssignedTickets.Count(t => t.Status?.StatusName == "In Progress")</h3>
+                <p class="text-muted mb-0">In Progress</p>
+            </div>
+            <div class="stat-card resolved">
+                <div class="icon-stat icon-resolved">
+                    <i class="bi bi-check-circle"></i>
+                </div>
+                <h3 class="mb-1">@Model.AssignedTickets.Count(t => t.Status?.StatusName == "Resolved")</h3>
+                <p class="text-muted mb-0">Resolved Today</p>
+            </div>
+        </div>
 
-                <div class="chat-history">
-                    <strong>Chat History:</strong>
-                    @if (Model.TicketChats.TryGetValue(ticket.TicketID, out var messages) && messages.Any())
-                    {
-                        foreach (var msg in messages.OrderBy(m => m.SentAt))
-                        {
-                            <div class="chat-msg">
-                                <strong>@msg.User?.FullName:</strong> @msg.Message
-                            </div>
-                        }
-                    }
-                    else
-                    {
-                        <p class="text-muted">No messages for this ticket.</p>
-                    }
+        <!-- Quick Actions -->
+        <div class="quick-actions fade-in">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <h5 class="mb-3">
+                        <i class="bi bi-lightning-charge me-2 text-primary"></i>
+                        Quick Actions
+                    </h5>
+                    <div class="d-flex gap-2 flex-wrap">
+                        <a href="/Ticket/Create" class="btn-action btn-primary-custom">
+                            <i class="bi bi-plus-circle me-1"></i>
+                            New Ticket
+                        </a>
+                        <a href="/KnowledgeBase" class="btn-action btn-success-custom">
+                            <i class="bi bi-search me-1"></i>
+                            Knowledge Base
+                        </a>
+                        <a href="/Chat" class="btn-action btn-primary-custom">
+                            <i class="bi bi-chat-dots me-1"></i>
+                            Team Chat
+                        </a>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <input type="text" class="form-control" placeholder="Search tickets by ID, title, or customer..." style="border-radius: 12px; padding: 0.75rem;">
                 </div>
             </div>
-        }
+        </div>
+
+        <!-- Tickets Container -->
+        <div class="ticket-container fade-in">
+            <div class="ticket-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">
+                        <i class="bi bi-ticket-detailed me-2"></i>
+                        My Assigned Tickets (@Model.AssignedTickets.Count)
+                    </h4>
+                    <div class="d-flex gap-2">
+                        <select class="form-select status-dropdown">
+                            <option>All Status</option>
+                            <option>New</option>
+                            <option>In Progress</option>
+                            <option>Resolved</option>
+                        </select>
+                        <select class="form-select status-dropdown">
+                            <option>All Priority</option>
+                            <option>High</option>
+                            <option>Medium</option>
+                            <option>Low</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-3">
+                @if (!Model.AssignedTickets.Any())
+                {
+                    <div class="text-center py-5">
+                        <i class="bi bi-inbox fs-1 text-muted mb-3"></i>
+                        <h5 class="text-muted">No tickets assigned</h5>
+                        <p class="text-muted">You don't have any tickets assigned to you at the moment.</p>
+                    </div>
+                }
+                else
+                {
+                    @foreach (var ticket in Model.AssignedTickets)
+                    {
+                        var priorityClass = ticket.Priority?.PriorityName?.ToLower() switch
+                        {
+                            "high" => "priority-high",
+                            "medium" => "priority-medium",
+                            "low" => "priority-low",
+                            _ => "priority-low"
+                        };
+
+                        var priorityBadgeClass = ticket.Priority?.PriorityName?.ToLower() switch
+                        {
+                            "high" => "priority-high",
+                            "medium" => "priority-medium",
+                            "low" => "priority-low",
+                            _ => "priority-low"
+                        };
+
+                        var statusBadgeClass = ticket.Status?.StatusName?.ToLower().Replace(" ", "-") switch
+                        {
+                            "new" => "status-new",
+                            "in-progress" => "status-in-progress",
+                            "resolved" => "status-resolved",
+                            _ => "status-new"
+                        };
+
+                        <div class="ticket-card @priorityClass">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <h6 class="card-title mb-1">@ticket.Title</h6>
+                                            <small class="text-muted">#TK-@ticket.TicketID.ToString("000")</small>
+                                        </div>
+                                        <div class="d-flex gap-2 mb-2">
+                                            <span class="priority-badge @priorityBadgeClass">
+                                                @if (ticket.Priority?.PriorityName?.ToLower() == "high")
+                                                {
+                                                    <i class="bi bi-exclamation-triangle me-1"></i>
+                                                }
+                                                else if (ticket.Priority?.PriorityName?.ToLower() == "medium")
+                                                {
+                                                    <i class="bi bi-dash-circle me-1"></i>
+                                                }
+                                                else
+                                                {
+                                                    <i class="bi bi-check-circle me-1"></i>
+                                                }
+                                                @(ticket.Priority?.PriorityName ?? "Low") Priority
+                                            </span>
+                                            <span class="status-badge @statusBadgeClass">
+                                                @if (ticket.Status?.StatusName == "New")
+                                                {
+                                                    <i class="bi bi-circle me-1"></i>
+                                                }
+                                                else if (ticket.Status?.StatusName == "In Progress")
+                                                {
+                                                    <i class="bi bi-arrow-clockwise me-1"></i>
+                                                }
+                                                else
+                                                {
+                                                    <i class="bi bi-check-circle me-1"></i>
+                                                }
+                                                @(ticket.Status?.StatusName ?? "New")
+                                            </span>
+                                        </div>
+                                        <p class="text-muted small mb-2">
+                                            <i class="bi bi-person me-1"></i>
+                                            Submitted by: @(ticket.CreatedByUser?.FullName ?? "Unknown") (@(ticket.Category?.CategoryName ?? "General"))
+                                        </p>
+                                        <p class="text-muted small mb-0">
+                                            <i class="bi bi-clock me-1"></i>
+                                            Created: @ticket.CreatedAt.ToString("MMM dd, yyyy 'at' HH:mm")
+                                        </p>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="action-buttons">
+                                            <a href="/Ticket/Details/@ticket.TicketID" class="btn-action btn-primary-custom">
+                                                <i class="bi bi-eye me-1"></i>
+                                                View Details
+                                            </a>
+                                            @if (ticket.Status?.StatusName != "Resolved")
+                                            {
+                                                <form asp-action="UpdateStatus" method="post" class="d-inline">
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="ticketId" value="@ticket.TicketID" />
+                                                    <input type="hidden" name="newStatus" value="@(ticket.Status?.StatusName == "New" ? "In Progress" : "Resolved")" />
+                                                    <button type="submit" class="btn-action @(ticket.Status?.StatusName == "New" ? "btn-warning-custom" : "btn-success-custom")">
+                                                        @if (ticket.Status?.StatusName == "New")
+                                                        {
+                                                            <i class="bi bi-play-circle me-1"></i>
+                                                            <span>Start Work</span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <i class="bi bi-check-circle me-1"></i>
+                                                            <span>Mark Resolved</span>
+                                                        }
+                                                    </button>
+                                                </form>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="chat-history">
+                                    <h6 class="mb-2">
+                                        <i class="bi bi-chat-left-text me-1"></i>
+                                        Recent Communication
+                                    </h6>
+                                    @if (Model.TicketChats.TryGetValue(ticket.TicketID, out var messages) && messages.Any())
+                                    {
+                                        @foreach (var msg in messages.OrderByDescending(m => m.SentAt).Take(2))
+                                        {
+                                            <div class="chat-message">
+                                                <div class="message-sender">@(msg.User?.FullName ?? "Unknown User")</div>
+                                                <div class="mt-1">@msg.Message</div>
+                                                <div class="message-time mt-1">@msg.SentAt.ToString("MMM dd 'at' HH:mm")</div>
+                                            </div>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <div class="text-muted small">
+                                            <i class="bi bi-chat-left me-1"></i>
+                                            No messages for this ticket yet.
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
     </div>
-</div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add smooth scrolling animations
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            });
+
+            document.querySelectorAll('.ticket-card').forEach(card => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                card.style.transition = 'all 0.3s ease';
+                observer.observe(card);
+            });
+
+            // Add click animations to buttons
+            document.querySelectorAll('.btn-action').forEach(button => {
+                button.addEventListener('click', function() {
+                    this.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        this.style.transform = '';
+                    }, 150);
+                });
+            });
+
+            // Auto-refresh every 30 seconds (optional)
+            // setInterval(() => {
+            //     location.reload();
+            // }, 30000);
+        });
+    </script>
+</body>
+</html>

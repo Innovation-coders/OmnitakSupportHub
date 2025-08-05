@@ -120,7 +120,7 @@ namespace OmnitakSupportHub.Controllers
         // User Ticket Actions
         // User Ticket Creation
         [HttpGet]
-        [Authorize(Roles = "End User")]
+        [Authorize(Roles = "End User, Support Manager")]
         public async Task<IActionResult> Create()
         {
             var model = new CreateTicketViewModel
@@ -134,7 +134,7 @@ namespace OmnitakSupportHub.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "End User")]
+        [Authorize(Roles = "End User, Support Manager")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CreateTicketViewModel model)
         {
@@ -204,7 +204,11 @@ namespace OmnitakSupportHub.Controllers
             await _context.SaveChangesAsync();
 
             TempData["SuccessMessage"] = "Ticket submitted successfully!";
-            return RedirectToAction("Index", "UserDashboard");
+
+            if (User.IsInRole("Support Manager"))
+                return RedirectToAction("Index", "ManagerDashboard");
+            else
+                return RedirectToAction("Index", "UserDashboard");
         }
 
 

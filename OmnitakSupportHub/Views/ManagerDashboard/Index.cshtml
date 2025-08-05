@@ -604,7 +604,7 @@
     <div class="sidebar">
         <h3>🎛️ Manager Hub</h3>
         <a href="#" class="nav-link active"><i>📊</i> Dashboard</a>
-        <a asp-controller="Ticket" asp-action="ManagerCreate" class="nav-link"><i>➕</i> Create Ticket</a>
+        <a asp-controller="Ticket" asp-action="Create" class="nav-link"><i>➕</i> Create Ticket</a>
         <a href="#" class="nav-link" onclick="toggleFilters()"><i>🔍</i> Filter Tickets</a>
         <a href="#" class="nav-link"><i>📈</i> Reports</a>
         <a href="#" class="nav-link"><i>⚙️</i> Settings</a>
@@ -655,7 +655,7 @@
 
         <!-- Action Buttons -->
         <div class="action-buttons">
-            <a asp-controller="Ticket" asp-action="ManagerCreate" class="btn btn-primary">
+            <a asp-controller="Ticket" asp-action="Create" class="btn btn-primary">
                 ➕ Create New Ticket
             </a>
             <button onclick="toggleFilters()" class="btn btn-secondary">

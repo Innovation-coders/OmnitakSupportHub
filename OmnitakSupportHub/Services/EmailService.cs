@@ -9,10 +9,10 @@ namespace OmnitakSupportHub.Services
 
         private readonly string smtpServer = "smtp.gmail.com";
         private readonly int smtpPort = 587;
-        private readonly string senderEmail = "rmmosehla23@gmail.com";
+        private readonly string senderEmail = "";
         private readonly string senderName = "OmnitakSupportHub";
-        private readonly string smtpUsername = "rmmosehla23@gmail.com";
-        private readonly string smtpPassword = "xsjo ybmr zumf rogu";
+        private readonly string smtpUsername = "";
+        private readonly string smtpPassword = "";
 
         public void SendRegistrationEmail(string toEmail, string toName)
         {

@@ -8,3 +8,6 @@
 /OmnitakSupportHub/appsettings.json
 /OmnitakSupportHub/appsettings.json
 /OmnitakSupportHub/Services/EmailService.cs
+/appsettings.Development.json
+/secrets.json
+

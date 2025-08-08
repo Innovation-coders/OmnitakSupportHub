@@ -560,6 +560,7 @@
             color: var(--accent-electric);
         }
 
+       
         @@keyframes slideInLeft {
             from
 
@@ -620,7 +621,7 @@
 
         }
 
-     
+        /* Responsive Design */
         @@media (max-width: 1024px) {
             .sidebar
 
@@ -1135,27 +1136,27 @@
         `;
         document.head.appendChild(style);
 
- 
+        // Auto-refresh stats every 30 seconds (optional)
         setInterval(function() {
-           
+            // You can add AJAX calls here to refresh stats without page reload
             console.log('Stats refresh interval - implement AJAX call if needed');
         }, 30000);
 
-       
+        // Add keyboard shortcuts
         document.addEventListener('keydown', function(e) {
-          
+            // Ctrl + N for new ticket
             if (e.ctrlKey && e.key === 'n') {
                 e.preventDefault();
                 window.location.href = '@Url.Action("Create", "Ticket")';
             }
 
-           
+            // Ctrl + F for filter
             if (e.ctrlKey && e.key === 'f') {
                 e.preventDefault();
                 toggleFilters();
             }
 
-
+            // ESC to close filter
             if (e.key === 'Escape') {
                 const filterPanel = document.getElementById('filterPanel');
                 if (filterPanel.style.display === 'block') {
@@ -1164,12 +1165,13 @@
             }
         });
 
- 
+        // Add real-time clock
         function updateClock() {
             const now = new Date();
             const timeString = now.toLocaleTimeString();
             const dateString = now.toLocaleDateString();
 
+            // Add clock to header if desired
             const clockElement = document.querySelector('.clock');
             if (clockElement) {
                 clockElement.textContent = `${dateString} ${timeString}`;
@@ -1177,8 +1179,9 @@
         }
 
         setInterval(updateClock, 1000);
-        updateClock(); 
+        updateClock(); // Initial call
 
+        // Add smooth scrolling for anchor links
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
                 e.preventDefault();

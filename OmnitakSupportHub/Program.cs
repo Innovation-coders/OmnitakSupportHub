@@ -1,11 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using OmnitakSupportHub;
-using OmnitakSupportHub.Services;
-using OmnitakSupportHub.Middleware; // ✅ Add this
-using Microsoft.OpenApi.Models;
+﻿using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using OmnitakSupportHub;
+using OmnitakSupportHub.Middleware; // ✅ Add this
+using OmnitakSupportHub.Models;
+using OmnitakSupportHub.Services;
 using System.Text;
 
 
@@ -54,6 +55,8 @@ builder.Services.AddDbContext<OmnitakContext>(options =>
 // Register Authentication Service
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<EmailService>();
+builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("SmtpSettings"));
+
 // Register JWT Service
 builder.Services.AddScoped<JwtService>();
 // Update Swagger configuration

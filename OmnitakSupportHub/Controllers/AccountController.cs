@@ -18,6 +18,7 @@ namespace OmnitakSupportHub.Controllers
         private static readonly Dictionary<string, int> FailedLoginAttempts = new();
         private static readonly Dictionary<string, DateTime> LockoutUntil = new();
 
+
         private bool IsLockedOut(string username)
         {
             return LockoutUntil.ContainsKey(username) && LockoutUntil[username] > DateTime.UtcNow;
@@ -204,8 +205,8 @@ namespace OmnitakSupportHub.Controllers
             if (result.Success)
             {
                 TempData["SuccessMessage"] = result.Message;
-                var emailService = new EmailService();
-                emailService.SendRegistrationEmail(model.Email, model.FullName);
+                _emailService.SendRegistrationEmail(model.Email, model.FullName);
+                
 
                 return RedirectToAction("Login");
             }

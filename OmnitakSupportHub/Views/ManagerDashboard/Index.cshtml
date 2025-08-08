@@ -158,6 +158,14 @@
             margin: 5px 0 0;
         }
 
+    /* KPI Cards */
+    .kpi-container {
+        display: flex;
+        gap: 16px;
+        margin-bottom: 30px;
+        flex-wrap: wrap;
+    }
+
     /* Statistics Grid */
     .stats-grid {
         display: grid;
@@ -612,7 +620,7 @@
             <button type="submit" class="logout-btn">🚪 Logout</button>
         </form>
     </div>
-    <!-- ... Main content omitted here for brevity. Would contain stats, filters, tickets, agents, etc. ... -->
+    <!-- ... Main content -->
     <div class="main-content">
         <div class="header">
             <h1>Manager Dashboard</h1>
@@ -650,6 +658,19 @@
             <div class="stat-card success">
                 <div class="stat-number">@(Model.GroupedTickets?.SelectMany(g => g).Count(t => t.AssignedTo.HasValue) ?? 0)</div>
                 <div class="stat-label">Assigned Tickets</div>
+            </div>
+
+            <div class="stat-card success" style="background-color: var(--primary-green-dark);">
+                <div class="stat-number">@Model.ResolvedTickets</div>
+                <div class="stat-label">Resolved Tickets</div>
+            </div>
+            <div class="stat-card info" style="background-color: #0ea5e9;">
+                <div class="stat-number">@Model.AverageResolutionTimeHours.ToString("0.00")</div>
+                <div class="stat-label">Avg. Resolution Time (hrs)</div>
+            </div>
+            <div class="stat-card warning" style="background-color: #fbbf24; color: black;">
+                <div class="stat-number">@Model.AverageSatisfactionScore.ToString("0.0")</div>
+                <div class="stat-label">Avg. Satisfaction Score</div>
             </div>
         </div>
 

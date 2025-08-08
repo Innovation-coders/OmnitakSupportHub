@@ -45,6 +45,22 @@ namespace OmnitakSupportHub.Controllers
 
             var tickets = await ticketsQuery.ToListAsync();
 
+            var resolvedTickets = tickets.Where(t => t.ClosedAt != null).ToList();
+            var openTickets = tickets.Where(t => t.Status.StatusName != "Closed" && t.Status.StatusName != "Resolved").ToList();
+
+            double averageResolutionTime = resolvedTickets.Any()
+                ? resolvedTickets.Average(t => (t.ClosedAt.Value - t.CreatedAt).TotalHours)
+                : 0;
+
+            // Fetch Feedbacks in range
+            var feedbacks = await _context.Feedbacks
+                .Where(f => f.Ticket.CreatedAt >= startDate && f.Ticket.CreatedAt <= endDate)
+                .ToListAsync();
+
+            double averageSatisfaction = feedbacks.Any()
+                ? feedbacks.Average(f => f.Rating)
+                : 0;
+
             var groupedTickets = tickets.GroupBy(t => t.Category).ToList();
 
             // Get all support agents
@@ -74,7 +90,13 @@ namespace OmnitakSupportHub.Controllers
                 StartDate = startDate,
                 EndDate = endDate,
                 GroupedTickets = groupedTickets,
-                AvailableAgents = availableAgents
+                AvailableAgents = availableAgents,
+
+                TotalTickets = tickets.Count,
+                OpenTickets = openTickets.Count,
+                ResolvedTickets = resolvedTickets.Count,
+                AverageResolutionTimeHours = averageResolutionTime,
+                AverageSatisfactionScore = averageSatisfaction
             };
 
             return View(viewModel);

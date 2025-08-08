@@ -14,5 +14,12 @@ namespace OmnitakSupportHub.Models.ViewModels
             = new List<IGrouping<Category, Ticket>>();
 
         public List<User> AvailableAgents { get; set; } = null!;
+
+        // KPI Metrics
+        public int TotalTickets { get; set; }
+        public int OpenTickets { get; set; }
+        public int ResolvedTickets { get; set; }
+        public double AverageResolutionTimeHours { get; set; }
+        public double AverageSatisfactionScore { get; set;}
     }
 }

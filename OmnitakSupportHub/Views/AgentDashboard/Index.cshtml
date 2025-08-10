@@ -1,7 +1,7 @@
 ﻿@model OmnitakSupportHub.Models.ViewModels.AgentDashboardViewModel
 @{
     ViewData["Title"] = "Support Agent Dashboard";
-    Layout = null; // Custom layout for dashboard
+    Layout = null;
 }
 
 <!DOCTYPE html>
@@ -48,6 +48,29 @@
             padding: 1.5rem;
         }
 
+        .performance-overview {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .performance-metric {
+            text-align: center;
+        }
+
+        .metric-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .metric-label {
+            font-size: 0.875rem;
+            opacity: 0.8;
+        }
+
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -75,7 +98,7 @@
                 border-left-color: var(--primary-blue);
             }
 
-            .stat-card.assigned {
+            .stat-card.new {
                 border-left-color: var(--info-cyan);
             }
 
@@ -91,19 +114,8 @@
                 border-left-color: var(--danger-red);
             }
 
-            .stat-card.new {
-                border-left-color: #8b5cf6;
-            }
-
-            .stat-card::before {
-                content: '';
-                position: absolute;
-                top: 0;
-                right: 0;
-                width: 60px;
-                height: 60px;
-                background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 100%);
-                border-radius: 0 16px 0 60px;
+            .stat-card.high-priority {
+                border-left-color: var(--danger-red);
             }
 
         .icon-stat {
@@ -114,93 +126,69 @@
             align-items: center;
             justify-content: center;
             font-size: 1.5rem;
-            color: white;
             margin-bottom: 1rem;
         }
 
         .icon-total {
-            background: var(--primary-blue);
-        }
-
-        .icon-assigned {
-            background: var(--info-cyan);
-        }
-
-        .icon-progress {
-            background: var(--warning-orange);
-        }
-
-        .icon-resolved {
-            background: var(--success-green);
-        }
-
-        .icon-overdue {
-            background: var(--danger-red);
+            background: rgba(37, 99, 235, 0.1);
+            color: var(--primary-blue);
         }
 
         .icon-new {
-            background: #8b5cf6;
+            background: rgba(8, 145, 178, 0.1);
+            color: var(--info-cyan);
         }
 
-        .filters-section {
+        .icon-progress {
+            background: rgba(234, 88, 12, 0.1);
+            color: var(--warning-orange);
+        }
+
+        .icon-resolved {
+            background: rgba(22, 163, 74, 0.1);
+            color: var(--success-green);
+        }
+
+        .icon-overdue {
+            background: rgba(220, 38, 38, 0.1);
+            color: var(--danger-red);
+        }
+
+        .tickets-section {
             background: white;
             border-radius: 16px;
-            padding: 1.5rem;
             box-shadow: var(--card-shadow);
-            margin-bottom: 2rem;
+            margin: 2rem 0;
         }
 
-        .ticket-container {
-            background: white;
-            border-radius: 16px;
-            box-shadow: var(--card-shadow);
-            overflow: hidden;
-        }
-
-        .ticket-header {
-            background: linear-gradient(135deg, var(--light-gray) 0%, #e2e8f0 100%);
+        .section-header {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
             padding: 1.5rem;
+            border-radius: 16px 16px 0 0;
             border-bottom: 1px solid #e2e8f0;
-            display: flex;
-            justify-content: between;
-            align-items: center;
         }
 
         .ticket-card {
             border: none;
-            border-left: 4px solid transparent;
-            margin-bottom: 1rem;
-            border-radius: 12px;
-            transition: all 0.3s ease;
-            background: white;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-            position: relative;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 1.5rem;
+            transition: background-color 0.2s ease;
         }
 
             .ticket-card:hover {
-                transform: translateX(4px);
-                box-shadow: var(--card-shadow);
+                background: #f8fafc;
             }
 
-            .ticket-card.priority-high {
-                border-left-color: var(--danger-red);
+            .ticket-card:last-child {
+                border-bottom: none;
+                border-radius: 0 0 16px 16px;
             }
 
-            .ticket-card.priority-medium {
-                border-left-color: var(--warning-orange);
-            }
-
-            .ticket-card.priority-low {
-                border-left-color: var(--success-green);
-            }
-
-        .priority-badge, .status-badge {
+        .priority-badge {
+            font-size: 0.75rem;
             padding: 0.25rem 0.75rem;
             border-radius: 12px;
-            font-size: 0.75rem;
             font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
         }
 
         .priority-high {
@@ -218,9 +206,16 @@
             color: var(--success-green);
         }
 
+        .status-badge {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-weight: 600;
+        }
+
         .status-new {
-            background: rgba(37, 99, 235, 0.1);
-            color: var(--primary-blue);
+            background: rgba(8, 145, 178, 0.1);
+            color: var(--info-cyan);
         }
 
         .status-in-progress {
@@ -229,8 +224,8 @@
         }
 
         .status-pending-user {
-            background: rgba(8, 145, 178, 0.1);
-            color: var(--info-cyan);
+            background: rgba(168, 85, 247, 0.1);
+            color: #7c3aed;
         }
 
         .status-resolved {
@@ -238,69 +233,16 @@
             color: var(--success-green);
         }
 
-        .status-closed {
-            background: rgba(107, 114, 128, 0.1);
-            color: var(--medium-gray);
-        }
-
-        .sla-indicator {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            border: 2px solid white;
-        }
-
-        .sla-on-track {
-            background: var(--success-green);
-        }
-
-        .sla-warning {
-            background: var(--warning-orange);
-        }
-
-        .sla-critical {
-            background: var(--danger-red);
-        }
-
-        .sla-overdue {
-            background: var(--danger-red);
-            animation: pulse 2s infinite;
-        }
-
-        @@keyframes pulse {
-            0%, 100%
-
-        {
-            opacity: 1;
-        }
-
-        50% {
-            opacity: 0.5;
-        }
-
-        }
-
-        .action-buttons {
-            display: flex;
-            gap: 0.5rem;
-            flex-wrap: wrap;
-        }
-
         .btn-action {
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
-            font-size: 0.875rem;
-            font-weight: 500;
-            transition: all 0.3s ease;
             border: none;
-            cursor: pointer;
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
             text-decoration: none;
             display: inline-flex;
             align-items: center;
-            gap: 0.25rem;
+            gap: 0.5rem;
         }
 
         .btn-primary-custom {
@@ -311,7 +253,6 @@
             .btn-primary-custom:hover {
                 background: #1d4ed8;
                 transform: translateY(-1px);
-                color: white;
             }
 
         .btn-success-custom {
@@ -321,8 +262,6 @@
 
             .btn-success-custom:hover {
                 background: #15803d;
-                transform: translateY(-1px);
-                color: white;
             }
 
         .btn-warning-custom {
@@ -330,91 +269,46 @@
             color: white;
         }
 
-            .btn-warning-custom:hover {
-                background: #c2410c;
-                transform: translateY(-1px);
-                color: white;
-            }
-
-        .btn-info-custom {
-            background: var(--info-cyan);
-            color: white;
-        }
-
-            .btn-info-custom:hover {
-                background: #0e7490;
-                transform: translateY(-1px);
-                color: white;
-            }
-
-        .activity-timeline {
-            background: #f8fafc;
-            border-radius: 12px;
-            padding: 1rem;
-            margin-top: 1rem;
-            max-height: 300px;
-            overflow-y: auto;
-        }
-
-        .timeline-item {
-            display: flex;
-            align-items: start;
-            margin-bottom: 1rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid #e2e8f0;
-        }
-
-            .timeline-item:last-child {
-                border-bottom: none;
-                margin-bottom: 0;
-            }
-
-        .timeline-icon {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 1rem;
-            font-size: 0.875rem;
-            flex-shrink: 0;
-        }
-
-        .chat-history {
-            background: #f8fafc;
-            border-radius: 12px;
-            padding: 1rem;
-            margin-top: 1rem;
-            max-height: 200px;
-            overflow-y: auto;
-        }
-
-        .chat-message {
-            background: white;
-            border-radius: 8px;
-            padding: 0.75rem;
-            margin-bottom: 0.5rem;
-            border-left: 3px solid var(--primary-blue);
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        }
-
-            .chat-message:last-child {
-                margin-bottom: 0;
-            }
-
-        .message-sender {
+        .btn-outline-custom {
+            border: 2px solid var(--primary-blue);
             color: var(--primary-blue);
+            background: transparent;
+        }
+
+            .btn-outline-custom:hover {
+                background: var(--primary-blue);
+                color: white;
+            }
+
+        /* Sign Out Button Styles */
+        .btn-signout {
+            background: rgba(220, 38, 38, 0.1);
+            color: var(--danger-red);
+            border: 2px solid rgba(220, 38, 38, 0.2);
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
             font-weight: 600;
-            font-size: 0.875rem;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
-        .message-time {
-            color: var(--medium-gray);
-            font-size: 0.75rem;
+            .btn-signout:hover {
+                background: var(--danger-red);
+                color: white;
+                border-color: var(--danger-red);
+                transform: translateY(-1px);
+            }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
         }
 
-        .quick-actions {
+        .search-filter-section {
             background: white;
             border-radius: 16px;
             padding: 1.5rem;
@@ -422,59 +316,30 @@
             margin-bottom: 2rem;
         }
 
-        .performance-card {
-            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-            border-radius: 16px;
-            padding: 1.5rem;
-            margin-bottom: 2rem;
-            border: 1px solid #e2e8f0;
+        .search-box {
+            position: relative;
         }
 
-        .performance-metric {
-            text-align: center;
-            padding: 1rem;
-        }
+            .search-box input {
+                padding-left: 2.5rem;
+                border-radius: 12px;
+                border: 2px solid #e2e8f0;
+                transition: border-color 0.3s ease;
+            }
 
-        .metric-value {
-            font-size: 2rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-        }
+                .search-box input:focus {
+                    border-color: var(--primary-blue);
+                    outline: none;
+                    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+                }
 
-        .metric-label {
-            color: var(--medium-gray);
-            font-size: 0.875rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .notification-toast {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: white;
-            border-radius: 12px;
-            padding: 1rem 1.5rem;
-            box-shadow: var(--hover-shadow);
-            border-left: 4px solid var(--success-green);
-            z-index: 1000;
-            animation: slideIn 0.3s ease-out;
-        }
-
-        @@keyframes slideIn {
-            from
-
-        {
-            transform: translateX(100%);
-            opacity: 0;
-        }
-
-        to {
-            transform: translateX(0);
-            opacity: 1;
-        }
-
-        }
+            .search-box .search-icon {
+                position: absolute;
+                left: 0.75rem;
+                top: 50%;
+                transform: translateY(-50%);
+                color: var(--medium-gray);
+            }
 
         .fade-in {
             animation: fadeIn 0.5s ease-in;
@@ -504,30 +369,33 @@
             margin-bottom: 1.5rem;
         }
 
-        .search-box {
-            position: relative;
+        .alert-danger {
+            background: rgba(220, 38, 38, 0.1);
+            border: 1px solid rgba(220, 38, 38, 0.2);
+            color: var(--danger-red);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
         }
 
-            .search-box input {
-                padding-left: 2.5rem;
-                border-radius: 12px;
-                border: 2px solid #e2e8f0;
-                transition: border-color 0.3s ease;
-            }
+        .chat-preview {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 0.75rem;
+            margin-top: 1rem;
+            border-left: 3px solid var(--primary-blue);
+        }
 
-                .search-box input:focus {
-                    border-color: var(--primary-blue);
-                    outline: none;
-                    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-                }
+        .message-sender {
+            font-weight: 600;
+            font-size: 0.875rem;
+            color: var(--dark-gray);
+        }
 
-            .search-box .search-icon {
-                position: absolute;
-                left: 0.75rem;
-                top: 50%;
-                transform: translateY(-50%);
-                color: var(--medium-gray);
-            }
+        .message-time {
+            font-size: 0.75rem;
+            color: var(--medium-gray);
+        }
 
         @@media (max-width: 768px) {
             .stats-grid
@@ -551,9 +419,19 @@
             padding: 1.5rem 0;
         }
 
-        .agent-info-card {
+        .agent-info-card, .performance-overview {
             padding: 1rem;
         }
+
+        .header-actions {
+            margin-top: 1rem;
+            text-align: center;
+        }
+
+            .header-actions .btn-signout {
+                width: 100%;
+                justify-content: center;
+            }
 
         }
     </style>
@@ -563,34 +441,70 @@
     <div class="dashboard-header">
         <div class="container">
             <div class="row align-items-center">
-                <div class="col-md-8">
+                <div class="col-md-6">
                     <h1 class="mb-2">
                         <i class="bi bi-headset me-2"></i>
                         Support Agent Dashboard
                     </h1>
                     <p class="mb-0 opacity-75">Manage and resolve customer tickets efficiently</p>
                 </div>
-                <div class="col-md-4">
-                    <div class="agent-info-card">
-                        <div class="d-flex align-items-center">
-                            <div class="me-3">
-                                <div style="width: 48px; height: 48px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                                    <i class="bi bi-person-circle fs-4"></i>
+                <div class="col-md-6">
+                    <div class="d-flex align-items-center justify-content-end">
+                        <div class="agent-info-card me-3">
+                            <div class="d-flex align-items-center">
+                                <div class="me-3">
+                                    <div class="bg-white rounded-circle d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                                        <i class="bi bi-person-fill fs-2 text-primary"></i>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h5 class="mb-1">@Model.AgentName</h5>
+                                    <p class="mb-0 opacity-75">@Model.TeamName</p>
+                                    <small class="opacity-75">@Model.DepartmentName</small>
                                 </div>
                             </div>
-                            <div>
-                                <h6 class="mb-1">@Model.AgentName</h6>
-                                <small class="opacity-75">@Model.TeamName</small>
-                                <div class="mt-2">
-                                    <form asp-action="Logout" asp-controller="Account" method="post" class="d-inline">
-                                        @Html.AntiForgeryToken()
-                                        <button type="submit" class="btn btn-light btn-sm">
-                                            <i class="bi bi-box-arrow-right me-1"></i>
-                                            Logout
-                                        </button>
-                                    </form>
-                                </div>
+                        </div>
+                        <div class="header-actions">
+                            <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn-signout" onclick="return confirm('Are you sure you want to sign out?')">
+                                    <i class="bi bi-box-arrow-right"></i>
+                                    Sign Out
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Performance Overview (Agent-Friendly) -->
+            <div class="performance-overview">
+                <div class="row text-center">
+                    <div class="col-md-3">
+                        <div class="performance-metric">
+                            <div class="metric-value @Model.GetWorkloadStatusClass()">@Model.GetWorkloadStatus()</div>
+                            <div class="metric-label">My Workload</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="performance-metric">
+                            <div class="metric-value text-info">@Model.ResolvedToday</div>
+                            <div class="metric-label">Resolved Today</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="performance-metric">
+                            <div class="metric-value @Model.GetResolutionTrendClass()">
+                                <i class="@Model.GetResolutionTrendIcon() me-1"></i>
+                                @Model.GetResolutionTrend()
                             </div>
+                            <div class="metric-label">My Trend</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="performance-metric">
+                            <div class="metric-value @Model.GetSLAStatusClass()">@Model.GetSLAStatus()</div>
+                            <div class="metric-label">SLA Status</div>
                         </div>
                     </div>
                 </div>
@@ -599,9 +513,10 @@
     </div>
 
     <div class="container mt-4">
+        <!-- Success/Error Messages -->
         @if (TempData["SuccessMessage"] != null)
         {
-            <div class="alert alert-success fade-in">
+            <div class="alert-success fade-in">
                 <i class="bi bi-check-circle me-2"></i>
                 @TempData["SuccessMessage"]
             </div>
@@ -609,48 +524,11 @@
 
         @if (TempData["ErrorMessage"] != null)
         {
-            <div class="alert alert-danger fade-in">
+            <div class="alert-danger fade-in">
                 <i class="bi bi-exclamation-triangle me-2"></i>
                 @TempData["ErrorMessage"]
             </div>
         }
-
-        <!-- Performance Overview -->
-        <div class="performance-card fade-in">
-            <h5 class="mb-3">
-                <i class="bi bi-graph-up me-2 text-primary"></i>
-                Performance Overview
-            </h5>
-            <div class="row">
-                <div class="col-md-3">
-                    <div class="performance-metric">
-                        <div class="metric-value text-success">@Model.ResolutionRate.ToString("F1")%</div>
-                        <div class="metric-label">Resolution Rate</div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="performance-metric">
-                        <div class="metric-value text-info">@Model.AverageResponseTime.ToString("F1")h</div>
-                        <div class="metric-label">Avg Response Time</div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="performance-metric">
-                        <div class="metric-value @Model.GetWorkloadStatusClass()">@Model.GetWorkloadStatus()</div>
-                        <div class="metric-label">Workload Status</div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="performance-metric">
-                        <div class="metric-value @Model.GetResolutionTrendClass()">
-                            <i class="@Model.GetResolutionTrendIcon() me-1"></i>
-                            @Model.GetResolutionTrend()
-                        </div>
-                        <div class="metric-label">Trend</div>
-                    </div>
-                </div>
-            </div>
-        </div>
 
         <!-- Statistics Cards -->
         <div class="stats-grid fade-in">
@@ -689,531 +567,213 @@
                 <h3 class="mb-1">@Model.OverdueTickets</h3>
                 <p class="text-muted mb-0">Overdue</p>
             </div>
-            <div class="stat-card assigned">
-                <div class="icon-stat icon-assigned">
-                    <i class="bi bi-star-fill"></i>
+            <div class="stat-card high-priority">
+                <div class="icon-stat icon-overdue">
+                    <i class="bi bi-flag"></i>
                 </div>
                 <h3 class="mb-1">@Model.HighPriorityTickets</h3>
                 <p class="text-muted mb-0">High Priority</p>
             </div>
         </div>
 
-        <!-- Quick Actions -->
-        <div class="quick-actions fade-in">
-            <div class="row align-items-center">
-                <div class="col-md-6">
-                    <h5 class="mb-3">
-                        <i class="bi bi-lightning-charge me-2 text-primary"></i>
-                        Quick Actions
-                    </h5>
-                    <div class="d-flex gap-2 flex-wrap">
-                        <a href="/Ticket/Create" class="btn-action btn-primary-custom">
-                            <i class="bi bi-plus-circle"></i>
-                            New Ticket
-                        </a>
-                        <a href="/KnowledgeBase" class="btn-action btn-success-custom">
-                            <i class="bi bi-search"></i>
-                            Knowledge Base
-                        </a>
-                        <button onclick="refreshDashboard()" class="btn-action btn-info-custom">
-                            <i class="bi bi-arrow-clockwise"></i>
-                            Refresh
+        <!-- Search and Filter Section -->
+        <div class="search-filter-section fade-in">
+            <form method="get" asp-action="Index">
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold">Search Tickets</label>
+                        <div class="search-box">
+                            <i class="bi bi-search search-icon"></i>
+                            <input type="text"
+                                   name="searchTerm"
+                                   value="@Model.CurrentSearchTerm"
+                                   class="form-control"
+                                   placeholder="Search by title, description, or customer...">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold">Status</label>
+                        <select name="statusFilter" class="form-select">
+                            <option value="">All Status</option>
+                            @foreach (var status in Model.AvailableStatuses)
+                            {
+                                <option value="@status" selected="@(Model.CurrentStatusFilter == status)">@status</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold">Priority</label>
+                        <select name="priorityFilter" class="form-select">
+                            <option value="">All Priority</option>
+                            @foreach (var priority in Model.AvailablePriorities)
+                            {
+                                <option value="@priority" selected="@(Model.CurrentPriorityFilter == priority)">@priority</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary-custom w-100">
+                            <i class="bi bi-funnel"></i>
+                            Filter
                         </button>
                     </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="search-box">
-                        <i class="bi bi-search search-icon"></i>
-                        <input type="text"
-                               class="form-control"
-                               placeholder="Search tickets by ID, title, or customer..."
-                               id="searchInput"
-                               value="@Model.CurrentSearchTerm">
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Filters Section -->
-        <div class="filters-section fade-in">
-            <h6 class="mb-3">
-                <i class="bi bi-funnel me-2"></i>
-                Filter Tickets
-            </h6>
-            <form method="get" asp-action="Index" class="row g-3">
-                <div class="col-md-3">
-                    <select name="statusFilter" class="form-select">
-                        <option value="">All Statuses</option>
-                        @foreach (var status in Model.AvailableStatuses)
-                        {
-                            <option value="@status" selected="@(Model.CurrentStatusFilter == status)">@status</option>
-                        }
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <select name="priorityFilter" class="form-select">
-                        <option value="">All Priorities</option>
-                        @foreach (var priority in Model.AvailablePriorities)
-                        {
-                            <option value="@priority" selected="@(Model.CurrentPriorityFilter == priority)">@priority</option>
-                        }
-                    </select>
-                </div>
-                <div class="col-md-4">
-                    <input type="text"
-                           name="searchTerm"
-                           class="form-control"
-                           placeholder="Search term..."
-                           value="@Model.CurrentSearchTerm">
-                </div>
-                <div class="col-md-2">
-                    <button type="submit" class="btn btn-primary w-100">Apply</button>
                 </div>
             </form>
         </div>
 
-        <!-- Tickets Container -->
-        <div class="ticket-container fade-in">
-            <div class="ticket-header">
-                <div class="d-flex justify-content-between align-items-center w-100">
+        <!-- Tickets Section -->
+        <div class="tickets-section fade-in">
+            <div class="section-header">
+                <div class="d-flex justify-content-between align-items-center">
                     <h4 class="mb-0">
-                        <i class="bi bi-ticket-detailed me-2"></i>
-                        My Assigned Tickets (@Model.AssignedTickets.Count)
+                        <i class="bi bi-ticket-perforated me-2"></i>
+                        My Tickets (@Model.AssignedTickets.Count)
                     </h4>
-                    <div class="d-flex gap-2">
-                        <div class="dropdown">
-                            <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                                Sort by
-                            </button>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="#" onclick="sortTickets('priority')">Priority</a></li>
-                                <li><a class="dropdown-item" href="#" onclick="sortTickets('created')">Created Date</a></li>
-                                <li><a class="dropdown-item" href="#" onclick="sortTickets('sla')">SLA Status</a></li>
-                            </ul>
-                        </div>
-                    </div>
+                    @if (Model.HasUrgentTickets())
+                    {
+                        <span class="badge bg-danger">
+                            <i class="bi bi-exclamation-triangle me-1"></i>
+                            Urgent Action Required
+                        </span>
+                    }
                 </div>
             </div>
 
-            <div class="p-3">
-                @if (!Model.AssignedTickets.Any())
+            @if (Model.AssignedTickets.Any())
+            {
+                @foreach (var ticket in Model.AssignedTickets)
                 {
-                    <div class="text-center py-5">
-                        <i class="bi bi-inbox fs-1 text-muted mb-3"></i>
-                        <h5 class="text-muted">No tickets assigned</h5>
-                        <p class="text-muted">You don't have any tickets assigned to you at the moment.</p>
-                    </div>
-                }
-                else
-                {
-                    @foreach (var ticket in Model.AssignedTickets)
-                    {
-                        var priorityClass = Model.GetPriorityClass(ticket.Priority?.PriorityName);
-                        var priorityBadgeClass = Model.GetPriorityBadgeClass(ticket.Priority?.PriorityName);
-                        var statusBadgeClass = Model.GetStatusBadgeClass(ticket.Status?.StatusName);
-                        var slaStatus = Model.GetSLAStatus(ticket);
-                        var slaClass = Model.GetSLAStatusClass(ticket);
-
-                        <div class="ticket-card @priorityClass" data-ticket-id="@ticket.TicketID">
-                            <!-- SLA Indicator -->
-                            <div class="sla-indicator sla-@slaStatus.ToLower().Replace(" ", "-")"
-                                 title="SLA: @slaStatus"></div>
-
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-8">
-                                        <div class="d-flex justify-content-between align-items-start mb-2">
-                                            <h6 class="card-title mb-1">@ticket.Title</h6>
-                                            <small class="text-muted">#TK-@ticket.TicketID.ToString("000")</small>
-                                        </div>
-
-                                        <div class="d-flex gap-2 mb-2 flex-wrap">
-                                            <span class="@priorityBadgeClass">
-                                                <i class="@Model.GetPriorityIcon(ticket.Priority?.PriorityName) me-1"></i>
-                                                @(ticket.Priority?.PriorityName ?? "Low") Priority
-                                            </span>
-                                            <span class="@statusBadgeClass">
-                                                <i class="@Model.GetStatusIcon(ticket.Status?.StatusName) me-1"></i>
-                                                @(ticket.Status?.StatusName ?? "New")
-                                            </span>
-                                            <span class="badge bg-light text-dark">
-                                                @(ticket.Category?.CategoryName ?? "General")
-                                            </span>
-                                        </div>
-
-                                        <p class="text-muted small mb-2">
-                                            <i class="bi bi-person me-1"></i>
-                                            <strong>From:</strong> @(ticket.CreatedByUser?.FullName ?? "Unknown")
-                                        </p>
-
-                                        <div class="row text-muted small mb-2">
-                                            <div class="col-md-6">
-                                                <i class="bi bi-clock me-1"></i>
-                                                <strong>Created:</strong> @ticket.CreatedAt.ToString("MMM dd, yyyy 'at' HH:mm")
-                                            </div>
-                                            <div class="col-md-6">
-                                                <i class="bi bi-hourglass me-1"></i>
-                                                <strong>Age:</strong> @Model.GetTicketAgeDisplay(ticket)
-                                            </div>
-                                        </div>
-
-                                        <div class="@slaClass small mb-2">
-                                            <i class="bi bi-stopwatch me-1"></i>
-                                            <strong>SLA:</strong> @Model.GetTimeRemainingDisplay(ticket)
-                                        </div>
+                    <div class="ticket-card">
+                        <div class="row align-items-center">
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-start">
+                                    <div class="me-3">
+                                        <span class="badge bg-light text-dark">#@ticket.TicketID</span>
                                     </div>
-
-                                    <div class="col-md-4">
-                                        <div class="action-buttons">
-                                            <a href="/Ticket/Details/@ticket.TicketID" class="btn-action btn-primary-custom">
-                                                <i class="bi bi-eye"></i>
-                                                View Details
-                                            </a>
-
-                                            @if (ticket.Status?.StatusName == "New")
-                                            {
-                                                <form asp-action="UpdateStatus" method="post" class="d-inline">
-                                                    @Html.AntiForgeryToken()
-                                                    <input type="hidden" name="ticketId" value="@ticket.TicketID" />
-                                                    <input type="hidden" name="newStatus" value="In Progress" />
-                                                    <button type="submit" class="btn-action btn-warning-custom">
-                                                        <i class="bi bi-play-circle"></i>
-                                                        Start Work
-                                                    </button>
-                                                </form>
-                                            }
-                                            else if (ticket.Status?.StatusName == "In Progress")
-                                            {
-                                                <form asp-action="UpdateStatus" method="post" class="d-inline">
-                                                    @Html.AntiForgeryToken()
-                                                    <input type="hidden" name="ticketId" value="@ticket.TicketID" />
-                                                    <input type="hidden" name="newStatus" value="Pending User" />
-                                                    <button type="submit" class="btn-action btn-info-custom">
-                                                        <i class="bi bi-clock"></i>
-                                                        Pending User
-                                                    </button>
-                                                </form>
-
-                                                <form asp-action="UpdateStatus" method="post" class="d-inline">
-                                                    @Html.AntiForgeryToken()
-                                                    <input type="hidden" name="ticketId" value="@ticket.TicketID" />
-                                                    <input type="hidden" name="newStatus" value="Resolved" />
-                                                    <button type="submit" class="btn-action btn-success-custom">
-                                                        <i class="bi bi-check-circle"></i>
-                                                        Resolve
-                                                    </button>
-                                                </form>
-                                            }
-                                            else if (ticket.Status?.StatusName == "Pending User")
-                                            {
-                                                <form asp-action="UpdateStatus" method="post" class="d-inline">
-                                                    @Html.AntiForgeryToken()
-                                                    <input type="hidden" name="ticketId" value="@ticket.TicketID" />
-                                                    <input type="hidden" name="newStatus" value="In Progress" />
-                                                    <button type="submit" class="btn-action btn-warning-custom">
-                                                        <i class="bi bi-arrow-clockwise"></i>
-                                                        Resume
-                                                    </button>
-                                                </form>
-                                            }
-
-                                            <!-- Priority Update Dropdown -->
-                                            <div class="dropdown d-inline">
-                                                <button class="btn-action btn-info-custom dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                                                    <i class="bi bi-flag"></i>
-                                                    Priority
-                                                </button>
-                                                <ul class="dropdown-menu">
-                                                    @foreach (var priority in Model.AvailablePriorities)
-                                                    {
-                                                        <li>
-                                                            <form asp-action="UpdatePriority" method="post" class="d-inline">
-                                                                @Html.AntiForgeryToken()
-                                                                <input type="hidden" name="ticketId" value="@ticket.TicketID" />
-                                                                <input type="hidden" name="priority" value="@priority" />
-                                                                <button type="submit" class="dropdown-item">@priority</button>
-                                                            </form>
-                                                        </li>
-                                                    }
-                                                </ul>
-                                            </div>
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-1 fw-bold">@ticket.Title</h6>
+                                        <p class="mb-2 text-muted small">@ticket.Description.Substring(0, Math.Min(100, ticket.Description.Length))@(ticket.Description.Length > 100 ? "..." : "")</p>
+                                        <div class="d-flex gap-2 mb-2">
+                                            <span class="priority-badge priority-@ticket.Priority?.PriorityName?.ToLower()">
+                                                <i class="bi bi-flag me-1"></i>@ticket.Priority?.PriorityName
+                                            </span>
+                                            <span class="status-badge status-@ticket.Status?.StatusName?.ToLower()?.Replace(" ", "-")">
+                                                @ticket.Status?.StatusName
+                                            </span>
                                         </div>
-
-                                        <!-- Quick Add Comment -->
-                                        <div class="mt-3">
-                                            <form asp-action="AddComment" method="post">
-                                                @Html.AntiForgeryToken()
-                                                <input type="hidden" name="ticketId" value="@ticket.TicketID" />
-                                                <div class="input-group input-group-sm">
-                                                    <input type="text"
-                                                           name="message"
-                                                           class="form-control"
-                                                           placeholder="Add a quick comment..."
-                                                           required>
-                                                    <button type="submit" class="btn btn-outline-primary">
-                                                        <i class="bi bi-send"></i>
-                                                    </button>
-                                                </div>
-                                            </form>
-                                        </div>
+                                        <small class="text-muted">
+                                            <i class="bi bi-person me-1"></i>@ticket.CreatedByUser?.FullName
+                                            <i class="bi bi-calendar ms-3 me-1"></i>@ticket.CreatedAt.ToString("MMM dd, yyyy")
+                                        </small>
                                     </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="action-buttons">
+                                    <a href="/AgentDashboard/TicketDetails/@ticket.TicketID" class="btn-action btn-primary-custom">
+                                        <i class="bi bi-eye"></i>
+                                        View Details
+                                    </a>
+
+                                    @if (ticket.Status?.StatusName != "Resolved")
+                                    {
+                                        <form asp-action="UpdateStatus" method="post" class="d-inline">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="ticketId" value="@ticket.TicketID" />
+                                            <input type="hidden" name="newStatus" value="In Progress" />
+                                            <button type="submit" class="btn-action btn-warning-custom">
+                                                <i class="bi bi-play"></i>
+                                                Start Work
+                                            </button>
+                                        </form>
+
+                                        <form asp-action="UpdateStatus" method="post" class="d-inline">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="ticketId" value="@ticket.TicketID" />
+                                            <input type="hidden" name="newStatus" value="Resolved" />
+                                            <button type="submit" class="btn-action btn-success-custom">
+                                                <i class="bi bi-check-circle"></i>
+                                                Resolve
+                                            </button>
+                                        </form>
+                                    }
+                                </div>
+
+                                <!-- Quick Comment -->
+                                <div class="mt-2">
+                                    <form asp-action="AddComment" method="post" class="d-flex gap-2">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="ticketId" value="@ticket.TicketID" />
+                                        <div class="input-group input-group-sm">
+                                            <input type="text"
+                                                   name="message"
+                                                   class="form-control"
+                                                   placeholder="Add a quick comment..."
+                                                   required>
+                                            <button type="submit" class="btn btn-outline-primary">
+                                                <i class="bi bi-send"></i>
+                                            </button>
+                                        </div>
+                                    </form>
                                 </div>
 
                                 <!-- Chat History Preview -->
                                 @if (Model.TicketChats.TryGetValue(ticket.TicketID, out var messages) && messages.Any())
                                 {
-                                    <div class="chat-history">
-                                        <h6 class="mb-2">
+                                    <div class="chat-preview mt-2">
+                                        <small class="fw-bold">
                                             <i class="bi bi-chat-left-text me-1"></i>
-                                            Recent Communication (@messages.Count messages)
-                                        </h6>
-                                        @foreach (var msg in messages.OrderByDescending(m => m.SentAt).Take(2))
+                                            Recent: @messages.Count message(s)
+                                        </small>
+                                        @foreach (var msg in messages.OrderByDescending(m => m.SentAt).Take(1))
                                         {
-                                            <div class="chat-message">
+                                            <div class="mt-1">
                                                 <div class="message-sender">@(msg.User?.FullName ?? "Unknown User")</div>
-                                                <div class="mt-1">@msg.Message</div>
-                                                <div class="message-time mt-1">@msg.SentAt.ToString("MMM dd 'at' HH:mm")</div>
-                                            </div>
-                                        }
-                                        @if (messages.Count > 2)
-                                        {
-                                            <div class="text-center mt-2">
-                                                <a href="/Ticket/Details/@ticket.TicketID" class="text-primary small">
-                                                    View all @messages.Count messages
-                                                </a>
-                                            </div>
-                                        }
-                                    </div>
-                                }
-                                else
-                                {
-                                    <div class="text-muted small mt-3">
-                                        <i class="bi bi-chat-left me-1"></i>
-                                        No messages for this ticket yet.
-                                    </div>
-                                }
-
-                                <!-- Recent Activity Timeline -->
-                                @if (Model.RecentActivity.Any(a => a.TicketID == ticket.TicketID))
-                                {
-                                    <div class="activity-timeline">
-                                        <h6 class="mb-2">
-                                            <i class="bi bi-activity me-1"></i>
-                                            Recent Activity
-                                        </h6>
-                                        @foreach (var activity in Model.RecentActivity.Where(a => a.TicketID == ticket.TicketID).Take(3))
-                                        {
-                                            <div class="timeline-item">
-                                                <div class="timeline-icon bg-primary text-white">
-                                                    <i class="bi bi-arrow-right"></i>
-                                                </div>
-                                                <div>
-                                                    <div class="small">
-                                                        <strong>@activity.OldStatus</strong> → <strong>@activity.NewStatus</strong>
-                                                    </div>
-                                                    <div class="text-muted small">@activity.ChangeTime.ToString("MMM dd 'at' HH:mm")</div>
-                                                </div>
+                                                <div class="small">@msg.Message.Substring(0, Math.Min(80, msg.Message.Length))@(msg.Message.Length > 80 ? "..." : "")</div>
+                                                <div class="message-time">@msg.SentAt.ToString("MMM dd 'at' HH:mm")</div>
                                             </div>
                                         }
                                     </div>
                                 }
                             </div>
                         </div>
-                    }
+                    </div>
                 }
-            </div>
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <i class="bi bi-inbox display-1 text-muted"></i>
+                    <h5 class="mt-3 text-muted">No tickets assigned</h5>
+                    <p class="text-muted">You're all caught up! New tickets will appear here.</p>
+                </div>
+            }
         </div>
     </div>
 
-    <!-- Auto-refresh and Real-time Updates -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Initialize tooltips
-            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[title]'));
-            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-                return new bootstrap.Tooltip(tooltipTriggerEl);
-            });
-
-            // Search functionality
-            const searchInput = document.getElementById('searchInput');
-            let searchTimeout;
-
-            searchInput.addEventListener('input', function() {
-                clearTimeout(searchTimeout);
-                searchTimeout = setTimeout(() => {
-                    const searchTerm = this.value;
-                    if (searchTerm.length >= 3 || searchTerm.length === 0) {
-                        window.location.href = `?searchTerm=${encodeURIComponent(searchTerm)}`;
+        // Auto-refresh stats every 30 seconds
+        setInterval(function() {
+            fetch('/AgentDashboard/GetTicketStats')
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.error) {
+                        // Update metric displays without reloading page
+                        console.log('Stats updated:', data);
                     }
-                }, 500);
-            });
+                })
+                .catch(error => console.error('Error updating stats:', error));
+        }, 30000);
 
-            // Auto-refresh every 30 seconds
-            setInterval(refreshStats, 30000);
-
-            // Add smooth scrolling animations
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.style.opacity = '1';
-                        entry.target.style.transform = 'translateY(0)';
+        // Add confirmation for resolve actions
+        document.querySelectorAll('form[action*="UpdateStatus"] button').forEach(button => {
+            if (button.textContent.includes('Resolve')) {
+                button.addEventListener('click', function(e) {
+                    if (!confirm('Are you sure you want to mark this ticket as resolved?')) {
+                        e.preventDefault();
                     }
                 });
-            });
-
-            document.querySelectorAll('.ticket-card').forEach(card => {
-                card.style.opacity = '0';
-                card.style.transform = 'translateY(20px)';
-                card.style.transition = 'all 0.3s ease';
-                observer.observe(card);
-            });
-
-            // Click animations for buttons
-            document.querySelectorAll('.btn-action').forEach(button => {
-                button.addEventListener('click', function() {
-                    this.style.transform = 'scale(0.95)';
-                    setTimeout(() => {
-                        this.style.transform = '';
-                    }, 150);
-                });
-            });
-
-            // Initialize notification system
-            checkForNotifications();
-            setInterval(checkForNotifications, 60000); // Check every minute
-        });
-
-        // Refresh dashboard stats
-        function refreshDashboard() {
-            window.location.reload();
-        }
-
-        async function refreshStats() {
-            try {
-                const response = await fetch('/AgentDashboard/GetTicketStats');
-                const stats = await response.json();
-
-                if (!stats.error) {
-                    // Update stat cards
-                    updateStatCard('total', stats.totalTickets);
-                    updateStatCard('new', stats.newTickets);
-                    updateStatCard('in-progress', stats.inProgress);
-                    updateStatCard('resolved', stats.resolvedToday);
-                    updateStatCard('overdue', stats.overdue);
-                    updateStatCard('high-priority', stats.highPriority);
-                }
-            } catch (error) {
-                console.log('Failed to refresh stats:', error);
-            }
-        }
-
-        function updateStatCard(type, value) {
-            const card = document.querySelector(`.stat-card.${type} h3`);
-            if (card && card.textContent !== value.toString()) {
-                card.style.transform = 'scale(1.1)';
-                card.textContent = value;
-                setTimeout(() => {
-                    card.style.transform = 'scale(1)';
-                }, 200);
-            }
-        }
-
-        function sortTickets(criteria) {
-            const container = document.querySelector('.ticket-container .p-3');
-            const tickets = Array.from(container.querySelectorAll('.ticket-card'));
-
-            tickets.sort((a, b) => {
-                switch(criteria) {
-                    case 'priority':
-                        const priorityOrder = {'high': 3, 'medium': 2, 'low': 1};
-                        const aPriority = a.querySelector('.priority-badge')?.textContent.toLowerCase().includes('high') ? 3 :
-                                        a.querySelector('.priority-badge')?.textContent.toLowerCase().includes('medium') ? 2 : 1;
-                        const bPriority = b.querySelector('.priority-badge')?.textContent.toLowerCase().includes('high') ? 3 :
-                                        b.querySelector('.priority-badge')?.textContent.toLowerCase().includes('medium') ? 2 : 1;
-                        return bPriority - aPriority;
-                    case 'created':
-                        const aDate = new Date(a.querySelector('.text-muted.small').textContent.match(/Created: (.+)/)?.[1]);
-                        const bDate = new Date(b.querySelector('.text-muted.small').textContent.match(/Created: (.+)/)?.[1]);
-                        return bDate - aDate;
-                    case 'sla':
-                        const aSLA = a.querySelector('.sla-indicator').className;
-                        const bSLA = b.querySelector('.sla-indicator').className;
-                        const slaOrder = {'overdue': 4, 'critical': 3, 'warning': 2, 'on-track': 1};
-                        return (slaOrder[bSLA.split(' ')[1]?.replace('sla-', '')] || 0) -
-                               (slaOrder[aSLA.split(' ')[1]?.replace('sla-', '')] || 0);
-                }
-            });
-
-            // Re-append sorted tickets
-            tickets.forEach(ticket => container.appendChild(ticket));
-
-            // Show sorting feedback
-            showNotification(`Tickets sorted by ${criteria}`, 'success');
-        }
-
-        function showNotification(message, type = 'success') {
-            const notification = document.createElement('div');
-            notification.className = `notification-toast border-${type}`;
-            notification.innerHTML = `
-                <div class="d-flex align-items-center">
-                    <i class="bi bi-check-circle me-2 text-${type}"></i>
-                    <span>${message}</span>
-                </div>
-            `;
-
-            document.body.appendChild(notification);
-
-            setTimeout(() => {
-                notification.style.opacity = '0';
-                notification.style.transform = 'translateX(100%)';
-                setTimeout(() => notification.remove(), 300);
-            }, 3000);
-        }
-
-        async function checkForNotifications() {
-            try {
-                const response = await fetch('/AgentDashboard/GetRecentActivity');
-                const activity = await response.json();
-
-                if (activity && activity.length > 0) {
-                    // Check if there are new activities since last check
-                    const lastCheck = localStorage.getItem('lastActivityCheck');
-                    const currentTime = new Date().getTime();
-
-                    if (lastCheck) {
-                        const newActivities = activity.filter(a =>
-                            new Date(a.changeTime).getTime() > parseInt(lastCheck)
-                        );
-
-                        newActivities.forEach(activity => {
-                            showNotification(
-                                `Ticket #${activity.ticketId}: ${activity.oldStatus} → ${activity.newStatus}`,
-                                'info'
-                            );
-                        });
-                    }
-
-                    localStorage.setItem('lastActivityCheck', currentTime.toString());
-                }
-            } catch (error) {
-                console.log('Failed to check notifications:', error);
-            }
-        }
-
-        // Keyboard shortcuts
-        document.addEventListener('keydown', function(e) {
-            if (e.ctrlKey || e.metaKey) {
-                switch(e.key) {
-                    case 'r':
-                        e.preventDefault();
-                        refreshDashboard();
-                        break;
-                    case 'f':
-                        e.preventDefault();
-                        document.getElementById('searchInput').focus();
-                        break;
-                }
             }
         });
     </script>

@@ -1,0 +1,385 @@
+﻿@model OmnitakSupportHub.Models.ViewModels.CreateRoleViewModel
+@{
+    ViewData["Title"] = Model.RoleID > 0 ? "Edit Role" : "Create New Role";
+}
+
+<style>
+    :root {
+        --primary-green: #10b981;
+        --primary-green-dark: #059669;
+        --primary-green-light: #34d399;
+        --secondary-green: #065f46;
+        --accent-green: #6ee7b7;
+        --bg-primary: #f8fafc;
+        --bg-secondary: #ffffff;
+        --text-primary: #0f172a;
+        --text-secondary: #64748b;
+        --text-muted: #94a3b8;
+        --border-color: #e2e8f0;
+        --error-color: #dc2626;
+        --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+        --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        --radius-sm: 0.375rem;
+        --radius-md: 0.5rem;
+        --radius-lg: 0.75rem;
+        --radius-xl: 1rem;
+    }
+
+    body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        line-height: 1.6;
+    }
+
+    .container {
+        max-width: 800px;
+        margin: 40px auto;
+        background: var(--bg-secondary);
+        border-radius: var(--radius-xl);
+        box-shadow: var(--shadow-lg);
+        overflow: hidden;
+    }
+
+    .form-header {
+        background: linear-gradient(135deg, var(--primary-green) 0%, var(--secondary-green) 100%);
+        color: white;
+        padding: 30px;
+        text-align: center;
+    }
+
+        .form-header h2 {
+            margin: 0;
+            font-size: 2rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .form-header p {
+            margin: 10px 0 0;
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+    .form-content {
+        padding: 40px;
+    }
+
+    .form-group {
+        margin-bottom: 25px;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: var(--text-primary);
+        font-size: 1rem;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 12px 16px;
+        border: 2px solid var(--border-color);
+        border-radius: var(--radius-md);
+        font-size: 1rem;
+        background: var(--bg-secondary);
+        color: var(--text-primary);
+        transition: all 0.3s ease;
+        box-sizing: border-box;
+    }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-green);
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+
+        .form-control.is-invalid {
+            border-color: var(--error-color);
+        }
+
+    .invalid-feedback {
+        color: var(--error-color);
+        font-size: 0.875rem;
+        margin-top: 5px;
+        display: block;
+    }
+
+    .permissions-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+        margin-top: 20px;
+    }
+
+    .permission-card {
+        background: var(--bg-primary);
+        border: 2px solid var(--border-color);
+        border-radius: var(--radius-lg);
+        padding: 20px;
+        transition: all 0.3s ease;
+    }
+
+        .permission-card:hover {
+            border-color: var(--primary-green);
+            box-shadow: var(--shadow-md);
+        }
+
+    .permission-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 15px;
+    }
+
+        .permission-item:last-child {
+            margin-bottom: 0;
+        }
+
+    .form-check-input {
+        width: 20px;
+        height: 20px;
+        border: 2px solid var(--border-color);
+        border-radius: 4px;
+        background: var(--bg-secondary);
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+        .form-check-input:checked {
+            background-color: var(--primary-green);
+            border-color: var(--primary-green);
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='white'%3e%3cpath fill-rule='evenodd' d='M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z' clip-rule='evenodd'/%3e%3c/svg%3e");
+        }
+
+    .form-check-label {
+        font-weight: 500;
+        color: var(--text-primary);
+        cursor: pointer;
+        user-select: none;
+    }
+
+    .btn {
+        display: inline-block;
+        padding: 12px 24px;
+        font-size: 1rem;
+        border-radius: var(--radius-md);
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+        text-decoration: none;
+        margin: 0 10px;
+        transition: all 0.3s ease;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, var(--primary-green) 0%, var(--primary-green-dark) 100%);
+        color: white;
+    }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, var(--primary-green-dark) 0%, var(--secondary-green) 100%);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+    .btn-secondary {
+        background: var(--bg-secondary);
+        color: var(--text-secondary);
+        border: 2px solid var(--border-color);
+    }
+
+        .btn-secondary:hover {
+            background: var(--bg-primary);
+            color: var(--primary-green);
+            border-color: var(--primary-green);
+        }
+
+    .form-actions {
+        display: flex;
+        justify-content: center;
+        margin-top: 30px;
+        padding-top: 30px;
+        border-top: 2px solid var(--border-color);
+    }
+
+    .alert {
+        margin-bottom: 25px;
+        padding: 15px 20px;
+        border-radius: var(--radius-md);
+        font-size: 1rem;
+        font-weight: 600;
+        border-left: 5px solid;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .alert-success {
+        background: rgba(16, 185, 129, 0.1);
+        color: var(--primary-green);
+        border-left-color: var(--primary-green);
+    }
+
+    .alert-danger {
+        background: rgba(239, 68, 68, 0.1);
+        color: #dc2626;
+        border-left-color: #dc2626;
+    }
+
+    .system-role-warning {
+        background: rgba(245, 158, 11, 0.1);
+        color: #d97706;
+        border-left-color: #d97706;
+        margin-top: 20px;
+    }
+
+    @@media (max-width: 768px) {
+        .container {
+            margin: 20px;
+            border-radius: var(--radius-lg);
+        }
+
+        .form-content {
+            padding: 20px;
+        }
+
+        .permissions-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .form-actions {
+            flex-direction: column;
+            gap: 10px;
+        }
+    }
+</style>
+
+<div class="container">
+    <div class="form-header">
+        <h2>@(Model.RoleID > 0 ? "Edit Role" : "Create New Role")</h2>
+        <p>@(Model.RoleID > 0 ? "Modify role permissions and details" : "Define a new role with specific permissions")</p>
+    </div>
+
+    <div class="form-content">
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success">
+                <i class="fas fa-check-circle"></i> @TempData["SuccessMessage"]
+            </div>
+        }
+
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-circle"></i> @TempData["ErrorMessage"]
+            </div>
+        }
+
+        <form asp-action="@(Model.RoleID > 0 ? "EditRole" : "CreateRole")" method="post">
+            @if (Model.RoleID > 0)
+            {
+                <input type="hidden" asp-for="RoleID" />
+                <input type="hidden" asp-for="IsSystemRole" />
+            }
+
+            <div class="form-group">
+                <label asp-for="RoleName" class="form-label">
+                    <i class="fas fa-user-tag"></i> Role Name
+                </label>
+                <input asp-for="RoleName" class="form-control" placeholder="Enter role name..." />
+                <span asp-validation-for="RoleName" class="invalid-feedback"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Description" class="form-label">
+                    <i class="fas fa-align-left"></i> Description
+                </label>
+                <textarea asp-for="Description" class="form-control" rows="3" placeholder="Enter role description..."></textarea>
+                <span asp-validation-for="Description" class="invalid-feedback"></span>
+            </div>
+
+            @if (Model.IsSystemRole && Model.RoleID > 0)
+            {
+                <div class="alert system-role-warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <strong>System Role:</strong> This is a system-defined role. Some restrictions may apply.
+                </div>
+            }
+
+            <div class="form-group">
+                <label class="form-label">
+                    <i class="fas fa-shield-alt"></i> Permissions
+                </label>
+                <div class="permissions-grid">
+                    <div class="permission-card">
+                        <h4 style="margin-top: 0; color: var(--primary-green);">User Management</h4>
+                        <div class="permission-item">
+                            <input asp-for="CanApproveUsers" type="checkbox" class="form-check-input" />
+                            <label asp-for="CanApproveUsers" class="form-check-label">Can Approve Users</label>
+                        </div>
+                    </div>
+
+                    <div class="permission-card">
+                        <h4 style="margin-top: 0; color: var(--primary-green);">Ticket Management</h4>
+                        <div class="permission-item">
+                            <input asp-for="CanManageTickets" type="checkbox" class="form-check-input" />
+                            <label asp-for="CanManageTickets" class="form-check-label">Can Manage Tickets</label>
+                        </div>
+                        <div class="permission-item">
+                            <input asp-for="CanViewAllTickets" type="checkbox" class="form-check-input" />
+                            <label asp-for="CanViewAllTickets" class="form-check-label">Can View All Tickets</label>
+                        </div>
+                    </div>
+
+                    <div class="permission-card">
+                        <h4 style="margin-top: 0; color: var(--primary-green);">Knowledge Base</h4>
+                        <div class="permission-item">
+                            <input asp-for="CanManageKnowledgeBase" type="checkbox" class="form-check-input" />
+                            <label asp-for="CanManageKnowledgeBase" class="form-check-label">Can Manage Knowledge Base</label>
+                        </div>
+                    </div>
+
+                    <div class="permission-card">
+                        <h4 style="margin-top: 0; color: var(--primary-green);">System Administration</h4>
+                        <div class="permission-item">
+                            <input asp-for="CanViewReports" type="checkbox" class="form-check-input" />
+                            <label asp-for="CanViewReports" class="form-check-label">Can View Reports</label>
+                        </div>
+                        <div class="permission-item">
+                            <input asp-for="CanManageTeams" type="checkbox" class="form-check-input" />
+                            <label asp-for="CanManageTeams" class="form-check-label">Can Manage Teams</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i>
+                    @(Model.RoleID > 0 ? "Update Role" : "Create Role")
+                </button>
+                <a asp-action="Index" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+<script>
+    // Add some interactivity to permission cards
+    document.querySelectorAll('.permission-card').forEach(card => {
+        card.addEventListener('click', (e) => {
+            if (e.target.type !== 'checkbox' && e.target.tagName !== 'LABEL') {
+                const checkbox = card.querySelector('input[type="checkbox"]');
+                if (checkbox) {
+                    checkbox.checked = !checkbox.checked;
+                }
+            }
+        });
+    });
+</script>

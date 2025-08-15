@@ -1,7 +1,7 @@
 ﻿@model OmnitakSupportHub.Models.ViewModels.LoginViewModel
 @{
     ViewData["Title"] = "Enterprise Login";
-    Layout = null; // Remove default layout for full control
+    Layout = null; 
 }
 
 <!DOCTYPE html>
@@ -13,7 +13,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            /* Premium Enterprise Color Palette */
             --primary-deep-blue: #0F1419;
             --primary-navy: #1A237E;
             --accent-electric: #00E5FF;
@@ -41,12 +40,13 @@
         body {
             font-family: 'Inter', sans-serif;
             background: var(--primary-deep-blue);
-            overflow: hidden;
+            overflow-x: hidden; 
+            overflow-y: auto; 
             position: relative;
             min-height: 100vh;
         }
 
-        /* Animated Background */
+     
         .background-container {
             position: fixed;
             top: 0;
@@ -118,56 +118,16 @@
 
         }
 
-        /* Particle System */
-        .particles {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-        }
-
-        .particle {
-            position: absolute;
-            width: 2px;
-            height: 2px;
-            background: var(--accent-electric);
-            border-radius: 50%;
-            opacity: 0.6;
-            animation: particleMove 25s infinite linear;
-        }
-
-        @@keyframes particleMove {
-            0%
-
-        {
-            transform: translateY(100vh) translateX(-50px);
-            opacity: 0;
-        }
-
-        10% {
-            opacity: 0.6;
-        }
-
-        90% {
-            opacity: 0.6;
-        }
-
-        100% {
-            transform: translateY(-100px) translateX(50px);
-            opacity: 0;
-        }
-
-        }
-
-        /* Main Container */
+  
         .login-container {
             display: flex;
             min-height: 100vh;
+            height: auto; 
             position: relative;
             z-index: 10;
         }
 
-        /* Left Panel - Brand & Features */
+       
         .brand-panel {
             flex: 1.2;
             padding: 60px;
@@ -178,6 +138,7 @@
             background: rgba(0, 0, 0, 0.3);
             backdrop-filter: blur(20px);
             border-right: 1px solid rgba(255, 255, 255, 0.1);
+            min-height: 100vh; /* Ensure minimum height but allow growth */
         }
 
         .brand-content {
@@ -247,17 +208,7 @@
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.1);
             transition: all 0.4s ease;
-            animation: fadeInUp 1s ease forwards;
-            animation-delay: calc(var(--delay) * 0.2s);
-            opacity: 0;
         }
-
-            .feature-item:hover {
-                transform: translateX(10px);
-                background: rgba(255, 255, 255, 0.08);
-                border-color: var(--accent-electric);
-                box-shadow: 0 8px 32px rgba(0, 229, 255, 0.2);
-            }
 
         .feature-icon {
             width: 48px;
@@ -279,7 +230,7 @@
             font-weight: 500;
         }
 
-        /* Right Panel - Login Form */
+        /* Right Panel - Login Form - FIXED: Made scrollable */
         .form-panel {
             flex: 1;
             padding: 60px;
@@ -288,12 +239,15 @@
             justify-content: center;
             background: rgba(0, 0, 0, 0.4);
             backdrop-filter: blur(20px);
+            min-height: 100vh; 
+            height: auto; 
         }
 
         .login-form {
             width: 100%;
             max-width: 400px;
             animation: slideInRight 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            padding-bottom: 2rem; 
         }
 
         .form-header {
@@ -346,7 +300,6 @@
                 border-color: var(--accent-electric);
                 background: rgba(255, 255, 255, 0.08);
                 box-shadow: 0 0 0 3px rgba(0, 229, 255, 0.1);
-                transform: translateY(-2px);
             }
 
             .form-control::placeholder {
@@ -377,18 +330,6 @@
             cursor: pointer;
         }
 
-        .forgot-link {
-            font-size: 14px;
-            color: var(--accent-electric);
-            text-decoration: none;
-            transition: all 0.3s ease;
-        }
-
-            .forgot-link:hover {
-                color: var(--accent-gold);
-                text-shadow: 0 0 8px rgba(255, 179, 0, 0.5);
-            }
-
         .btn {
             width: 100%;
             padding: 16px;
@@ -401,35 +342,15 @@
             font-family: 'Inter', sans-serif;
             cursor: pointer;
             transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             box-shadow: var(--shadow-deep);
+            margin-bottom: 2rem; 
         }
 
             .btn:hover {
                 transform: translateY(-2px);
                 box-shadow: var(--shadow-glow), var(--shadow-deep);
-            }
-
-            .btn:active {
-                transform: translateY(0);
-            }
-
-            .btn::before {
-                content: '';
-                position: absolute;
-                top: 0;
-                left: -100%;
-                width: 100%;
-                height: 100%;
-                background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-                transition: left 0.5s;
-            }
-
-            .btn:hover::before {
-                left: 100%;
             }
 
         .divider {
@@ -450,9 +371,13 @@
             color: var(--text-secondary);
         }
 
+  
         .register-link {
             text-align: center;
             margin-top: 24px;
+            padding-bottom: 3rem; 
+            display: block !important;
+            visibility: visible !important;
         }
 
             .register-link a {
@@ -460,6 +385,8 @@
                 text-decoration: none;
                 font-weight: 500;
                 transition: all 0.3s ease;
+                padding: 0.5rem;
+                display: inline-block;
             }
 
                 .register-link a:hover {
@@ -467,17 +394,12 @@
                     text-shadow: 0 0 8px rgba(255, 179, 0, 0.5);
                 }
 
-        /* Error Styling */
+       
         .text-danger {
             color: var(--error-color) !important;
             font-size: 12px;
             margin-top: 4px;
             display: block;
-        }
-
-        .input-validation-error {
-            border-color: var(--error-color) !important;
-            background: rgba(255, 82, 82, 0.1) !important;
         }
 
         .validation-summary-errors {
@@ -492,11 +414,6 @@
             .validation-summary-errors ul {
                 margin: 0;
                 list-style: none;
-            }
-
-            .validation-summary-errors li {
-                font-size: 14px;
-                margin-bottom: 4px;
             }
 
         /* Animations */
@@ -530,38 +447,25 @@
 
         }
 
-        @@keyframes fadeInUp {
-            from
-
-        {
-            opacity: 0;
-            transform: translateY(30px);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        }
-
-        /* Responsive Design */
+        
         @@media (max-width: 1024px) {
             .login-container
 
         {
             flex-direction: column;
+            height: auto; 
         }
 
         .brand-panel {
             flex: none;
             padding: 40px;
-            min-height: 40vh;
+            min-height: 50vh;
         }
 
         .form-panel {
             flex: none;
             padding: 40px;
+            min-height: 50vh; 
         }
 
         .brand-title {
@@ -575,6 +479,7 @@
 
         {
             padding: 24px;
+            min-height: auto; 
         }
 
         .brand-title {
@@ -586,50 +491,16 @@
         }
 
         }
-
-        /* Loading State */
-        .loading {
-            position: relative;
-            pointer-events: none;
-        }
-
-            .loading::after {
-                content: '';
-                position: absolute;
-                top: 50%;
-                left: 50%;
-                width: 20px;
-                height: 20px;
-                margin: -10px 0 0 -10px;
-                border: 2px solid transparent;
-                border-top: 2px solid white;
-                border-radius: 50%;
-                animation: spin 1s linear infinite;
-            }
-
-        @@keyframes spin {
-            0%
-
-        {
-            transform: rotate(0deg);
-        }
-
-        100% {
-            transform: rotate(360deg);
-        }
-
-        }
     </style>
 </head>
 <body>
-    <!-- Animated Background -->
+    
     <div class="background-container">
         <div class="floating-orbs">
             <div class="orb"></div>
             <div class="orb"></div>
             <div class="orb"></div>
         </div>
-        <div class="particles" id="particles"></div>
     </div>
 
     <div class="login-container">
@@ -640,23 +511,22 @@
                 <h1 class="brand-title">Omnitak Support Hub</h1>
                 <p class="brand-subtitle">
                     Enterprise-grade IT support platform designed for modern businesses.
-                    Streamline your operations with intelligent automation and real-time insights.
                 </p>
 
                 <ul class="features-list">
-                    <li class="feature-item" style="--delay: 1">
+                    <li class="feature-item">
                         <div class="feature-icon">🚀</div>
                         <div class="feature-text">AI-Powered Ticket Resolution</div>
                     </li>
-                    <li class="feature-item" style="--delay: 2">
+                    <li class="feature-item">
                         <div class="feature-icon">📊</div>
                         <div class="feature-text">Real-Time Analytics Dashboard</div>
                     </li>
-                    <li class="feature-item" style="--delay: 3">
+                    <li class="feature-item">
                         <div class="feature-icon">🔐</div>
                         <div class="feature-text">Enterprise Security Standards</div>
                     </li>
-                    <li class="feature-item" style="--delay: 4">
+                    <li class="feature-item">
                         <div class="feature-icon">⚡</div>
                         <div class="feature-text">Lightning-Fast Response Times</div>
                     </li>
@@ -664,28 +534,28 @@
             </div>
         </div>
 
-        <!-- Right Panel - Login Form -->
+       
         <div class="form-panel">
-            <form class="login-form" asp-action="Login" method="post" id="loginForm">
+            <form class="login-form" asp-action="Login" method="post">
                 @Html.AntiForgeryToken()
 
                 <div class="form-header">
                     <h2 class="form-title">Welcome Back</h2>
-                    <p class="form-subtitle">Sign in to access your enterprise dashboard</p>
+                    <p class="form-subtitle">Sign in to access your dashboard</p>
                 </div>
 
-                <!-- Validation Summary -->
+                
                 <div asp-validation-summary="All" class="validation-summary-errors"></div>
 
                 <div class="form-group">
                     <label asp-for="Email" class="form-label">Email Address</label>
-                    <input asp-for="Email" class="form-control" placeholder="Enter your company email" autocomplete="email" />
+                    <input asp-for="Email" class="form-control" placeholder="Enter your email" autocomplete="email" />
                     <span asp-validation-for="Email" class="text-danger"></span>
                 </div>
 
                 <div class="form-group">
                     <label asp-for="Password" class="form-label">Password</label>
-                    <input asp-for="Password" class="form-control" type="password" placeholder="Enter your secure password" autocomplete="current-password" />
+                    <input asp-for="Password" class="form-control" type="password" placeholder="Enter your password" autocomplete="current-password" />
                     <span asp-validation-for="Password" class="text-danger"></span>
                 </div>
 
@@ -694,10 +564,9 @@
                         <input asp-for="RememberMe" class="form-check-input" />
                         <label asp-for="RememberMe" class="form-check-label">Keep me signed in</label>
                     </div>
-                    <a asp-action="ForgotPassword" class="forgot-link">Forgot Password?</a>
                 </div>
 
-                <button type="submit" class="btn" id="loginBtn">
+                <button type="submit" class="btn">
                     Sign In to Dashboard
                 </button>
 
@@ -707,104 +576,14 @@
                     <div class="divider-line"></div>
                 </div>
 
+             
                 <div class="register-link">
-                    <a asp-action="Register">Request Enterprise Access</a>
+                    <p style="color: var(--text-secondary); margin-bottom: 0.5rem;">Don't have an account?</p>
+                    <a asp-action="Register">Create New Account</a>
                 </div>
             </form>
         </div>
     </div>
-
-    <script>
-        // Particle System
-        function createParticles() {
-            const particlesContainer = document.getElementById('particles');
-            const particleCount = 50;
-
-            for (let i = 0; i < particleCount; i++) {
-                const particle = document.createElement('div');
-                particle.className = 'particle';
-                particle.style.left = Math.random() * 100 + '%';
-                particle.style.animationDelay = Math.random() * 25 + 's';
-                particle.style.animationDuration = (Math.random() * 10 + 20) + 's';
-                particlesContainer.appendChild(particle);
-            }
-        }
-
-        // Form Interactions
-        document.addEventListener('DOMContentLoaded', function() {
-            createParticles();
-
-            const form = document.getElementById('loginForm');
-            const loginBtn = document.getElementById('loginBtn');
-            const inputs = document.querySelectorAll('.form-control');
-
-            // Enhanced input interactions
-            inputs.forEach(input => {
-                input.addEventListener('focus', function() {
-                    this.parentElement.style.transform = 'translateY(-2px)';
-                });
-
-                input.addEventListener('blur', function() {
-                    this.parentElement.style.transform = 'translateY(0)';
-                });
-
-                input.addEventListener('input', function() {
-                    if (this.value) {
-                        this.style.borderColor = 'var(--accent-electric)';
-                        this.classList.remove('input-validation-error');
-                    } else {
-                        this.style.borderColor = 'rgba(255, 255, 255, 0.1)';
-                    }
-                });
-            });
-
-            // Form submission with loading state
-            form.addEventListener('submit', function(e) {
-                // Don't prevent default - let ASP.NET handle the form submission
-                loginBtn.classList.add('loading');
-                loginBtn.textContent = '';
-                loginBtn.disabled = true;
-            });
-
-            // Add entrance animations to features
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.style.animationPlayState = 'running';
-                    }
-                });
-            });
-
-            document.querySelectorAll('.feature-item').forEach(item => {
-                observer.observe(item);
-            });
-        });
-
-        // Add dynamic glow effect on mouse move
-        document.addEventListener('mousemove', function(e) {
-            const cursor = document.querySelector('.cursor-glow');
-            if (!cursor) {
-                const glowElement = document.createElement('div');
-                glowElement.className = 'cursor-glow';
-                glowElement.style.cssText = `
-                    position: fixed;
-                    width: 200px;
-                    height: 200px;
-                    background: radial-gradient(circle, rgba(0, 229, 255, 0.1) 0%, transparent 70%);
-                    border-radius: 50%;
-                    pointer-events: none;
-                    z-index: 5;
-                    mix-blend-mode: screen;
-                    transform: translate(-50%, -50%);
-                `;
-                document.body.appendChild(glowElement);
-            }
-
-            const glowCursor = document.querySelector('.cursor-glow');
-            glowCursor.style.left = e.clientX + 'px';
-            glowCursor.style.top = e.clientY + 'px';
-        });
-    </script>
 
     @section Scripts {
         <partial name="_ValidationScriptsPartial" />

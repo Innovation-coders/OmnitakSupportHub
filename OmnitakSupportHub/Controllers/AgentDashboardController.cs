@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using OmnitakSupportHub.Models;
 using OmnitakSupportHub.Models.ViewModels;
@@ -33,7 +34,6 @@ namespace OmnitakSupportHub.Controllers
                     return RedirectToAction("Login", "Account");
                 }
 
-                // Build query for assigned tickets with proper includes
                 var ticketsQuery = _context.Tickets
                     .Include(t => t.Status)
                     .Include(t => t.Priority)
@@ -43,7 +43,6 @@ namespace OmnitakSupportHub.Controllers
                     .Include(t => t.TicketTimelines)
                     .Where(t => t.AssignedTo == agent.UserID);
 
-                // Apply filters
                 if (!string.IsNullOrEmpty(statusFilter))
                 {
                     ticketsQuery = ticketsQuery.Where(t => t.Status.StatusName == statusFilter);
@@ -66,7 +65,6 @@ namespace OmnitakSupportHub.Controllers
                     .OrderByDescending(t => t.CreatedAt)
                     .ToListAsync();
 
-                // Get recent activity/timeline for tickets
                 var ticketIds = assignedTickets.Select(t => t.TicketID).ToList();
                 var recentActivity = await _context.TicketTimelines
                     .Where(tt => ticketIds.Contains(tt.TicketID))
@@ -74,7 +72,6 @@ namespace OmnitakSupportHub.Controllers
                     .Take(10)
                     .ToListAsync();
 
-                // Get chat messages for assigned tickets
                 var chatMessages = await _context.ChatMessages
                     .Include(c => c.User)
                     .Include(c => c.Ticket)
@@ -82,12 +79,10 @@ namespace OmnitakSupportHub.Controllers
                     .OrderBy(c => c.SentAt)
                     .ToListAsync();
 
-                // Group chat messages by ticket
                 var ticketChats = chatMessages
                     .GroupBy(c => c.TicketID)
                     .ToDictionary(g => g.Key, g => g.ToList());
 
-                // Calculate agent-friendly statistics
                 var resolvedTodayCount = assignedTickets.Count(t =>
                     t.Status?.StatusName == "Resolved" &&
                     t.ClosedAt?.Date == DateTime.Today);
@@ -98,7 +93,6 @@ namespace OmnitakSupportHub.Controllers
 
                 var averageResponseTime = CalculateAverageResponseTime(assignedTickets);
 
-                // Get available filters
                 var availableStatuses = await _context.Statuses
                     .Where(s => s.IsActive)
                     .Select(s => s.StatusName)
@@ -109,6 +103,12 @@ namespace OmnitakSupportHub.Controllers
                     .Select(p => p.PriorityName)
                     .ToListAsync();
 
+               
+                ViewBag.TotalKBArticles = await _context.KnowledgeBase.CountAsync();
+                ViewBag.RecentKBArticles = await _context.KnowledgeBase
+                    .Where(kb => kb.CreatedAt >= DateTime.Today.AddDays(-7))
+                    .CountAsync();
+
                 var viewModel = new AgentDashboardViewModel
                 {
                     AgentName = agent.FullName,
@@ -116,12 +116,11 @@ namespace OmnitakSupportHub.Controllers
                     DepartmentName = agent.Department?.DepartmentName ?? "No Department Assigned",
                     AgentRole = agent.Role?.RoleName ?? "Support Agent",
 
-                    // Ticket collections
+                  
                     AssignedTickets = assignedTickets,
                     TicketChats = ticketChats,
                     RecentActivity = recentActivity,
 
-                    // Agent-friendly metrics (no stressful percentages)
                     AssignedToMe = assignedTickets.Count,
                     InProgress = assignedTickets.Count(t => t.Status?.StatusName == "In Progress"),
                     ResolvedToday = resolvedTodayCount,
@@ -130,11 +129,9 @@ namespace OmnitakSupportHub.Controllers
                     HighPriorityTickets = assignedTickets.Count(t => t.Priority?.PriorityName == "High"),
                     PendingUserTickets = assignedTickets.Count(t => t.Status?.StatusName == "Pending User"),
 
-                    // Simple performance indicators
                     TicketsResolvedThisWeek = resolvedThisWeekCount,
                     AverageResponseTime = averageResponseTime,
 
-                    // Recent activity
                     RecentMessages = chatMessages.OrderByDescending(c => c.SentAt).Take(5).ToList(),
                     RecentlyUpdatedTickets = assignedTickets
                         .Where(t => t.TicketTimelines.Any())
@@ -142,7 +139,6 @@ namespace OmnitakSupportHub.Controllers
                         .Take(3)
                         .ToList(),
 
-                    // Filter properties
                     CurrentStatusFilter = statusFilter,
                     CurrentPriorityFilter = priorityFilter,
                     CurrentSearchTerm = searchTerm,
@@ -152,14 +148,14 @@ namespace OmnitakSupportHub.Controllers
 
                 return View(viewModel);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 TempData["ErrorMessage"] = "An error occurred while loading the dashboard.";
                 return View(new AgentDashboardViewModel());
             }
         }
 
-        // Ticket Details View
+   
         public async Task<IActionResult> TicketDetails(int id)
         {
             try
@@ -179,7 +175,6 @@ namespace OmnitakSupportHub.Controllers
                     return RedirectToAction("Index");
                 }
 
-                // Verify agent has access to this ticket
                 var userEmail = User.FindFirst(ClaimTypes.Email)?.Value;
                 var agent = await _context.Users.FirstOrDefaultAsync(u => u.Email == userEmail);
 
@@ -189,7 +184,7 @@ namespace OmnitakSupportHub.Controllers
                     return RedirectToAction("Index");
                 }
 
-                // Get chat messages for this ticket
+           
                 var chatMessages = await _context.ChatMessages
                     .Include(c => c.User)
                     .Include(c => c.User.Role)
@@ -197,7 +192,6 @@ namespace OmnitakSupportHub.Controllers
                     .OrderBy(c => c.SentAt)
                     .ToListAsync();
 
-                // Get timeline for this ticket
                 var timeline = await _context.TicketTimelines
                     .Where(t => t.TicketID == id)
                     .OrderByDescending(t => t.ChangeTime)
@@ -210,7 +204,7 @@ namespace OmnitakSupportHub.Controllers
 
                 return View(ticket);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 TempData["ErrorMessage"] = "An error occurred while loading ticket details.";
                 return RedirectToAction("Index");
@@ -236,7 +230,6 @@ namespace OmnitakSupportHub.Controllers
 
                 var oldStatus = ticket.Status?.StatusName ?? "Unknown";
 
-                // Get the status entity
                 var status = await _context.Statuses
                     .FirstOrDefaultAsync(s => s.StatusName == newStatus);
 
@@ -246,10 +239,8 @@ namespace OmnitakSupportHub.Controllers
                     return RedirectToAction("Index");
                 }
 
-                // Update ticket status
                 ticket.StatusID = status.StatusID;
 
-                // If marking as resolved, set the closed date
                 if (newStatus == "Resolved" || newStatus == "Closed")
                 {
                     ticket.ClosedAt = DateTime.UtcNow;
@@ -257,7 +248,6 @@ namespace OmnitakSupportHub.Controllers
 
                 await _context.SaveChangesAsync();
 
-                // Add to timeline
                 var userEmail = User.FindFirst(ClaimTypes.Email)?.Value;
                 var agent = await _context.Users.FirstOrDefaultAsync(u => u.Email == userEmail);
 
@@ -273,7 +263,6 @@ namespace OmnitakSupportHub.Controllers
                     };
                     _context.TicketTimelines.Add(timeline);
 
-                    // Add audit log
                     var auditLog = new AuditLog
                     {
                         UserID = agent.UserID,
@@ -289,7 +278,7 @@ namespace OmnitakSupportHub.Controllers
 
                 TempData["SuccessMessage"] = $"Ticket #{ticketId} status updated to {newStatus} successfully.";
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 TempData["ErrorMessage"] = "An error occurred while updating the ticket status.";
             }
@@ -297,7 +286,7 @@ namespace OmnitakSupportHub.Controllers
             return RedirectToAction("Index");
         }
 
-        // Add comment to ticket
+     
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddComment(int ticketId, string message)
@@ -331,7 +320,7 @@ namespace OmnitakSupportHub.Controllers
 
                 TempData["SuccessMessage"] = "Comment added successfully.";
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 TempData["ErrorMessage"] = "An error occurred while adding the comment.";
             }
@@ -339,7 +328,7 @@ namespace OmnitakSupportHub.Controllers
             return RedirectToAction("TicketDetails", new { id = ticketId });
         }
 
-        // Update ticket priority
+       
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdatePriority(int ticketId, string priority)
@@ -367,12 +356,445 @@ namespace OmnitakSupportHub.Controllers
 
                 TempData["SuccessMessage"] = $"Ticket #{ticketId} priority updated to {priority}.";
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 TempData["ErrorMessage"] = "An error occurred while updating the priority.";
             }
 
             return RedirectToAction("Index");
+        }
+
+        // KNOWLEDGE BASE FUNCTIONALITY
+
+        [HttpGet]
+        public async Task<IActionResult> KnowledgeBase(int? categoryId = null, string searchTerm = "", string sortBy = "newest")
+        {
+            try
+            {
+                var userEmail = User.FindFirst(ClaimTypes.Email)?.Value;
+                var agent = await _context.Users
+                    .Include(u => u.Role)
+                    .Include(u => u.Department)
+                    .FirstOrDefaultAsync(u => u.Email == userEmail);
+
+                if (agent == null)
+                {
+                    TempData["ErrorMessage"] = "Agent not found.";
+                    return RedirectToAction("Index");
+                }
+
+                // Get all knowledge base articles (agents can see all)
+                var articlesQuery = _context.KnowledgeBase
+                    .Include(kb => kb.Category)
+                    .Include(kb => kb.CreatedByUser)
+                    .Include(kb => kb.LastUpdatedByUser)
+                    .AsQueryable();
+
+                // Apply category filter
+                if (categoryId.HasValue)
+                {
+                    articlesQuery = articlesQuery.Where(kb => kb.CategoryID == categoryId.Value);
+                }
+
+                // Apply search filter
+                if (!string.IsNullOrWhiteSpace(searchTerm))
+                {
+                    articlesQuery = articlesQuery.Where(kb =>
+                        kb.Title.Contains(searchTerm) ||
+                        kb.Content.Contains(searchTerm));
+                }
+
+                // Apply sorting
+                articlesQuery = sortBy switch
+                {
+                    "oldest" => articlesQuery.OrderBy(kb => kb.CreatedAt),
+                    "title" => articlesQuery.OrderBy(kb => kb.Title),
+                    "category" => articlesQuery.OrderBy(kb => kb.Category.CategoryName),
+                    "updated" => articlesQuery.OrderByDescending(kb => kb.UpdatedAt),
+                    _ => articlesQuery.OrderByDescending(kb => kb.CreatedAt) 
+                };
+
+                var articles = await articlesQuery.ToListAsync();
+
+             
+                var categories = await _context.Categories
+                    .Where(c => c.IsActive)
+                    .Select(c => new SelectListItem
+                    {
+                        Value = c.CategoryID.ToString(),
+                        Text = c.CategoryName,
+                        Selected = c.CategoryID == categoryId
+                    })
+                    .ToListAsync();
+
+                var categoryCountsQuery = await _context.KnowledgeBase
+                    .Include(kb => kb.Category)
+                    .GroupBy(kb => kb.Category.CategoryName)
+                    .Select(g => new { CategoryName = g.Key, Count = g.Count() })
+                    .ToListAsync();
+
+                var categoryCounts = categoryCountsQuery.ToDictionary(cc => cc.CategoryName, cc => cc.Count);
+
+               
+                var recentArticles = await _context.KnowledgeBase
+                    .Include(kb => kb.Category)
+                    .Include(kb => kb.CreatedByUser)
+                    .OrderByDescending(kb => kb.CreatedAt)
+                    .Take(5)
+                    .ToListAsync();
+
+       
+                var bookmarkedArticles = new List<KnowledgeBase>();
+
+              
+                var recentSearches = new List<string>();
+
+                var model = new KnowledgeBaseViewModel
+                {
+                    Articles = articles,
+                    Categories = categories,
+                    CategoryCounts = categoryCounts,
+                    RecentArticles = recentArticles,
+                    BookmarkedArticles = bookmarkedArticles,
+                    RecentSearches = recentSearches,
+                    SearchTerm = searchTerm,
+                    SortBy = sortBy,
+                    SelectedCategoryId = categoryId,
+                    SelectedCategoryName = categories.FirstOrDefault(c => c.Selected)?.Text ?? "All Categories",
+                    TotalArticles = await _context.KnowledgeBase.CountAsync(),
+                    AgentName = agent.FullName
+                };
+
+                return View(model);
+            }
+            catch (Exception)
+            {
+                TempData["ErrorMessage"] = "An error occurred while loading the knowledge base.";
+                return RedirectToAction("Index");
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ArticleDetails(int id)
+        {
+            try
+            {
+                var article = await _context.KnowledgeBase
+                    .Include(kb => kb.Category)
+                    .Include(kb => kb.CreatedByUser)
+                    .Include(kb => kb.LastUpdatedByUser)
+                    .FirstOrDefaultAsync(kb => kb.ArticleID == id);
+
+                if (article == null)
+                {
+                    TempData["ErrorMessage"] = "Article not found.";
+                    return RedirectToAction("KnowledgeBase");
+                }
+
+                // Verify agent has access (agents can view all articles)
+                var userEmail = User.FindFirst(ClaimTypes.Email)?.Value;
+                var agent = await _context.Users.FirstOrDefaultAsync(u => u.Email == userEmail);
+
+                if (agent == null)
+                {
+                    TempData["ErrorMessage"] = "Access denied.";
+                    return RedirectToAction("Index");
+                }
+
+                // Get related articles (same category, excluding current article)
+                var relatedArticles = await _context.KnowledgeBase
+                    .Include(kb => kb.Category)
+                    .Where(kb => kb.CategoryID == article.CategoryID && kb.ArticleID != id)
+                    .OrderByDescending(kb => kb.CreatedAt)
+                    .Take(5)
+                    .ToListAsync();
+
+                // Get related tickets that might have been resolved using this article (placeholder)
+                var relatedTickets = new List<Ticket>();
+
+                var model = new ArticleDetailViewModel
+                {
+                    Article = article,
+                    RelatedArticles = relatedArticles,
+                    RelatedTickets = relatedTickets,
+                    BackUrl = "/AgentDashboard/KnowledgeBase",
+                    CanEdit = true, // Agents can edit articles
+                    IsBookmarked = false, // Implement bookmarking if needed
+                    ViewCount = 0, // Implement view tracking if needed
+                    LastViewed = DateTime.UtcNow
+                };
+
+                return View(model);
+            }
+            catch (Exception)
+            {
+                TempData["ErrorMessage"] = "An error occurred while loading the article.";
+                return RedirectToAction("KnowledgeBase");
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> CreateArticle()
+        {
+            try
+            {
+                var categories = await _context.Categories
+                    .Where(c => c.IsActive)
+                    .Select(c => new SelectListItem
+                    {
+                        Value = c.CategoryID.ToString(),
+                        Text = c.CategoryName
+                    })
+                    .ToListAsync();
+
+                var model = new CreateArticleViewModel
+                {
+                    Categories = categories
+                };
+
+                return View(model);
+            }
+            catch (Exception)
+            {
+                TempData["ErrorMessage"] = "An error occurred while loading the create article page.";
+                return RedirectToAction("KnowledgeBase");
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateArticle(CreateArticleViewModel model)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    // Reload categories if validation fails
+                    model.Categories = await _context.Categories
+                        .Where(c => c.IsActive)
+                        .Select(c => new SelectListItem
+                        {
+                            Value = c.CategoryID.ToString(),
+                            Text = c.CategoryName
+                        })
+                        .ToListAsync();
+                    return View(model);
+                }
+
+                var userEmail = User.FindFirst(ClaimTypes.Email)?.Value;
+                var agent = await _context.Users.FirstOrDefaultAsync(u => u.Email == userEmail);
+
+                if (agent == null)
+                {
+                    TempData["ErrorMessage"] = "Agent not found.";
+                    return RedirectToAction("Index");
+                }
+
+                var article = new KnowledgeBase
+                {
+                    Title = model.Title,
+                    Content = model.Content,
+                    CategoryID = model.CategoryID,
+                    CreatedBy = agent.UserID,
+                    LastUpdatedBy = agent.UserID,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                };
+
+                _context.KnowledgeBase.Add(article);
+                await _context.SaveChangesAsync();
+
+                TempData["SuccessMessage"] = "Article created successfully!";
+                return RedirectToAction("ArticleDetails", new { id = article.ArticleID });
+            }
+            catch (Exception)
+            {
+                TempData["ErrorMessage"] = "An error occurred while creating the article.";
+
+                // Reload categories
+                model.Categories = await _context.Categories
+                    .Where(c => c.IsActive)
+                    .Select(c => new SelectListItem
+                    {
+                        Value = c.CategoryID.ToString(),
+                        Text = c.CategoryName
+                    })
+                    .ToListAsync();
+
+                return View(model);
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> EditArticle(int id)
+        {
+            try
+            {
+                var article = await _context.KnowledgeBase
+                    .Include(kb => kb.Category)
+                    .FirstOrDefaultAsync(kb => kb.ArticleID == id);
+
+                if (article == null)
+                {
+                    TempData["ErrorMessage"] = "Article not found.";
+                    return RedirectToAction("KnowledgeBase");
+                }
+
+                var categories = await _context.Categories
+                    .Where(c => c.IsActive)
+                    .Select(c => new SelectListItem
+                    {
+                        Value = c.CategoryID.ToString(),
+                        Text = c.CategoryName,
+                        Selected = c.CategoryID == article.CategoryID
+                    })
+                    .ToListAsync();
+
+                var model = new CreateArticleViewModel
+                {
+                    ArticleID = article.ArticleID,
+                    Title = article.Title,
+                    Content = article.Content,
+                    CategoryID = article.CategoryID,
+                    Categories = categories
+                };
+
+                return View("CreateArticle", model);
+            }
+            catch (Exception)
+            {
+                TempData["ErrorMessage"] = "An error occurred while loading the article for editing.";
+                return RedirectToAction("KnowledgeBase");
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditArticle(CreateArticleViewModel model)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                   
+                    model.Categories = await _context.Categories
+                        .Where(c => c.IsActive)
+                        .Select(c => new SelectListItem
+                        {
+                            Value = c.CategoryID.ToString(),
+                            Text = c.CategoryName,
+                            Selected = c.CategoryID == model.CategoryID
+                        })
+                        .ToListAsync();
+                    return View("CreateArticle", model);
+                }
+
+                var article = await _context.KnowledgeBase.FindAsync(model.ArticleID);
+                if (article == null)
+                {
+                    TempData["ErrorMessage"] = "Article not found.";
+                    return RedirectToAction("KnowledgeBase");
+                }
+
+                var userEmail = User.FindFirst(ClaimTypes.Email)?.Value;
+                var agent = await _context.Users.FirstOrDefaultAsync(u => u.Email == userEmail);
+
+                if (agent == null)
+                {
+                    TempData["ErrorMessage"] = "Agent not found.";
+                    return RedirectToAction("Index");
+                }
+
+                article.Title = model.Title;
+                article.Content = model.Content;
+                article.CategoryID = model.CategoryID;
+                article.LastUpdatedBy = agent.UserID;
+                article.UpdatedAt = DateTime.UtcNow;
+
+                await _context.SaveChangesAsync();
+
+                TempData["SuccessMessage"] = "Article updated successfully!";
+                return RedirectToAction("ArticleDetails", new { id = article.ArticleID });
+            }
+            catch (Exception)
+            {
+                TempData["ErrorMessage"] = "An error occurred while updating the article.";
+
+             
+                model.Categories = await _context.Categories
+                    .Where(c => c.IsActive)
+                    .Select(c => new SelectListItem
+                    {
+                        Value = c.CategoryID.ToString(),
+                        Text = c.CategoryName,
+                        Selected = c.CategoryID == model.CategoryID
+                    })
+                    .ToListAsync();
+
+                return View("CreateArticle", model);
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteArticle(int id)
+        {
+            try
+            {
+                var article = await _context.KnowledgeBase.FindAsync(id);
+                if (article == null)
+                {
+                    TempData["ErrorMessage"] = "Article not found.";
+                    return RedirectToAction("KnowledgeBase");
+                }
+
+                _context.KnowledgeBase.Remove(article);
+                await _context.SaveChangesAsync();
+
+                TempData["SuccessMessage"] = "Article deleted successfully!";
+                return RedirectToAction("KnowledgeBase");
+            }
+            catch (Exception)
+            {
+                TempData["ErrorMessage"] = "An error occurred while deleting the article.";
+                return RedirectToAction("KnowledgeBase");
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> QuickSearch(string query)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(query) || query.Length < 2)
+                {
+                    return Json(new { results = new List<object>() });
+                }
+
+                var results = await _context.KnowledgeBase
+                    .Include(kb => kb.Category)
+                    .Include(kb => kb.CreatedByUser)
+                    .Where(kb => kb.Title.Contains(query) || kb.Content.Contains(query))
+                    .OrderByDescending(kb => kb.CreatedAt)
+                    .Take(10)
+                    .Select(kb => new
+                    {
+                        articleId = kb.ArticleID,
+                        title = kb.Title,
+                        excerpt = kb.Content.Length > 150 ? kb.Content.Substring(0, 150) + "..." : kb.Content,
+                        categoryName = kb.Category.CategoryName,
+                        createdAt = kb.CreatedAt.ToString("MMM dd, yyyy"),
+                        createdBy = kb.CreatedByUser.FullName,
+                        relevanceScore = kb.Title.Contains(query) ? 2.0 : 1.0
+                    })
+                    .ToListAsync();
+
+                return Json(new { results });
+            }
+            catch (Exception)
+            {
+                return Json(new { results = new List<object>() });
+            }
         }
 
         // Helper methods
@@ -409,7 +831,17 @@ namespace OmnitakSupportHub.Controllers
             });
         }
 
-        // API endpoints for real-time updates
+        private string GetWorkloadStatus(int ticketCount)
+        {
+            return ticketCount switch
+            {
+                <= 3 => "Light",
+                <= 7 => "Moderate",
+                <= 12 => "Heavy",
+                _ => "Critical"
+            };
+        }
+
         [HttpGet]
         public async Task<IActionResult> GetTicketStats()
         {
@@ -444,21 +876,10 @@ namespace OmnitakSupportHub.Controllers
 
                 return Json(stats);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return Json(new { error = "An error occurred while fetching stats" });
             }
-        }
-
-        private string GetWorkloadStatus(int ticketCount)
-        {
-            return ticketCount switch
-            {
-                <= 3 => "Light",
-                <= 7 => "Moderate",
-                <= 12 => "Heavy",
-                _ => "Critical"
-            };
         }
     }
 }

@@ -4,20 +4,17 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using OmnitakSupportHub;
-using OmnitakSupportHub.Middleware; // ✅ Add this
+using OmnitakSupportHub.Middleware;
 using OmnitakSupportHub.Models;
 using OmnitakSupportHub.Services;
 using System.Text;
 
-
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddControllers();
 builder.Services.AddAuthentication(options =>
 {
-    // Set Cookie Authentication as the default for the application
     options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
     options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
@@ -30,7 +27,7 @@ builder.Services.AddAuthentication(options =>
     options.ExpireTimeSpan = TimeSpan.FromHours(8);
     options.SlidingExpiration = true;
 })
-.AddJwtBearer(options => // Keep this for API endpoints that need JWT
+.AddJwtBearer(options =>
 {
     options.TokenValidationParameters = new TokenValidationParameters
     {
@@ -47,20 +44,35 @@ builder.Services.AddAuthentication(options =>
 });
 
 
-// Register Entity Framework DbContext
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<OmnitakContext>(options =>
-    options.UseSqlServer(connectionString));
+{
+    options.UseSqlServer(connectionString, sqlServerOptions =>
+    {
+  
+        sqlServerOptions.CommandTimeout(120);
 
-// Register Authentication Service
+      
+        sqlServerOptions.EnableRetryOnFailure(
+            maxRetryCount: 3,
+            maxRetryDelay: TimeSpan.FromSeconds(10),
+            errorNumbersToAdd: null);
+    });
+
+
+    if (builder.Environment.IsDevelopment())
+    {
+        options.EnableSensitiveDataLogging();
+        options.EnableDetailedErrors();
+    }
+});
+
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<EmailService>();
 builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("SmtpSettings"));
 
-// Register JWT Service
 builder.Services.AddScoped<JwtService>();
-// Update Swagger configuration
-// Register Swagger/OpenAPI
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -71,7 +83,6 @@ builder.Services.AddSwaggerGen(options =>
         Description = "API for Omnitak Support Hub"
     });
 
-    // JWT Bearer Authentication
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Name = "Authorization",
@@ -95,41 +106,34 @@ builder.Services.AddSwaggerGen(options =>
             },
             Array.Empty<string>()
         }
-
     });
 });
 
-
 var app = builder.Build();
+
 if (app.Environment.IsDevelopment())
 {
-    // Enable Swagger in development mode
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "Omnitak Support Hub API V1");
-
     });
 }
 
-// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
 app.UseHttpsRedirection();
 app.UseRouting();
 
-
 app.UseMiddleware<GlobalExceptionMiddleware>();
-// Add Authentication & Authorization middleware
+
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
-
 
 app.MapStaticAssets();
 
@@ -138,24 +142,31 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
 
-// Redirect root URL to the login page
 app.MapGet("/", context =>
 {
     context.Response.Redirect("/Account/Login");
     return Task.CompletedTask;
 });
+
+
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     try
     {
         var context = services.GetRequiredService<OmnitakContext>();
-        context.Database.EnsureCreated(); // Creates database if it doesn't exist
+        var logger = services.GetRequiredService<ILogger<Program>>();
+
+        logger.LogInformation("Initializing database...");
+        context.Database.EnsureCreated();
+        logger.LogInformation("Database initialized successfully.");
     }
     catch (Exception ex)
     {
         var logger = services.GetRequiredService<ILogger<Program>>();
         logger.LogError(ex, "An error occurred while creating the database.");
+
+  
     }
 }
 

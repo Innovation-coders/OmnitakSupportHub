@@ -1,0 +1,553 @@
+﻿@model OmnitakSupportHub.Models.ViewModels.CreateArticleViewModel
+@{
+    ViewData["Title"] = Model.IsEditing ? "Edit Article" : "Create Article";
+}
+
+<style>
+    .create-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+    }
+
+    .breadcrumb-custom {
+        background: none;
+        padding: 0;
+        margin: 0;
+    }
+
+        .breadcrumb-custom .breadcrumb-item a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+        }
+
+        .breadcrumb-custom .breadcrumb-item.active {
+            color: white;
+        }
+
+    .form-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .form-section {
+        margin-bottom: 2rem;
+        padding-bottom: 2rem;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+        .form-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+    .form-label {
+        font-weight: 600;
+        color: #2d3748;
+        margin-bottom: 0.75rem;
+    }
+
+    .form-control, .form-select {
+        border: 2px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+        transition: border-color 0.2s ease;
+    }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+    .content-editor {
+        min-height: 400px;
+        resize: vertical;
+    }
+
+    .btn-primary-custom {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        padding: 0.75rem 2rem;
+        border-radius: 25px;
+        color: white;
+        font-weight: 500;
+        transition: transform 0.2s ease;
+    }
+
+        .btn-primary-custom:hover {
+            transform: translateY(-1px);
+            color: white;
+        }
+
+    .btn-secondary-custom {
+        background: #6c757d;
+        border: none;
+        padding: 0.75rem 2rem;
+        border-radius: 25px;
+        color: white;
+        font-weight: 500;
+        text-decoration: none;
+    }
+
+        .btn-secondary-custom:hover {
+            background: #5a6268;
+            color: white;
+            text-decoration: none;
+        }
+
+    .character-counter {
+        font-size: 0.875rem;
+        color: #718096;
+        text-align: right;
+        margin-top: 0.25rem;
+    }
+
+    .preview-section {
+        background: #f8fafc;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-top: 1rem;
+        display: none;
+    }
+
+    .fade-in {
+        animation: fadeIn 0.5s ease-in;
+    }
+
+    @@keyframes fadeIn {
+        from
+
+    {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    }
+
+    .help-text {
+        font-size: 0.875rem;
+        color: #718096;
+        margin-top: 0.5rem;
+    }
+
+    .required-indicator {
+        color: #e53e3e;
+        margin-left: 0.25rem;
+    }
+</style>
+
+<div class="create-header">
+    <div class="container">
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb breadcrumb-custom">
+                <li class="breadcrumb-item">
+                    <a href="/AgentDashboard">
+                        <i class="bi bi-house me-1"></i>Dashboard
+                    </a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="/AgentDashboard/KnowledgeBase">Knowledge Base</a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">
+                    @(Model.IsEditing ? "Edit Article" : "Create Article")
+                </li>
+            </ol>
+        </nav>
+
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <h1 class="display-5 mb-3">
+                    @if (Model.IsEditing)
+                    {
+                        <text><i class="bi bi-pencil me-3"></i>Edit Article</text>
+                    }
+                    else
+                    {
+                        <text><i class="bi bi-plus-circle me-3"></i>Create New Article</text>
+                    }
+                </h1>
+                <p class="lead mb-0">
+                    @if (Model.IsEditing)
+                    {
+                        <text>Update and improve your knowledge base content</text>
+                    }
+                    else
+                    {
+                        <text>Share your knowledge and help your team solve problems faster</text>
+                    }
+                </p>
+            </div>
+            <div class="col-lg-4 text-lg-end">
+                <a href="/AgentDashboard/KnowledgeBase" class="btn btn-outline-light">
+                    <i class="bi bi-arrow-left me-2"></i>Back to Knowledge Base
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container pb-5">
+    <!-- Success/Error Messages -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success fade-in">
+            <i class="bi bi-check-circle me-2"></i>
+            @TempData["SuccessMessage"]
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger fade-in">
+            <i class="bi bi-exclamation-triangle me-2"></i>
+            @TempData["ErrorMessage"]
+        </div>
+    }
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="form-card fade-in">
+                <form asp-action="@(Model.IsEditing ? "EditArticle" : "CreateArticle")" method="post">
+                    @Html.AntiForgeryToken()
+                    @if (Model.IsEditing)
+                    {
+                        <input type="hidden" asp-for="ArticleID" />
+                    }
+
+                    <!-- Article Information Section -->
+                    <div class="form-section">
+                        <h4 class="mb-3">
+                            <i class="bi bi-info-circle me-2 text-primary"></i>
+                            Article Information
+                        </h4>
+
+                        <!-- Title -->
+                        <div class="mb-3">
+                            <label asp-for="Title" class="form-label">
+                                Article Title<span class="required-indicator">*</span>
+                            </label>
+                            <input asp-for="Title" class="form-control" placeholder="Enter a clear, descriptive title..." maxlength="200" id="titleInput">
+                            <div class="character-counter">
+                                <span id="titleCounter">0</span>/200 characters
+                            </div>
+                            <span asp-validation-for="Title" class="text-danger"></span>
+                            <div class="help-text">
+                                <i class="bi bi-lightbulb me-1"></i>
+                                Use keywords that people would search for. Be specific and descriptive.
+                            </div>
+                        </div>
+
+                        <!-- Category -->
+                        <div class="mb-3">
+                            <label asp-for="CategoryID" class="form-label">
+                                Category<span class="required-indicator">*</span>
+                            </label>
+                            <select asp-for="CategoryID" asp-items="Model.Categories" class="form-select">
+                                <option value="">Select a category...</option>
+                            </select>
+                            <span asp-validation-for="CategoryID" class="text-danger"></span>
+                            <div class="help-text">
+                                <i class="bi bi-folder me-1"></i>
+                                Choose the most appropriate category to help users find this article.
+                            </div>
+                        </div>
+
+                        <!-- Tags -->
+                        <div class="mb-3">
+                            <label asp-for="Tags" class="form-label">Tags</label>
+                            <input asp-for="Tags" class="form-control" placeholder="troubleshooting, windows, email, network...">
+                            <div class="help-text">
+                                <i class="bi bi-tags me-1"></i>
+                                Add comma-separated tags to improve searchability (optional).
+                            </div>
+                        </div>
+
+                        <!-- Template Type -->
+                        @if (!Model.IsEditing)
+                        {
+                            <div class="mb-3">
+                                <label asp-for="TemplateType" class="form-label">Article Template</label>
+                                <select asp-for="TemplateType" class="form-select" id="templateSelect">
+                                    <option value="">Custom Article (blank)</option>
+                                    <option value="FAQ">FAQ - Frequently Asked Question</option>
+                                    <option value="Troubleshooting">Troubleshooting Guide</option>
+                                    <option value="Procedure">Step-by-Step Procedure</option>
+                                    <option value="Reference">Reference Documentation</option>
+                                </select>
+                                <div class="help-text">
+                                    <i class="bi bi-layout-text-window me-1"></i>
+                                    Choose a template to get started with a structured format.
+                                </div>
+                            </div>
+                        }
+                    </div>
+
+                    <!-- Content Section -->
+                    <div class="form-section">
+                        <h4 class="mb-3">
+                            <i class="bi bi-file-text me-2 text-primary"></i>
+                            Article Content
+                        </h4>
+
+                        <div class="mb-3">
+                            <label asp-for="Content" class="form-label">
+                                Content<span class="required-indicator">*</span>
+                            </label>
+                            <textarea asp-for="Content" class="form-control content-editor" id="contentEditor"
+                                      placeholder="Write your article content here..."></textarea>
+                            <span asp-validation-for="Content" class="text-danger"></span>
+                            <div class="help-text">
+                                <i class="bi bi-markdown me-1"></i>
+                                You can use basic HTML formatting. Write clearly and include examples where helpful.
+                            </div>
+                        </div>
+
+                     
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <button type="button" class="btn btn-outline-secondary" id="previewToggle">
+                                <i class="bi bi-eye me-2"></i>Preview Content
+                            </button>
+                            <div class="character-counter">
+                                <span id="contentCounter">0</span> characters
+                            </div>
+                        </div>
+
+                        <div class="preview-section" id="contentPreview">
+                            <h5 class="mb-3">
+                                <i class="bi bi-eye me-2"></i>Content Preview
+                            </h5>
+                            <div id="previewContent"></div>
+                        </div>
+                    </div>
+
+                   
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <button type="submit" class="btn-primary-custom me-3">
+                                @if (Model.IsEditing)
+                                {
+                                    <text><i class="bi bi-check-circle me-2"></i>Update Article</text>
+                                }
+                                else
+                                {
+                                    <text><i class="bi bi-plus-circle me-2"></i>Create Article</text>
+                                }
+                            </button>
+                            <a href="/AgentDashboard/KnowledgeBase" class="btn-secondary-custom">
+                                <i class="bi bi-x-circle me-2"></i>Cancel
+                            </a>
+                        </div>
+                        <div>
+                            @if (Model.IsEditing)
+                            {
+                                <a href="/AgentDashboard/ArticleDetails/@Model.ArticleID" class="btn btn-outline-info">
+                                    <i class="bi bi-eye me-2"></i>View Article
+                                </a>
+                            }
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Writing Tips -->
+            <div class="form-card fade-in" style="position: sticky; top: 2rem;">
+                <h5 class="mb-3">
+                    <i class="bi bi-lightbulb me-2 text-warning"></i>
+                    Writing Tips
+                </h5>
+
+                <div class="mb-3">
+                    <h6 class="text-primary">📝 Clear Titles</h6>
+                    <p class="small text-muted mb-2">
+                        Use specific, searchable titles like "How to reset Windows password" instead of "Password issues"
+                    </p>
+                </div>
+
+                <div class="mb-3">
+                    <h6 class="text-primary">🎯 Structure Content</h6>
+                    <p class="small text-muted mb-2">
+                        Use headings, bullet points, and numbered steps to make content scannable
+                    </p>
+                </div>
+
+                <div class="mb-3">
+                    <h6 class="text-primary">💡 Include Examples</h6>
+                    <p class="small text-muted mb-2">
+                        Add screenshots, code snippets, or real examples to clarify instructions
+                    </p>
+                </div>
+
+                <div class="mb-3">
+                    <h6 class="text-primary">🔍 Think SEO</h6>
+                    <p class="small text-muted mb-2">
+                        Include keywords users might search for in both title and content
+                    </p>
+                </div>
+
+                <div class="mb-3">
+                    <h6 class="text-primary">✅ Test Steps</h6>
+                    <p class="small text-muted mb-0">
+                        Always test your instructions to ensure they work as described
+                    </p>
+                </div>
+
+                <hr>
+
+             
+                <h6 class="mb-2">
+                    <i class="bi bi-code me-2"></i>Formatting Help
+                </h6>
+                <div class="small text-muted">
+                    <p class="mb-1"><strong>Bold:</strong> **text** or &lt;strong&gt;text&lt;/strong&gt;</p>
+                    <p class="mb-1"><strong>Lists:</strong> Use - or 1. for bullets/numbers</p>
+                    <p class="mb-1"><strong>Links:</strong> &lt;a href="url"&gt;text&lt;/a&gt;</p>
+                    <p class="mb-0"><strong>Code:</strong> &lt;code&gt;command&lt;/code&gt;</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Character counters
+        const titleInput = document.getElementById('titleInput');
+        const titleCounter = document.getElementById('titleCounter');
+        const contentEditor = document.getElementById('contentEditor');
+        const contentCounter = document.getElementById('contentCounter');
+        const previewToggle = document.getElementById('previewToggle');
+        const contentPreview = document.getElementById('contentPreview');
+        const previewContent = document.getElementById('previewContent');
+
+     
+        if (titleInput && titleCounter) {
+            titleInput.addEventListener('input', function() {
+                titleCounter.textContent = this.value.length;
+                if (this.value.length > 180) {
+                    titleCounter.parentElement.classList.add('text-warning');
+                } else if (this.value.length > 200) {
+                    titleCounter.parentElement.classList.add('text-danger');
+                    titleCounter.parentElement.classList.remove('text-warning');
+                } else {
+                    titleCounter.parentElement.classList.remove('text-warning', 'text-danger');
+                }
+            });
+
+          
+            titleCounter.textContent = titleInput.value.length;
+        }
+
+      
+        if (contentEditor && contentCounter) {
+            contentEditor.addEventListener('input', function() {
+                contentCounter.textContent = this.value.length;
+            });
+
+           
+            contentCounter.textContent = contentEditor.value.length;
+        }
+
+        // Preview functionality
+        if (previewToggle && contentPreview && previewContent && contentEditor) {
+            previewToggle.addEventListener('click', function() {
+                if (contentPreview.style.display === 'none' || !contentPreview.style.display) {
+                    // Show preview
+                    const content = contentEditor.value || 'No content to preview...';
+                    previewContent.innerHTML = content.replace(/\n/g, '<br>');
+                    contentPreview.style.display = 'block';
+                    previewToggle.innerHTML = '<i class="bi bi-eye-slash me-2"></i>Hide Preview';
+                } else {
+                   
+                    contentPreview.style.display = 'none';
+                    previewToggle.innerHTML = '<i class="bi bi-eye me-2"></i>Preview Content';
+                }
+            });
+        }
+
+        
+        const templateSelect = document.getElementById('templateSelect');
+        if (templateSelect && contentEditor) {
+            templateSelect.addEventListener('change', function() {
+                const templateType = this.value;
+                let templateContent = '';
+
+                switch(templateType) {
+                    case 'FAQ':
+                        templateContent = '<h3>Question</h3>\n<p>[Write the frequently asked question here]</p>\n\n<h3>Answer</h3>\n<p>[Provide a clear, comprehensive answer]</p>\n\n<h3>Additional Information</h3>\n<p>[Any related information or links to other resources]</p>';
+                        break;
+
+                    case 'Troubleshooting':
+                        templateContent = '<h3>Problem Description</h3>\n<p>[Describe the issue or symptoms]</p>\n\n<h3>Possible Causes</h3>\n<ul>\n<li>Cause 1</li>\n<li>Cause 2</li>\n<li>Cause 3</li>\n</ul>\n\n<h3>Solution Steps</h3>\n<ol>\n<li>Step 1: [Detailed instruction]</li>\n<li>Step 2: [Detailed instruction]</li>\n<li>Step 3: [Detailed instruction]</li>\n</ol>\n\n<h3>Alternative Solutions</h3>\n<p>[If the main solution doesn\'t work]</p>\n\n<h3>Prevention</h3>\n<p>[How to prevent this issue in the future]</p>';
+                        break;
+
+                    case 'Procedure':
+                        templateContent = '<h3>Overview</h3>\n<p>[Brief description of what this procedure accomplishes]</p>\n\n<h3>Prerequisites</h3>\n<ul>\n<li>Requirement 1</li>\n<li>Requirement 2</li>\n<li>Required permissions/tools</li>\n</ul>\n\n<h3>Steps</h3>\n<ol>\n<li><strong>Step 1:</strong> [Detailed instruction with expected outcome]</li>\n<li><strong>Step 2:</strong> [Detailed instruction with expected outcome]</li>\n<li><strong>Step 3:</strong> [Detailed instruction with expected outcome]</li>\n</ol>\n\n<h3>Verification</h3>\n<p>[How to confirm the procedure was completed successfully]</p>\n\n<h3>Troubleshooting</h3>\n<p>[Common issues and how to resolve them]</p>';
+                        break;
+
+                    case 'Reference':
+                        templateContent = '<h3>Overview</h3>\n<p>[Brief description of what this reference covers]</p>\n\n<h3>Key Information</h3>\n<table>\n<tr><th>Item</th><th>Description</th><th>Notes</th></tr>\n<tr><td>Item 1</td><td>Description</td><td>Additional notes</td></tr>\n<tr><td>Item 2</td><td>Description</td><td>Additional notes</td></tr>\n</table>\n\n<h3>Important Notes</h3>\n<ul>\n<li>Important point 1</li>\n<li>Important point 2</li>\n</ul>\n\n<h3>Related Resources</h3>\n<ul>\n<li><a href="#">Related article 1</a></li>\n<li><a href="#">Related article 2</a></li>\n</ul>';
+                        break;
+                }
+
+                if (templateContent && confirm('This will replace the current content. Are you sure?')) {
+                    contentEditor.value = templateContent;
+                    contentCounter.textContent = templateContent.length;
+                }
+            });
+        }
+
+    
+        const form = document.querySelector('form');
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                const title = titleInput.value.trim();
+                const content = contentEditor.value.trim();
+                const category = document.getElementById('CategoryID').value;
+
+                if (!title) {
+                    e.preventDefault();
+                    alert('Please enter a title for the article.');
+                    titleInput.focus();
+                    return;
+                }
+
+                if (!content) {
+                    e.preventDefault();
+                    alert('Please enter content for the article.');
+                    contentEditor.focus();
+                    return;
+                }
+
+                if (!category) {
+                    e.preventDefault();
+                    alert('Please select a category for the article.');
+                    document.getElementById('CategoryID').focus();
+                    return;
+                }
+
+              
+                const submitBtn = form.querySelector('button[type="submit"]');
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Saving...';
+                }
+            });
+        }
+    });
+</script>

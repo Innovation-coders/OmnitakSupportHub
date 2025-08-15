@@ -1,22 +1,22 @@
-﻿// File: Models/ViewModels/AgentDashboardViewModel.cs
+﻿
 using OmnitakSupportHub.Models;
 
 namespace OmnitakSupportHub.Models.ViewModels
 {
     public class AgentDashboardViewModel
     {
-        // Agent Information
+       
         public string AgentName { get; set; } = string.Empty;
         public string TeamName { get; set; } = string.Empty;
         public string DepartmentName { get; set; } = string.Empty;
         public string AgentRole { get; set; } = string.Empty;
 
-        // Ticket Collections
+     
         public List<Ticket> AssignedTickets { get; set; } = new();
         public Dictionary<int, List<ChatMessage>> TicketChats { get; set; } = new();
         public List<TicketTimeline> RecentActivity { get; set; } = new();
 
-        // Agent-Friendly Metrics (What Should Stay)
+      
         public int AssignedToMe { get; set; }
         public int InProgress { get; set; }
         public int ResolvedToday { get; set; }
@@ -25,26 +25,22 @@ namespace OmnitakSupportHub.Models.ViewModels
         public int HighPriorityTickets { get; set; }
         public int PendingUserTickets { get; set; }
 
-        // Simple Performance Indicators (Not Stressful Percentages)
+        
         public int TicketsResolvedThisWeek { get; set; }
         public double AverageResponseTime { get; set; }
 
-        // Recent Activity and Communication
+     
         public List<ChatMessage> RecentMessages { get; set; } = new();
         public List<Ticket> RecentlyUpdatedTickets { get; set; } = new();
 
-        // Filter and Search Properties
+       
         public string CurrentStatusFilter { get; set; } = string.Empty;
         public string CurrentPriorityFilter { get; set; } = string.Empty;
         public string CurrentSearchTerm { get; set; } = string.Empty;
         public List<string> AvailableStatuses { get; set; } = new();
         public List<string> AvailablePriorities { get; set; } = new();
 
-        // ✅ AGENT-FRIENDLY METHODS (Keep Simple & Positive)
-
-        /// <summary>
-        /// Simple workload awareness without stress
-        /// </summary>
+       
         public string GetWorkloadStatus()
         {
             var openTickets = AssignedTickets.Count(t =>
@@ -72,12 +68,10 @@ namespace OmnitakSupportHub.Models.ViewModels
             };
         }
 
-        /// <summary>
-        /// Motivational trend indicator
-        /// </summary>
+       
         public string GetResolutionTrend()
         {
-            // Simple logic: if resolved more this week than weekly average, it's improving
+            
             var weeklyAverage = TicketsResolvedThisWeek > 0 ? TicketsResolvedThisWeek : 1;
 
             if (ResolvedToday >= 2) return "Improving";
@@ -107,9 +101,7 @@ namespace OmnitakSupportHub.Models.ViewModels
             };
         }
 
-        /// <summary>
-        /// Simple SLA awareness without anxiety
-        /// </summary>
+      
         public string GetSLAStatus()
         {
             var overdueCount = GetOverdueTicketsCount();
@@ -131,16 +123,13 @@ namespace OmnitakSupportHub.Models.ViewModels
             };
         }
 
-        /// <summary>
-        /// Overall performance status without numbers/percentages
-        /// </summary>
         public string GetPerformanceStatus()
         {
             var workload = GetWorkloadStatus();
             var sla = GetSLAStatus();
             var trend = GetResolutionTrend();
 
-            // Simple logic for agent awareness
+        
             if (sla == "On Track" && (trend == "Improving" || trend == "Steady"))
                 return "Meeting Expectations";
 
@@ -165,7 +154,7 @@ namespace OmnitakSupportHub.Models.ViewModels
             };
         }
 
-        // Helper Methods
+
         public int GetActiveTicketsCount() => AssignedTickets.Count(t =>
             t.Status?.StatusName != "Resolved" && t.Status?.StatusName != "Closed");
 
@@ -193,12 +182,12 @@ namespace OmnitakSupportHub.Models.ViewModels
             });
         }
 
-        // Quick Stats Properties
+  
         public int HighPriorityCount => AssignedTickets.Count(t => t.Priority?.PriorityName == "High");
         public int MediumPriorityCount => AssignedTickets.Count(t => t.Priority?.PriorityName == "Medium");
         public int LowPriorityCount => AssignedTickets.Count(t => t.Priority?.PriorityName == "Low");
 
-        // Distribution Methods (for simple visualization, not stressful metrics)
+        
         public Dictionary<string, int> GetTicketDistributionByStatus()
         {
             return AssignedTickets
@@ -213,7 +202,7 @@ namespace OmnitakSupportHub.Models.ViewModels
                 .ToDictionary(g => g.Key, g => g.Count());
         }
 
-        // Utility methods for ticket management
+      
         public List<Ticket> GetTicketsNeedingAttention()
         {
             return AssignedTickets.Where(t =>
@@ -225,7 +214,7 @@ namespace OmnitakSupportHub.Models.ViewModels
         public bool HasUrgentTickets() => GetCriticalTicketsCount() > 0 || GetOverdueTicketsCount() > 0;
     }
 
-    // Additional ViewModels for ticket operations
+  
     public class TicketUpdateViewModel
     {
         public int TicketId { get; set; }

@@ -3,38 +3,43 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using OmnitakSupportHub.Models;
 using OmnitakSupportHub.Models.Dtos;
+using System.Security.Claims;
 
 namespace OmnitakSupportHub.Controllers.Api
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class KnowledgeBasesApiController : ControllerBase
+    public class KnowledgeBaseApiController : ControllerBase
     {
         private readonly OmnitakContext _context;
 
-        public KnowledgeBasesApiController(OmnitakContext context)
+        public KnowledgeBaseApiController(OmnitakContext context)
         {
             _context = context;
         }
 
-     
         [HttpGet]
         [Authorize(Roles = "Administrator,Support Agent,Support Manager,End User")]
-        public async Task<ActionResult<IEnumerable<object>>> GetAll([FromQuery] string userType = "user")
+        public async Task<ActionResult<IEnumerable<object>>> GetAll([FromQuery] int? categoryId = null, [FromQuery] string searchTerm = "")
         {
             try
             {
+                var isAgent = User.IsInRole("Support Agent") || User.IsInRole("Support Manager") || User.IsInRole("Administrator");
+
                 var query = _context.KnowledgeBase
                     .Include(kb => kb.Category)
                     .Include(kb => kb.CreatedByUser)
+                    .Include(kb => kb.LastUpdatedByUser)
                     .AsQueryable();
 
-                
-                var isAgent = User.IsInRole("Support Agent") || User.IsInRole("Support Manager") || User.IsInRole("Administrator");
-
-                if (!isAgent)
+                if (categoryId.HasValue)
                 {
-                   
+                    query = query.Where(kb => kb.CategoryID == categoryId.Value);
+                }
+
+                if (!string.IsNullOrWhiteSpace(searchTerm))
+                {
+                    query = query.Where(kb => kb.Title.Contains(searchTerm) || kb.Content.Contains(searchTerm));
                 }
 
                 var articles = await query
@@ -48,7 +53,7 @@ namespace OmnitakSupportHub.Controllers.Api
                         CreatedAt = kb.CreatedAt,
                         CreatedBy = kb.CreatedByUser.FullName,
                         UpdatedAt = kb.UpdatedAt,
-                        CanEdit = isAgent 
+                        CanEdit = isAgent
                     })
                     .OrderByDescending(kb => kb.CreatedAt)
                     .ToListAsync();
@@ -100,29 +105,28 @@ namespace OmnitakSupportHub.Controllers.Api
             }
         }
 
-      
         [HttpGet("search")]
         [Authorize(Roles = "Administrator,Support Agent,Support Manager,End User")]
-        public async Task<ActionResult<object>> Search([FromQuery] string query, [FromQuery] int? categoryId = null, [FromQuery] int limit = 10)
+        public async Task<ActionResult<object>> Search([FromQuery] string query, [FromQuery] int? categoryId = null)
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(query) || query.Length < 2)
+                if (string.IsNullOrWhiteSpace(query))
                 {
-                    return BadRequest(new { error = "Search query must be at least 2 characters long" });
+                    return Ok(new { results = new List<object>(), totalResults = 0 });
                 }
 
-                var articlesQuery = _context.KnowledgeBase
+                var searchQuery = _context.KnowledgeBase
                     .Include(kb => kb.Category)
                     .Include(kb => kb.CreatedByUser)
                     .Where(kb => kb.Title.Contains(query) || kb.Content.Contains(query));
 
                 if (categoryId.HasValue)
                 {
-                    articlesQuery = articlesQuery.Where(kb => kb.CategoryID == categoryId.Value);
+                    searchQuery = searchQuery.Where(kb => kb.CategoryID == categoryId.Value);
                 }
 
-                var results = await articlesQuery
+                var results = await searchQuery
                     .Select(kb => new
                     {
                         kb.ArticleID,
@@ -130,13 +134,10 @@ namespace OmnitakSupportHub.Controllers.Api
                         Excerpt = kb.Content.Length > 150 ? kb.Content.Substring(0, 150) + "..." : kb.Content,
                         CategoryName = kb.Category.CategoryName,
                         kb.CreatedAt,
-                        CreatedBy = kb.CreatedByUser.FullName,
-                        
-                        RelevanceScore = kb.Title.Contains(query) ? 2.0 : 1.0
+                        CreatedBy = kb.CreatedByUser.FullName
                     })
-                    .OrderByDescending(r => r.RelevanceScore)
-                    .ThenByDescending(r => r.CreatedAt)
-                    .Take(limit)
+                    .OrderByDescending(kb => kb.CreatedAt)
+                    .Take(10)
                     .ToListAsync();
 
                 return Ok(new { results, totalResults = results.Count });
@@ -147,36 +148,9 @@ namespace OmnitakSupportHub.Controllers.Api
             }
         }
 
-  
-        [HttpGet("categories")]
-        [Authorize(Roles = "Administrator,Support Agent,Support Manager,End User")]
-        public async Task<ActionResult<object>> GetCategories()
-        {
-            try
-            {
-                var categories = await _context.Categories
-                    .Where(c => c.IsActive)
-                    .Select(c => new
-                    {
-                        c.CategoryID,
-                        c.CategoryName,
-                        ArticleCount = _context.KnowledgeBase.Count(kb => kb.CategoryID == c.CategoryID)
-                    })
-                    .OrderBy(c => c.CategoryName)
-                    .ToListAsync();
-
-                return Ok(categories);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { error = "An error occurred while retrieving categories", details = ex.Message });
-            }
-        }
-
-     
         [HttpPost]
         [Authorize(Roles = "Administrator,Support Agent,Support Manager")]
-        public async Task<ActionResult<KnowledgeBase>> Create(KnowledgeBaseDto dto)
+        public async Task<ActionResult<KnowledgeBase>> Create([FromBody] KnowledgeBaseDto dto)
         {
             try
             {
@@ -185,13 +159,29 @@ namespace OmnitakSupportHub.Controllers.Api
                     return BadRequest(ModelState);
                 }
 
-                var userIdClaim = User.FindFirst("UserID")?.Value ?? User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                
+                var userIdClaim = User.FindFirst("UserID")?.Value ??
+                                 User.FindFirst(ClaimTypes.NameIdentifier)?.Value ??
+                                 User.FindFirst("nameid")?.Value;
+
                 if (!int.TryParse(userIdClaim, out int userId))
                 {
-                    return BadRequest(new { error = "Invalid user ID" });
+                    
+                    var userEmail = User.FindFirst(ClaimTypes.Email)?.Value;
+                    if (string.IsNullOrEmpty(userEmail))
+                    {
+                        return BadRequest(new { error = "User identification failed. Please log in again." });
+                    }
+
+                    var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == userEmail);
+                    if (user == null)
+                    {
+                        return BadRequest(new { error = "User not found" });
+                    }
+                    userId = user.UserID;
                 }
 
-            
+           
                 var categoryExists = await _context.Categories.AnyAsync(c => c.CategoryID == dto.CategoryID && c.IsActive);
                 if (!categoryExists)
                 {
@@ -212,7 +202,7 @@ namespace OmnitakSupportHub.Controllers.Api
                 _context.KnowledgeBase.Add(entity);
                 await _context.SaveChangesAsync();
 
-            
+                
                 var createdArticle = await _context.KnowledgeBase
                     .Include(kb => kb.Category)
                     .Include(kb => kb.CreatedByUser)
@@ -227,10 +217,9 @@ namespace OmnitakSupportHub.Controllers.Api
             }
         }
 
-       
         [HttpPut("{id}")]
         [Authorize(Roles = "Administrator,Support Agent,Support Manager")]
-        public async Task<IActionResult> Update(int id, KnowledgeBaseDto dto)
+        public async Task<IActionResult> Update(int id, [FromBody] KnowledgeBaseDto dto)
         {
             try
             {
@@ -243,13 +232,29 @@ namespace OmnitakSupportHub.Controllers.Api
                 if (entity == null)
                     return NotFound(new { error = "Article not found" });
 
-                var userIdClaim = User.FindFirst("UserID")?.Value ?? User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                
+                var userIdClaim = User.FindFirst("UserID")?.Value ??
+                                 User.FindFirst(ClaimTypes.NameIdentifier)?.Value ??
+                                 User.FindFirst("nameid")?.Value;
+
                 if (!int.TryParse(userIdClaim, out int userId))
                 {
-                    return BadRequest(new { error = "Invalid user ID" });
+                   
+                    var userEmail = User.FindFirst(ClaimTypes.Email)?.Value;
+                    if (string.IsNullOrEmpty(userEmail))
+                    {
+                        return BadRequest(new { error = "User identification failed. Please log in again." });
+                    }
+
+                    var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == userEmail);
+                    if (user == null)
+                    {
+                        return BadRequest(new { error = "User not found" });
+                    }
+                    userId = user.UserID;
                 }
 
-              
+               
                 var categoryExists = await _context.Categories.AnyAsync(c => c.CategoryID == dto.CategoryID && c.IsActive);
                 if (!categoryExists)
                 {
@@ -271,7 +276,6 @@ namespace OmnitakSupportHub.Controllers.Api
             }
         }
 
-        
         [HttpDelete("{id}")]
         [Authorize(Roles = "Administrator,Support Agent,Support Manager")]
         public async Task<IActionResult> Delete(int id)
@@ -292,7 +296,6 @@ namespace OmnitakSupportHub.Controllers.Api
             }
         }
 
-      
         [HttpPost("feedback")]
         [Authorize(Roles = "Administrator,Support Agent,Support Manager,End User")]
         public async Task<ActionResult> SubmitFeedback([FromBody] ArticleFeedbackDto feedback)
@@ -304,20 +307,34 @@ namespace OmnitakSupportHub.Controllers.Api
                     return BadRequest(ModelState);
                 }
 
-                var userIdClaim = User.FindFirst("UserID")?.Value ?? User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                var userIdClaim = User.FindFirst("UserID")?.Value ??
+                                 User.FindFirst(ClaimTypes.NameIdentifier)?.Value ??
+                                 User.FindFirst("nameid")?.Value;
+
                 if (!int.TryParse(userIdClaim, out int userId))
                 {
-                    return BadRequest(new { error = "Invalid user ID" });
+                    var userEmail = User.FindFirst(ClaimTypes.Email)?.Value;
+                    if (string.IsNullOrEmpty(userEmail))
+                    {
+                        return BadRequest(new { error = "User identification failed" });
+                    }
+
+                    var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == userEmail);
+                    if (user == null)
+                    {
+                        return BadRequest(new { error = "User not found" });
+                    }
+                    userId = user.UserID;
                 }
 
-              
+                
                 var articleExists = await _context.KnowledgeBase.AnyAsync(kb => kb.ArticleID == feedback.ArticleID);
                 if (!articleExists)
                 {
                     return NotFound(new { error = "Article not found" });
                 }
 
-               
+                
                 return Ok(new { success = true, message = "Thank you for your feedback!" });
             }
             catch (Exception ex)
@@ -326,60 +343,29 @@ namespace OmnitakSupportHub.Controllers.Api
             }
         }
 
-        [HttpGet("stats")]
-        [Authorize(Roles = "Administrator,Support Agent,Support Manager")]
-        public async Task<ActionResult<object>> GetStats()
+        [HttpGet("categories")]
+        [Authorize(Roles = "Administrator,Support Agent,Support Manager,End User")]
+        public async Task<ActionResult<IEnumerable<object>>> GetCategories()
         {
             try
             {
-                var totalArticles = await _context.KnowledgeBase.CountAsync();
-                var recentArticles = await _context.KnowledgeBase
-                    .Where(kb => kb.CreatedAt >= DateTime.Today.AddDays(-7))
-                    .CountAsync();
-
-                var categoriesWithCounts = await _context.Categories
+                var categories = await _context.Categories
                     .Where(c => c.IsActive)
                     .Select(c => new
                     {
+                        c.CategoryID,
                         c.CategoryName,
                         ArticleCount = _context.KnowledgeBase.Count(kb => kb.CategoryID == c.CategoryID)
                     })
+                    .OrderBy(c => c.CategoryName)
                     .ToListAsync();
 
-                var topAuthors = await _context.KnowledgeBase
-                    .Include(kb => kb.CreatedByUser)
-                    .GroupBy(kb => kb.CreatedByUser.FullName)
-                    .Select(g => new
-                    {
-                        AuthorName = g.Key,
-                        ArticleCount = g.Count()
-                    })
-                    .OrderByDescending(a => a.ArticleCount)
-                    .Take(5)
-                    .ToListAsync();
-
-                var stats = new
-                {
-                    totalArticles,
-                    recentArticles,
-                    categoriesWithCounts,
-                    topAuthors
-                };
-
-                return Ok(stats);
+                return Ok(categories);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { error = "An error occurred while retrieving stats", details = ex.Message });
+                return StatusCode(500, new { error = "An error occurred while retrieving categories", details = ex.Message });
             }
         }
-    }
-
-   
-    public class ArticleFeedbackDto
-    {
-        public int ArticleID { get; set; }
-        public bool WasHelpful { get; set; }
-        public string Comments { get; set; } = string.Empty;
     }
 }

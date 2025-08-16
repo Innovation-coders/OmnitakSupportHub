@@ -1,0 +1,702 @@
+﻿@model OmnitakSupportHub.Models.ViewModels.CreateArticleViewModel
+@{
+    ViewData["Title"] = Model.IsEditing ? "Edit Article" : "Create New Article";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Knowledge Base</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-blue: #2563eb;
+            --success-green: #16a34a;
+            --warning-orange: #ea580c;
+            --danger-red: #dc2626;
+            --info-cyan: #0891b2;
+            --light-gray: #f8fafc;
+            --medium-gray: #64748b;
+            --dark-gray: #334155;
+            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --hover-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        body {
+            background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+        }
+
+        .create-header {
+            background: linear-gradient(135deg, var(--success-green) 0%, #15803d 100%);
+            color: white;
+            padding: 2rem 0;
+            box-shadow: var(--card-shadow);
+        }
+
+        .form-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .form-card:hover {
+            box-shadow: var(--hover-shadow);
+        }
+
+        .card-header-custom {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            padding: 1.5rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .form-section {
+            padding: 2rem;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: var(--dark-gray);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-control, .form-select {
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            outline: none;
+        }
+
+        .btn-action {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-success-custom {
+            background: linear-gradient(135deg, var(--success-green) 0%, #15803d 100%);
+            color: white;
+        }
+
+        .btn-success-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--hover-shadow);
+            color: white;
+        }
+
+        .btn-outline-custom {
+            background: white;
+            color: var(--medium-gray);
+            border: 2px solid #e2e8f0;
+        }
+
+        .btn-outline-custom:hover {
+            background: var(--light-gray);
+            border-color: var(--primary-blue);
+            color: var(--primary-blue);
+            transform: translateY(-1px);
+        }
+
+        .help-text {
+            font-size: 0.85rem;
+            color: var(--medium-gray);
+            margin-top: 0.25rem;
+        }
+
+        .character-count {
+            font-size: 0.8rem;
+            color: var(--medium-gray);
+            text-align: right;
+            margin-top: 0.25rem;
+        }
+
+        .character-count.warning {
+            color: var(--warning-orange);
+        }
+
+        .character-count.danger {
+            color: var(--danger-red);
+        }
+
+        .content-editor {
+            min-height: 400px;
+            resize: vertical;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+        }
+
+        .template-card {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .template-card:hover {
+            border-color: var(--primary-blue);
+            background: #f8fafc;
+            transform: translateY(-2px);
+        }
+
+        .template-title {
+            font-weight: 600;
+            color: var(--dark-gray);
+            margin-bottom: 0.5rem;
+        }
+
+        .template-description {
+            font-size: 0.85rem;
+            color: var(--medium-gray);
+        }
+
+        .auto-save-indicator {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--success-green);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            transform: translateX(200px);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .auto-save-indicator.show {
+            transform: translateX(0);
+        }
+
+        .fade-in {
+            animation: fadeIn 0.6s ease-out forwards;
+        }
+
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .validation-summary {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .field-validation-error {
+            color: var(--danger-red);
+            font-size: 0.85rem;
+            margin-top: 0.25rem;
+        }
+
+        .form-control.input-validation-error {
+            border-color: var(--danger-red);
+        }
+
+        @@media (max-width: 768px) {
+            .form-section {
+                padding: 1.5rem;
+            }
+            
+            .create-header {
+                padding: 1.5rem 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="create-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="mb-2">
+                        <i class="bi bi-@(Model.IsEditing ? "pencil-square" : "plus-circle") me-2"></i>
+                        @ViewData["Title"]
+                    </h1>
+                    <p class="mb-0 opacity-75">
+                        @if (Model.IsEditing)
+                        {
+                            <span>Update this knowledge base article</span>
+                        }
+                        else
+                        {
+                            <span>Share your knowledge with the team</span>
+                        }
+                    </p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <a href="/AgentDashboard/KnowledgeBase" class="btn btn-light me-2">
+                        <i class="bi bi-arrow-left me-1"></i>
+                        Cancel
+                    </a>
+                    @if (Model.IsEditing)
+                    {
+                        <a href="/AgentDashboard/ArticleDetails/@Model.ArticleID" class="btn btn-outline-light">
+                            <i class="bi bi-eye me-1"></i>
+                            View Article
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+   
+    <div class="auto-save-indicator" id="autoSaveIndicator">
+        <i class="bi bi-check-circle me-1"></i>
+        Draft saved
+    </div>
+
+    <div class="container mt-4">
+       
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success fade-in">
+                <i class="bi bi-check-circle me-2"></i>
+                @TempData["SuccessMessage"]
+            </div>
+        }
+
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger fade-in">
+                <i class="bi bi-exclamation-triangle me-2"></i>
+                @TempData["ErrorMessage"]
+            </div>
+        }
+
+      
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div class="validation-summary fade-in">
+                <h6><i class="bi bi-exclamation-triangle me-2"></i>Please correct the following errors:</h6>
+                <ul class="mb-0">
+                    @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                    {
+                        <li>@error.ErrorMessage</li>
+                    }
+                </ul>
+            </div>
+        }
+
+        <form asp-action="@(Model.IsEditing ? "EditArticle" : "CreateArticle")" method="post" id="articleForm">
+            @Html.AntiForgeryToken()
+            @if (Model.IsEditing)
+            {
+                <input type="hidden" asp-for="ArticleID" />
+            }
+
+            <div class="row">
+               
+                <div class="col-lg-8">
+                    
+                    <div class="form-card fade-in">
+                        <div class="card-header-custom">
+                            <h5 class="mb-0">
+                                <i class="bi bi-file-text me-2"></i>
+                                Article Details
+                            </h5>
+                        </div>
+                        <div class="form-section">
+                            <div class="mb-4">
+                                <label asp-for="Title" class="form-label">Article Title *</label>
+                                <input asp-for="Title" class="form-control" placeholder="Enter a clear, descriptive title..." maxlength="200" id="titleInput" />
+                                <span asp-validation-for="Title" class="field-validation-error"></span>
+                                <div class="help-text">Choose a title that clearly describes what this article covers</div>
+                                <div class="character-count" id="titleCount">0/200 characters</div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label asp-for="CategoryID" class="form-label">Category *</label>
+                                <select asp-for="CategoryID" asp-items="Model.Categories" class="form-select">
+                                    <option value="">Select a category...</option>
+                                </select>
+                                <span asp-validation-for="CategoryID" class="field-validation-error"></span>
+                                <div class="help-text">Choose the most relevant category for this article</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    
+                    <div class="form-card fade-in">
+                        <div class="card-header-custom">
+                            <h5 class="mb-0">
+                                <i class="bi bi-textarea-t me-2"></i>
+                                Article Content
+                            </h5>
+                        </div>
+                        <div class="form-section">
+                            <div class="mb-3">
+                                <label asp-for="Content" class="form-label">Content *</label>
+                                <textarea asp-for="Content" class="form-control content-editor" placeholder="Write your article content here... You can use Markdown formatting." id="contentEditor"></textarea>
+                                <span asp-validation-for="Content" class="field-validation-error"></span>
+                                <div class="help-text">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    You can use <strong>**bold**</strong>, <em>*italic*</em>, lists, and other Markdown formatting
+                                </div>
+                            </div>
+
+                            
+                            <div class="mt-3">
+                                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="togglePreview()">
+                                    <i class="bi bi-eye me-1"></i>
+                                    Preview Content
+                                </button>
+                            </div>
+                            <div id="contentPreview" class="mt-3 p-3 border rounded" style="display: none;">
+                                
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+              
+                <div class="col-lg-4">
+                    
+                    @if (!Model.IsEditing)
+                    {
+                        <div class="form-card fade-in">
+                            <div class="card-header-custom">
+                                <h6 class="mb-0">
+                                    <i class="bi bi-journal-text me-2"></i>
+                                    Article Templates
+                                </h6>
+                            </div>
+                            <div class="form-section">
+                                <div class="row g-2">
+                                    <div class="col-6">
+                                        <div class="template-card" onclick="useTemplate('troubleshooting')">
+                                            <div class="template-title">Troubleshooting</div>
+                                            <div class="template-description">Step-by-step solutions</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="template-card" onclick="useTemplate('howto')">
+                                            <div class="template-title">How-To Guide</div>
+                                            <div class="template-description">Process instructions</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="template-card" onclick="useTemplate('faq')">
+                                            <div class="template-title">FAQ</div>
+                                            <div class="template-description">Common questions</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="template-card" onclick="useTemplate('reference')">
+                                            <div class="template-title">Reference Guide</div>
+                                            <div class="template-description">Quick reference information</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                   
+                    <div class="form-card fade-in">
+                        <div class="card-header-custom">
+                            <h6 class="mb-0">
+                                <i class="bi bi-floppy me-2"></i>
+                                Save Article
+                            </h6>
+                        </div>
+                        <div class="form-section">
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn-action btn-success-custom" id="submitBtn">
+                                    <i class="bi bi-check-circle"></i>
+                                    @(Model.IsEditing ? "Update Article" : "Publish Article")
+                                </button>
+                                <button type="button" class="btn-action btn-outline-custom" onclick="saveDraft()">
+                                    <i class="bi bi-file-earmark"></i>
+                                    Save as Draft
+                                </button>
+                                <a href="/AgentDashboard/KnowledgeBase" class="btn-action btn-outline-custom">
+                                    <i class="bi bi-x-circle"></i>
+                                    Cancel
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                
+                    <div class="form-card fade-in">
+                        <div class="card-header-custom">
+                            <h6 class="mb-0">
+                                <i class="bi bi-lightbulb me-2"></i>
+                                Writing Tips
+                            </h6>
+                        </div>
+                        <div class="form-section">
+                            <ul class="list-unstyled small">
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle text-success me-2"></i>
+                                    Use clear, descriptive titles
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle text-success me-2"></i>
+                                    Include step-by-step instructions
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle text-success me-2"></i>
+                                    Add relevant screenshots if possible
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle text-success me-2"></i>
+                                    Test your solutions before publishing
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle text-success me-2"></i>
+                                    Keep language simple and clear
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        
+        const titleInput = document.getElementById('titleInput');
+        const titleCount = document.getElementById('titleCount');
+        
+        function updateTitleCount() {
+            const count = titleInput.value.length;
+            titleCount.textContent = `${count}/200 characters`;
+            
+            titleCount.className = 'character-count';
+            if (count > 180) {
+                titleCount.classList.add('warning');
+            }
+            if (count >= 200) {
+                titleCount.classList.add('danger');
+            }
+        }
+        
+        titleInput.addEventListener('input', updateTitleCount);
+        updateTitleCount(); 
+
+       
+        let autoSaveTimer;
+        function startAutoSave() {
+            clearTimeout(autoSaveTimer);
+            autoSaveTimer = setTimeout(saveDraft, 30000); 
+        }
+
+        titleInput.addEventListener('input', startAutoSave);
+        document.getElementById('contentEditor').addEventListener('input', startAutoSave);
+
+        function saveDraft() {
+           
+            const indicator = document.getElementById('autoSaveIndicator');
+            indicator.classList.add('show');
+            
+          
+            setTimeout(() => {
+                indicator.classList.remove('show');
+            }, 2000);
+            
+           
+            console.log('Draft saved');
+        }
+
+        
+        function useTemplate(templateType) {
+            const contentEditor = document.getElementById('contentEditor');
+            let template = '';
+            
+            switch(templateType) {
+                case 'troubleshooting':
+                    template = `# Problem Description
+Describe the issue or problem that needs to be resolved.
+
+## Symptoms
+- List the symptoms users might experience
+- Include error messages if applicable
+
+## Solution Steps
+1. First step to resolve the issue
+2. Second step with detailed instructions
+3. Continue with additional steps as needed
+
+## Additional Information
+- Prerequisites or requirements
+- Related articles or resources
+- Contact information for further assistance`;
+                    break;
+                    
+                case 'howto':
+                    template = `# How to [Task Title]
+Brief description of what this guide will help users accomplish.
+
+## Prerequisites
+- List any requirements
+- Tools or access needed
+- Knowledge assumptions
+
+## Step-by-Step Instructions
+1. **Step 1**: Detailed description of the first action
+2. **Step 2**: Continue with clear, actionable steps
+3. **Step 3**: Include screenshots or examples where helpful
+
+## Tips and Best Practices
+- Important tips for success
+- Common mistakes to avoid
+- Best practices to follow
+
+## Troubleshooting
+If you encounter issues:
+- Common problem 1 and solution
+- Common problem 2 and solution`;
+                    break;
+                    
+                case 'faq':
+                    template = `# Frequently Asked Questions
+
+## General Questions
+
+**Q: Common question about the topic?**
+A: Clear, concise answer to the question.
+
+**Q: Another frequently asked question?**
+A: Detailed response with helpful information.
+
+## Technical Questions
+
+**Q: Technical question users often ask?**
+A: Step-by-step answer or explanation.
+
+**Q: More specific technical question?**
+A: Detailed technical response.
+
+## Additional Resources
+- Link to related articles
+- Contact information for further support`;
+                    break;
+                    
+                case 'reference':
+                    template = `# [Topic] Reference Guide
+Quick reference for [specific topic or process].
+
+## Key Information
+| Item | Description | Notes |
+|------|-------------|-------|
+| Item 1 | Description | Additional info |
+| Item 2 | Description | Additional info |
+
+## Important Commands/Steps
+- **Command 1**: Description and usage
+- **Command 2**: Description and usage
+- **Command 3**: Description and usage
+
+## Quick Links
+- [Related Resource 1](#)
+- [Related Resource 2](#)
+- [Documentation](#)
+
+## Contact Information
+For questions or assistance: [contact details]`;
+                    break;
+            }
+            
+            contentEditor.value = template;
+            contentEditor.focus();
+        }
+
+     
+        function togglePreview() {
+            const preview = document.getElementById('contentPreview');
+            const content = document.getElementById('contentEditor').value;
+            
+            if (preview.style.display === 'none') {
+                
+                let htmlContent = content
+                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                    .replace(/^# (.*?)$/gm, '<h1>$1</h1>')
+                    .replace(/^## (.*?)$/gm, '<h2>$1</h2>')
+                    .replace(/^### (.*?)$/gm, '<h3>$1</h3>')
+                    .replace(/^\- (.*?)$/gm, '<li>$1</li>')
+                    .replace(/\n/g, '<br>');
+                
+                preview.innerHTML = htmlContent;
+                preview.style.display = 'block';
+            } else {
+                preview.style.display = 'none';
+            }
+        }
+
+       
+        document.getElementById('articleForm').addEventListener('submit', function(e) {
+            const title = titleInput.value.trim();
+            const content = document.getElementById('contentEditor').value.trim();
+            const category = document.querySelector('select[name="CategoryID"]').value;
+            
+            if (!title || !content || !category) {
+                e.preventDefault();
+                alert('Please fill in all required fields (Title, Category, and Content).');
+                return;
+            }
+            
+            if (title.length > 200) {
+                e.preventDefault();
+                alert('Title cannot exceed 200 characters.');
+                return;
+            }
+            
+            
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="spinner-border spinner-border-sm me-2"></i>Saving...';
+        });
+
+      
+        document.addEventListener('DOMContentLoaded', function() {
+            updateTitleCount();
+            
+           
+            @if (!Model.IsEditing)
+            {
+                <text>titleInput.focus();</text>
+            }
+        });
+    </script>
+</body>
+</html>

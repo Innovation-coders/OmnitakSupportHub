@@ -211,7 +211,7 @@ namespace OmnitakSupportHub.Controllers
             }
         }
 
-        // Update ticket status
+        
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateStatus(int ticketId, string newStatus)
@@ -364,7 +364,7 @@ namespace OmnitakSupportHub.Controllers
             return RedirectToAction("Index");
         }
 
-        // KNOWLEDGE BASE FUNCTIONALITY
+      
 
         [HttpGet]
         public async Task<IActionResult> KnowledgeBase(int? categoryId = null, string searchTerm = "", string sortBy = "newest")
@@ -383,20 +383,20 @@ namespace OmnitakSupportHub.Controllers
                     return RedirectToAction("Index");
                 }
 
-                // Get all knowledge base articles (agents can see all)
+               
                 var articlesQuery = _context.KnowledgeBase
                     .Include(kb => kb.Category)
                     .Include(kb => kb.CreatedByUser)
                     .Include(kb => kb.LastUpdatedByUser)
                     .AsQueryable();
 
-                // Apply category filter
+              
                 if (categoryId.HasValue)
                 {
                     articlesQuery = articlesQuery.Where(kb => kb.CategoryID == categoryId.Value);
                 }
 
-                // Apply search filter
+              
                 if (!string.IsNullOrWhiteSpace(searchTerm))
                 {
                     articlesQuery = articlesQuery.Where(kb =>
@@ -404,7 +404,7 @@ namespace OmnitakSupportHub.Controllers
                         kb.Content.Contains(searchTerm));
                 }
 
-                // Apply sorting
+                
                 articlesQuery = sortBy switch
                 {
                     "oldest" => articlesQuery.OrderBy(kb => kb.CreatedAt),
@@ -491,7 +491,7 @@ namespace OmnitakSupportHub.Controllers
                     return RedirectToAction("KnowledgeBase");
                 }
 
-                // Verify agent has access (agents can view all articles)
+                
                 var userEmail = User.FindFirst(ClaimTypes.Email)?.Value;
                 var agent = await _context.Users.FirstOrDefaultAsync(u => u.Email == userEmail);
 
@@ -501,7 +501,7 @@ namespace OmnitakSupportHub.Controllers
                     return RedirectToAction("Index");
                 }
 
-                // Get related articles (same category, excluding current article)
+          
                 var relatedArticles = await _context.KnowledgeBase
                     .Include(kb => kb.Category)
                     .Where(kb => kb.CategoryID == article.CategoryID && kb.ArticleID != id)
@@ -509,7 +509,7 @@ namespace OmnitakSupportHub.Controllers
                     .Take(5)
                     .ToListAsync();
 
-                // Get related tickets that might have been resolved using this article (placeholder)
+               
                 var relatedTickets = new List<Ticket>();
 
                 var model = new ArticleDetailViewModel
@@ -518,9 +518,9 @@ namespace OmnitakSupportHub.Controllers
                     RelatedArticles = relatedArticles,
                     RelatedTickets = relatedTickets,
                     BackUrl = "/AgentDashboard/KnowledgeBase",
-                    CanEdit = true, // Agents can edit articles
-                    IsBookmarked = false, // Implement bookmarking if needed
-                    ViewCount = 0, // Implement view tracking if needed
+                    CanEdit = true, 
+                    IsBookmarked = false, 
+                    ViewCount = 0, 
                     LastViewed = DateTime.UtcNow
                 };
 
@@ -533,11 +533,42 @@ namespace OmnitakSupportHub.Controllers
             }
         }
 
+
+
+       
+
         [HttpGet]
         public async Task<IActionResult> CreateArticle()
         {
             try
             {
+               
+                var userEmail = User.FindFirst(ClaimTypes.Email)?.Value;
+                if (string.IsNullOrEmpty(userEmail))
+                {
+                    TempData["ErrorMessage"] = "User not authenticated. Please log in again.";
+                    return RedirectToAction("Login", "Account");
+                }
+
+                var agent = await _context.Users
+                    .Include(u => u.Role)
+                    .FirstOrDefaultAsync(u => u.Email == userEmail);
+
+                if (agent == null)
+                {
+                    TempData["ErrorMessage"] = "Agent not found. Please contact support.";
+                    return RedirectToAction("Index");
+                }
+
+               
+                var allowedRoles = new[] { "Support Agent", "Support Manager", "Administrator" };
+                if (!allowedRoles.Contains(agent.Role?.RoleName))
+                {
+                    TempData["ErrorMessage"] = "You don't have permission to create articles.";
+                    return RedirectToAction("Index");
+                }
+
+               
                 var categories = await _context.Categories
                     .Where(c => c.IsActive)
                     .Select(c => new SelectListItem
@@ -545,7 +576,14 @@ namespace OmnitakSupportHub.Controllers
                         Value = c.CategoryID.ToString(),
                         Text = c.CategoryName
                     })
+                    .OrderBy(c => c.Text)
                     .ToListAsync();
+
+                if (!categories.Any())
+                {
+                    TempData["ErrorMessage"] = "No active categories found. Please contact an administrator.";
+                    return RedirectToAction("KnowledgeBase");
+                }
 
                 var model = new CreateArticleViewModel
                 {
@@ -554,9 +592,10 @@ namespace OmnitakSupportHub.Controllers
 
                 return View(model);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                TempData["ErrorMessage"] = "An error occurred while loading the create article page.";
+                // Log the exception details for debugging
+                TempData["ErrorMessage"] = $"An error occurred while loading the create article page: {ex.Message}";
                 return RedirectToAction("KnowledgeBase");
             }
         }
@@ -567,33 +606,64 @@ namespace OmnitakSupportHub.Controllers
         {
             try
             {
+                // Always reload categories in case of validation failure
+                model.Categories = await _context.Categories
+                    .Where(c => c.IsActive)
+                    .Select(c => new SelectListItem
+                    {
+                        Value = c.CategoryID.ToString(),
+                        Text = c.CategoryName
+                    })
+                    .OrderBy(c => c.Text)
+                    .ToListAsync();
+
                 if (!ModelState.IsValid)
                 {
-                    // Reload categories if validation fails
-                    model.Categories = await _context.Categories
-                        .Where(c => c.IsActive)
-                        .Select(c => new SelectListItem
-                        {
-                            Value = c.CategoryID.ToString(),
-                            Text = c.CategoryName
-                        })
-                        .ToListAsync();
+                    
                     return View(model);
                 }
 
+               
                 var userEmail = User.FindFirst(ClaimTypes.Email)?.Value;
-                var agent = await _context.Users.FirstOrDefaultAsync(u => u.Email == userEmail);
+                if (string.IsNullOrEmpty(userEmail))
+                {
+                    TempData["ErrorMessage"] = "User not authenticated. Please log in again.";
+                    return RedirectToAction("Login", "Account");
+                }
+
+                var agent = await _context.Users
+                    .Include(u => u.Role)
+                    .FirstOrDefaultAsync(u => u.Email == userEmail);
 
                 if (agent == null)
                 {
-                    TempData["ErrorMessage"] = "Agent not found.";
-                    return RedirectToAction("Index");
+                    TempData["ErrorMessage"] = "Agent not found. Please contact support.";
+                    return View(model);
                 }
 
+                // Verify user has appropriate role
+                var allowedRoles = new[] { "Support Agent", "Support Manager", "Administrator" };
+                if (!allowedRoles.Contains(agent.Role?.RoleName))
+                {
+                    TempData["ErrorMessage"] = "You don't have permission to create articles.";
+                    return View(model);
+                }
+
+                // Validate category exists and is active
+                var category = await _context.Categories
+                    .FirstOrDefaultAsync(c => c.CategoryID == model.CategoryID && c.IsActive);
+
+                if (category == null)
+                {
+                    ModelState.AddModelError("CategoryID", "Please select a valid category.");
+                    return View(model);
+                }
+
+             
                 var article = new KnowledgeBase
                 {
-                    Title = model.Title,
-                    Content = model.Content,
+                    Title = model.Title.Trim(),
+                    Content = model.Content.Trim(),
                     CategoryID = model.CategoryID,
                     CreatedBy = agent.UserID,
                     LastUpdatedBy = agent.UserID,
@@ -604,23 +674,20 @@ namespace OmnitakSupportHub.Controllers
                 _context.KnowledgeBase.Add(article);
                 await _context.SaveChangesAsync();
 
-                TempData["SuccessMessage"] = "Article created successfully!";
+                TempData["SuccessMessage"] = $"Article '{article.Title}' created successfully!";
                 return RedirectToAction("ArticleDetails", new { id = article.ArticleID });
             }
-            catch (Exception)
+            catch (DbUpdateException dbEx)
             {
-                TempData["ErrorMessage"] = "An error occurred while creating the article.";
-
-                // Reload categories
-                model.Categories = await _context.Categories
-                    .Where(c => c.IsActive)
-                    .Select(c => new SelectListItem
-                    {
-                        Value = c.CategoryID.ToString(),
-                        Text = c.CategoryName
-                    })
-                    .ToListAsync();
-
+              
+                TempData["ErrorMessage"] = "A database error occurred while creating the article. Please try again.";
+               
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+           
+                TempData["ErrorMessage"] = $"An unexpected error occurred: {ex.Message}";
                 return View(model);
             }
         }
@@ -630,14 +697,42 @@ namespace OmnitakSupportHub.Controllers
         {
             try
             {
+              
                 var article = await _context.KnowledgeBase
                     .Include(kb => kb.Category)
+                    .Include(kb => kb.CreatedByUser)
                     .FirstOrDefaultAsync(kb => kb.ArticleID == id);
 
                 if (article == null)
                 {
                     TempData["ErrorMessage"] = "Article not found.";
                     return RedirectToAction("KnowledgeBase");
+                }
+
+                
+                var userEmail = User.FindFirst(ClaimTypes.Email)?.Value;
+                if (string.IsNullOrEmpty(userEmail))
+                {
+                    TempData["ErrorMessage"] = "User not authenticated. Please log in again.";
+                    return RedirectToAction("Login", "Account");
+                }
+
+                var agent = await _context.Users
+                    .Include(u => u.Role)
+                    .FirstOrDefaultAsync(u => u.Email == userEmail);
+
+                if (agent == null)
+                {
+                    TempData["ErrorMessage"] = "Agent not found.";
+                    return RedirectToAction("KnowledgeBase");
+                }
+
+               
+                var allowedRoles = new[] { "Support Agent", "Support Manager", "Administrator" };
+                if (!allowedRoles.Contains(agent.Role?.RoleName))
+                {
+                    TempData["ErrorMessage"] = "You don't have permission to edit articles.";
+                    return RedirectToAction("ArticleDetails", new { id });
                 }
 
                 var categories = await _context.Categories
@@ -648,6 +743,7 @@ namespace OmnitakSupportHub.Controllers
                         Text = c.CategoryName,
                         Selected = c.CategoryID == article.CategoryID
                     })
+                    .OrderBy(c => c.Text)
                     .ToListAsync();
 
                 var model = new CreateArticleViewModel
@@ -661,9 +757,9 @@ namespace OmnitakSupportHub.Controllers
 
                 return View("CreateArticle", model);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                TempData["ErrorMessage"] = "An error occurred while loading the article for editing.";
+                TempData["ErrorMessage"] = $"An error occurred while loading the article for editing: {ex.Message}";
                 return RedirectToAction("KnowledgeBase");
             }
         }
@@ -674,53 +770,7 @@ namespace OmnitakSupportHub.Controllers
         {
             try
             {
-                if (!ModelState.IsValid)
-                {
-                   
-                    model.Categories = await _context.Categories
-                        .Where(c => c.IsActive)
-                        .Select(c => new SelectListItem
-                        {
-                            Value = c.CategoryID.ToString(),
-                            Text = c.CategoryName,
-                            Selected = c.CategoryID == model.CategoryID
-                        })
-                        .ToListAsync();
-                    return View("CreateArticle", model);
-                }
-
-                var article = await _context.KnowledgeBase.FindAsync(model.ArticleID);
-                if (article == null)
-                {
-                    TempData["ErrorMessage"] = "Article not found.";
-                    return RedirectToAction("KnowledgeBase");
-                }
-
-                var userEmail = User.FindFirst(ClaimTypes.Email)?.Value;
-                var agent = await _context.Users.FirstOrDefaultAsync(u => u.Email == userEmail);
-
-                if (agent == null)
-                {
-                    TempData["ErrorMessage"] = "Agent not found.";
-                    return RedirectToAction("Index");
-                }
-
-                article.Title = model.Title;
-                article.Content = model.Content;
-                article.CategoryID = model.CategoryID;
-                article.LastUpdatedBy = agent.UserID;
-                article.UpdatedAt = DateTime.UtcNow;
-
-                await _context.SaveChangesAsync();
-
-                TempData["SuccessMessage"] = "Article updated successfully!";
-                return RedirectToAction("ArticleDetails", new { id = article.ArticleID });
-            }
-            catch (Exception)
-            {
-                TempData["ErrorMessage"] = "An error occurred while updating the article.";
-
-             
+               
                 model.Categories = await _context.Categories
                     .Where(c => c.IsActive)
                     .Select(c => new SelectListItem
@@ -729,9 +779,113 @@ namespace OmnitakSupportHub.Controllers
                         Text = c.CategoryName,
                         Selected = c.CategoryID == model.CategoryID
                     })
+                    .OrderBy(c => c.Text)
                     .ToListAsync();
 
+                if (!ModelState.IsValid)
+                {
+                    return View("CreateArticle", model);
+                }
+
+      
+                var article = await _context.KnowledgeBase.FindAsync(model.ArticleID);
+                if (article == null)
+                {
+                    TempData["ErrorMessage"] = "Article not found.";
+                    return RedirectToAction("KnowledgeBase");
+                }
+
+               
+                var userEmail = User.FindFirst(ClaimTypes.Email)?.Value;
+                if (string.IsNullOrEmpty(userEmail))
+                {
+                    TempData["ErrorMessage"] = "User not authenticated. Please log in again.";
+                    return RedirectToAction("Login", "Account");
+                }
+
+                var agent = await _context.Users
+                    .Include(u => u.Role)
+                    .FirstOrDefaultAsync(u => u.Email == userEmail);
+
+                if (agent == null)
+                {
+                    TempData["ErrorMessage"] = "Agent not found.";
+                    return View("CreateArticle", model);
+                }
+
+            
+                var allowedRoles = new[] { "Support Agent", "Support Manager", "Administrator" };
+                if (!allowedRoles.Contains(agent.Role?.RoleName))
+                {
+                    TempData["ErrorMessage"] = "You don't have permission to edit articles.";
+                    return View("CreateArticle", model);
+                }
+
+              
+                var category = await _context.Categories
+                    .FirstOrDefaultAsync(c => c.CategoryID == model.CategoryID && c.IsActive);
+
+                if (category == null)
+                {
+                    ModelState.AddModelError("CategoryID", "Please select a valid category.");
+                    return View("CreateArticle", model);
+                }
+
+                
+                article.Title = model.Title.Trim();
+                article.Content = model.Content.Trim();
+                article.CategoryID = model.CategoryID;
+                article.LastUpdatedBy = agent.UserID;
+                article.UpdatedAt = DateTime.UtcNow;
+
+                await _context.SaveChangesAsync();
+
+                TempData["SuccessMessage"] = $"Article '{article.Title}' updated successfully!";
+                return RedirectToAction("ArticleDetails", new { id = article.ArticleID });
+            }
+            catch (DbUpdateException dbEx)
+            {
+                TempData["ErrorMessage"] = "A database error occurred while updating the article. Please try again.";
                 return View("CreateArticle", model);
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = $"An unexpected error occurred while updating the article: {ex.Message}";
+                return View("CreateArticle", model);
+            }
+        }
+
+     
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ValidateArticleTitle([FromBody] string title)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(title))
+                {
+                    return Json(new { isValid = false, message = "Title is required." });
+                }
+
+                if (title.Length > 200)
+                {
+                    return Json(new { isValid = false, message = "Title cannot exceed 200 characters." });
+                }
+
+               
+                var exists = await _context.KnowledgeBase
+                    .AnyAsync(kb => kb.Title.ToLower() == title.ToLower());
+
+                if (exists)
+                {
+                    return Json(new { isValid = false, message = "An article with this title already exists." });
+                }
+
+                return Json(new { isValid = true, message = "Title is available." });
+            }
+            catch (Exception)
+            {
+                return Json(new { isValid = false, message = "Error validating title." });
             }
         }
 
@@ -797,7 +951,7 @@ namespace OmnitakSupportHub.Controllers
             }
         }
 
-        // Helper methods
+       
         private double CalculateAverageResponseTime(List<Ticket> tickets)
         {
             var resolvedTickets = tickets.Where(t =>

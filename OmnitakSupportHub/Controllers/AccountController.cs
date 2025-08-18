@@ -6,18 +6,17 @@ using Microsoft.EntityFrameworkCore;
 using OmnitakSupportHub.Models;
 using OmnitakSupportHub.Models.ViewModels;
 using OmnitakSupportHub.Services;
-using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 
 namespace OmnitakSupportHub.Controllers
 {
     public class AccountController : Controller
     {
-
+        // ==============================
         // Brute Force Protection (simple in-memory lockout)
+        // ==============================
         private static readonly Dictionary<string, int> FailedLoginAttempts = new();
         private static readonly Dictionary<string, DateTime> LockoutUntil = new();
-
 
         private bool IsLockedOut(string username)
         {
@@ -43,6 +42,9 @@ namespace OmnitakSupportHub.Controllers
                 FailedLoginAttempts[username] = 0;
         }
 
+        // ==============================
+        // Dependencies
+        // ==============================
         private readonly IAuthService _authService;
         private readonly OmnitakContext _context;
         private readonly EmailService _emailService;
@@ -60,6 +62,9 @@ namespace OmnitakSupportHub.Controllers
             _logger = logger;
         }
 
+        // ==============================
+        // Login
+        // ==============================
         [HttpGet]
         public IActionResult Login()
         {
@@ -79,7 +84,6 @@ namespace OmnitakSupportHub.Controllers
             if (!ModelState.IsValid)
                 return View(model);
 
-            // Convert ViewModel to Model for AuthService
             var loginModel = new LoginModel
             {
                 Email = model.Email,
@@ -88,10 +92,11 @@ namespace OmnitakSupportHub.Controllers
 
             var result = await _authService.LoginAsync(loginModel);
 
-            ResetFailedAttempts(model.Email);
             if (result.Success && result.User != null)
             {
-                // Create claims for the authenticated user
+                ResetFailedAttempts(model.Email);
+
+                // Build claims
                 var claims = new List<Claim>
                 {
                     new Claim("UserID", result.User.UserID.ToString()),
@@ -103,24 +108,17 @@ namespace OmnitakSupportHub.Controllers
                     new Claim("TeamID", result.User.TeamID?.ToString() ?? "")
                 };
 
-                // Add role-based claims if Role is loaded
+                // Add role and permissions
                 if (result.User.Role != null)
                 {
                     claims.Add(new Claim(ClaimTypes.Role, result.User.Role.RoleName));
 
-                    // Add permission claims
-                    if (result.User.Role.CanApproveUsers)
-                        claims.Add(new Claim("Permission", "CanApproveUsers"));
-                    if (result.User.Role.CanManageTickets)
-                        claims.Add(new Claim("Permission", "CanManageTickets"));
-                    if (result.User.Role.CanViewAllTickets)
-                        claims.Add(new Claim("Permission", "CanViewAllTickets"));
-                    if (result.User.Role.CanManageKnowledgeBase)
-                        claims.Add(new Claim("Permission", "CanManageKnowledgeBase"));
-                    if (result.User.Role.CanViewReports)
-                        claims.Add(new Claim("Permission", "CanViewReports"));
-                    if (result.User.Role.CanManageTeams)
-                        claims.Add(new Claim("Permission", "CanManageTeams"));
+                    if (result.User.Role.CanApproveUsers) claims.Add(new Claim("Permission", "CanApproveUsers"));
+                    if (result.User.Role.CanManageTickets) claims.Add(new Claim("Permission", "CanManageTickets"));
+                    if (result.User.Role.CanViewAllTickets) claims.Add(new Claim("Permission", "CanViewAllTickets"));
+                    if (result.User.Role.CanManageKnowledgeBase) claims.Add(new Claim("Permission", "CanManageKnowledgeBase"));
+                    if (result.User.Role.CanViewReports) claims.Add(new Claim("Permission", "CanViewReports"));
+                    if (result.User.Role.CanManageTeams) claims.Add(new Claim("Permission", "CanManageTeams"));
                 }
 
                 var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
@@ -135,35 +133,30 @@ namespace OmnitakSupportHub.Controllers
                 await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, claimsPrincipal, authProperties);
 
                 // Redirect based on role
-                if (result.User.Role?.RoleName == "Administrator")
+                return result.User.Role?.RoleName switch
                 {
-                    return RedirectToAction("Index", "AdminDashboard");
-                }
-                else if (result.User.Role?.RoleName == "Support Manager")
-                {
-                    return RedirectToAction("Index", "ManagerDashboard");
-                }
-                else if (result.User.Role?.RoleName == "Support Agent")
-                {
-                    return RedirectToAction("Index", "AgentDashboard");
-                }
-                else
-                {
-                    return RedirectToAction("Index", "UserDashboard");
-                }
+                    "Administrator" => RedirectToAction("Index", "AdminDashboard"),
+                    "Support Manager" => RedirectToAction("Index", "ManagerDashboard"),
+                    "Support Agent" => RedirectToAction("Index", "AgentDashboard"),
+                    _ => RedirectToAction("Index", "UserDashboard")
+                };
             }
 
+            RecordFailedAttempt(model.Email);
             _logger.LogWarning("Failed login attempt for user: {Email}", model.Email);
             ModelState.AddModelError("", result.Message);
             return View(model);
         }
 
+        // ==============================
+        // Register
+        // ==============================
         [HttpGet]
         public IActionResult Register()
         {
             var departments = _context.Departments.ToList();
 
-            var model = new RegisterViewModel // Create ViewModel
+            var model = new RegisterViewModel
             {
                 AvailableDepartments = departments.Select(d => new SelectListItem
                 {
@@ -176,11 +169,10 @@ namespace OmnitakSupportHub.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Register(RegisterViewModel model) // Receive ViewModel
+        public async Task<IActionResult> Register(RegisterViewModel model)
         {
             if (!ModelState.IsValid)
             {
-                // Repopulate departments on failure
                 model.AvailableDepartments = _context.Departments
                     .Select(d => new SelectListItem
                     {
@@ -190,7 +182,6 @@ namespace OmnitakSupportHub.Controllers
                 return View(model);
             }
 
-            // Convert ViewModel to Model for service
             var registerModel = new RegisterModel
             {
                 FullName = model.FullName,
@@ -206,12 +197,9 @@ namespace OmnitakSupportHub.Controllers
             {
                 TempData["SuccessMessage"] = result.Message;
                 _emailService.SendRegistrationEmail(model.Email, model.FullName);
-                
-
                 return RedirectToAction("Login");
             }
 
-            // Repopulate departments if registration fails
             model.AvailableDepartments = _context.Departments
                 .Select(d => new SelectListItem
                 {
@@ -219,32 +207,30 @@ namespace OmnitakSupportHub.Controllers
                     Text = d.DepartmentName
                 }).ToList();
 
-            _logger.LogWarning("Failed login attempt for user: {Email}", model.Email);
             ModelState.AddModelError("", result.Message);
             return View(model);
         }
-        // Forgot Password GET
+
+        // ==============================
+        // Forgot Password
+        // ==============================
         [HttpGet]
         public IActionResult ForgotPassword()
         {
             return View();
         }
 
-        // Forgot Password POST
         [HttpPost]
         public async Task<IActionResult> ForgotPassword(ForgotPasswordModel model)
         {
             if (ModelState.IsValid)
             {
-                // Check if user exists (replace with your user lookup logic)
                 var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == model.Email);
 
                 if (user != null)
                 {
-                    // Generate unique token
                     var token = Guid.NewGuid().ToString();
 
-                    // Store token in database
                     var resetToken = new PasswordResetToken
                     {
                         Email = model.Email,
@@ -254,22 +240,21 @@ namespace OmnitakSupportHub.Controllers
                     _context.PasswordResetTokens.Add(resetToken);
                     await _context.SaveChangesAsync();
 
-                    // Generate reset link
                     var resetLink = Url.Action("ResetPassword", "Account",
                         new { email = model.Email, token = token },
                         protocol: HttpContext.Request.Scheme);
 
-                    // Send email
                     _emailService.SendPasswordResetEmail(model.Email, user.FullName, resetLink);
                 }
 
-                // Always show confirmation (security best practice)
                 return View("ForgotPasswordConfirmation");
             }
             return View(model);
         }
 
-        // Reset Password GET
+        // ==============================
+        // Reset Password
+        // ==============================
         [HttpGet]
         public async Task<IActionResult> ResetPassword(string email, string token)
         {
@@ -288,7 +273,6 @@ namespace OmnitakSupportHub.Controllers
             return View(new ResetPasswordModel { Email = email, Token = token });
         }
 
-        // Reset Password POST
         [HttpPost]
         public async Task<IActionResult> ResetPassword(ResetPasswordModel model)
         {
@@ -308,11 +292,10 @@ namespace OmnitakSupportHub.Controllers
                 return View(model);
             }
 
-            // Update user password (replace with your password update logic)
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == model.Email);
             if (user != null)
             {
-                user.PasswordHash = HashPassword(model.NewPassword); // Implement your hashing
+                user.PasswordHash = HashPassword(model.NewPassword); // TODO: implement hashing
                 resetToken.IsUsed = true;
                 await _context.SaveChangesAsync();
                 return View("ResetPasswordConfirmation");
@@ -324,9 +307,12 @@ namespace OmnitakSupportHub.Controllers
 
         private string HashPassword(string newPassword)
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException("⚠️ Implement password hashing here!");
         }
 
+        // ==============================
+        // Logout
+        // ==============================
         [HttpPost]
         public async Task<IActionResult> Logout()
         {
@@ -334,7 +320,9 @@ namespace OmnitakSupportHub.Controllers
             return RedirectToAction("Login");
         }
 
+        // ==============================
         // Access Denied
+        // ==============================
         [HttpGet]
         public IActionResult AccessDenied()
         {

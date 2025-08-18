@@ -23,4 +23,3 @@ public class ResetPasswordModel
     [DataType(DataType.Password), Compare("NewPassword")]
     public string ConfirmPassword { get; set; }
 }
-

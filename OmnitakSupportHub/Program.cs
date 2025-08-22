@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using OmnitakSupportHub;
-using OmnitakSupportHub.Middleware; // ✅ Add this
+using OmnitakSupportHub.Middleware;
 using OmnitakSupportHub.Models;
 using OmnitakSupportHub.Services;
 using System.Text;
@@ -12,12 +12,12 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+
 builder.Services.AddControllersWithViews();
 builder.Services.AddControllers();
 builder.Services.AddAuthentication(options =>
 {
-    // Set Cookie Authentication as the default for the application
+   
     options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
     options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
@@ -30,7 +30,7 @@ builder.Services.AddAuthentication(options =>
     options.ExpireTimeSpan = TimeSpan.FromHours(8);
     options.SlidingExpiration = true;
 })
-.AddJwtBearer(options => // Keep this for API endpoints that need JWT
+.AddJwtBearer(options => 
 {
     options.TokenValidationParameters = new TokenValidationParameters
     {
@@ -47,20 +47,25 @@ builder.Services.AddAuthentication(options =>
 });
 
 
-// Register Entity Framework DbContext
+
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<OmnitakContext>(options =>
     options.UseSqlServer(connectionString));
 
-// Register Authentication Service
+
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<EmailService>();
 builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("SmtpSettings"));
 
-// Register JWT Service
+
 builder.Services.AddScoped<JwtService>();
-// Update Swagger configuration
-// Register Swagger/OpenAPI
+
+
+builder.Services.AddScoped<SmartDataSeeder>();
+builder.Services.AddScoped<MigrationHelper>();
+builder.Services.AddScoped<DatabaseManager>();
+
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -71,7 +76,7 @@ builder.Services.AddSwaggerGen(options =>
         Description = "API for Omnitak Support Hub"
     });
 
-    // JWT Bearer Authentication
+    
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Name = "Authorization",
@@ -103,7 +108,7 @@ builder.Services.AddSwaggerGen(options =>
 var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
-    // Enable Swagger in development mode
+    
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
@@ -112,11 +117,11 @@ if (app.Environment.IsDevelopment())
     });
 }
 
-// Configure the HTTP request pipeline.
+
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+
     app.UseHsts();
 }
 
@@ -125,7 +130,7 @@ app.UseRouting();
 
 
 app.UseMiddleware<GlobalExceptionMiddleware>();
-// Add Authentication & Authorization middleware
+
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
@@ -138,24 +143,30 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
 
-// Redirect root URL to the login page
+
 app.MapGet("/", context =>
 {
     context.Response.Redirect("/Account/Login");
     return Task.CompletedTask;
 });
+
+
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     try
     {
-        var context = services.GetRequiredService<OmnitakContext>();
-        context.Database.EnsureCreated(); // Creates database if it doesn't exist
+        var databaseManager = services.GetRequiredService<DatabaseManager>();
+        await databaseManager.InitializeDatabaseAsync();
+
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogInformation("Application startup completed successfully.");
     }
     catch (Exception ex)
     {
         var logger = services.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "An error occurred while creating the database.");
+        logger.LogError(ex, "An error occurred during application startup.");
+        throw; 
     }
 }
 

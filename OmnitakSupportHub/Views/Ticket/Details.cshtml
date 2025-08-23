@@ -2,169 +2,940 @@
 
 @{
     ViewData["Title"] = "Ticket Details";
+    Layout = null; // Custom layout for full control
 }
 
-<style>
-    .dashboard-container {
-        max-width: 900px;
-        margin: 40px auto;
-        background: var(--bg-secondary, #fff);
-        box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-        border-radius: 0.75rem;
-        padding: 32px;
-        font-family: 'Inter', 'Segoe UI', sans-serif;
-    }
-    .section-header {
-        background: linear-gradient(90deg, #10b981, #065f46);
-        color: white;
-        padding: 16px 24px;
-        border-radius: 0.5rem 0.5rem 0 0;
-        font-size: 1.3rem;
-        font-weight: 700;
-        margin-bottom: 24px;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-    }
-    .details-table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-bottom: 24px;
-    }
-    .details-table th, .details-table td {
-        padding: 12px 16px;
-        border-bottom: 1px solid #e2e8f0;
-        text-align: left;
-    }
-    .details-table th {
-        background: #10b981;
-        color: #fff;
-        font-weight: 600;
-        text-transform: uppercase;
-    }
-    .details-table td {
-        background: #f8fafc;
-    }
-    .form-section {
-        background: #f8fafc;
-        padding: 20px;
-        border-radius: 0.5rem;
-        margin-bottom: 24px;
-        box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-    }
-    .btn {
-        display: inline-block;
-        padding: 0.5rem 1.25rem;
-        font-size: 1rem;
-        border-radius: 0.5rem;
-        font-weight: 600;
-        border: none;
-        cursor: pointer;
-        margin-right: 8px;
-        transition: background 0.3s, color 0.3s;
-        text-transform: uppercase;
-    }
-    .btn-primary {
-        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-        color: white;
-    }
-    .btn-primary:hover {
-        background: linear-gradient(135deg, #059669 0%, #065f46 100%);
-    }
-    .btn-danger {
-        background-color: #dc3545;
-        color: white;
-    }
-    .btn-danger:hover {
-        background-color: #b91c1c;
-    }
-    .alert-success {
-        border-left: 5px solid #10b981;
-        background: rgba(16, 185, 129, 0.1);
-        color: #10b981;
-        padding: 16px;
-        border-radius: 0.5rem;
-        margin-bottom: 24px;
-        font-weight: 500;
-    }
-</style>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"] - Omnitak Support Hub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root {
+            /* Premium Enterprise Color Palette - Matching Manager Dashboard */
+            --primary-deep-blue: #0F1419;
+            --primary-navy: #1A237E;
+            --accent-electric: #00E5FF;
+            --accent-purple: #7B2CBF;
+            --accent-gold: #FFB300;
+            --accent-success: #4CAF50;
+            --accent-warning: #FF9800;
+            --accent-danger: #F44336;
+            --surface-dark: #121212;
+            --surface-elevated: #1E1E1E;
+            --surface-card: #242424;
+            --surface-glass: rgba(255, 255, 255, 0.05);
+            --text-primary: #FFFFFF;
+            --text-secondary: rgba(255, 255, 255, 0.7);
+            --text-muted: rgba(255, 255, 255, 0.5);
+            --gradient-primary: linear-gradient(135deg, #0F1419 0%, #1A237E 50%, #7B2CBF 100%);
+            --gradient-accent: linear-gradient(45deg, #00E5FF, #7B2CBF);
+            --gradient-card: linear-gradient(135deg, #1E1E1E 0%, #242424 100%);
+            --shadow-glow: 0 0 40px rgba(0, 229, 255, 0.3);
+            --shadow-deep: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+            --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.3);
+            --border-glow: rgba(0, 229, 255, 0.3);
+        }
 
-<div class="dashboard-container">
-    <div class="section-header">Ticket Details</div>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    @if (TempData["SuccessMessage"] != null)
-    {
-        <div class="alert-success">@TempData["SuccessMessage"]</div>
-    }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--primary-deep-blue);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
 
-    <table class="details-table">
-        <tr>
-            <th>Title</th>
-            <td>@Model.Title</td>
-        </tr>
-        <tr>
-            <th>Description</th>
-            <td>@Model.Description</td>
-        </tr>
-        <tr>
-            <th>Status</th>
-            <td>@Model.Status?.StatusName</td>
-        </tr>
-        <tr>
-            <th>Priority</th>
-            <td>@Model.Priority?.PriorityName</td>
-        </tr>
-        <tr>
-            <th>Category</th>
-            <td>@Model.Category?.CategoryName</td>
-        </tr>
-        <tr>
-            <th>Support Team</th>
-            <td>@Model.Team?.TeamName</td>
-        </tr>
-        <tr>
-            <th>Created By</th>
-            <td>@Model.CreatedByUser?.FullName</td>
-        </tr>
-        <tr>
-            <th>Created At</th>
-            <td>@Model.CreatedAt.ToString("yyyy-MM-dd")</td>
-        </tr>
-    </table>
+        /* Animated Background */
+        .background-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: var(--gradient-primary);
+        }
 
-    <div class="section-header">Assign to Agent</div>
-    <form asp-action="AssignAgent" method="post" class="form-section">
-        <input type="hidden" name="ticketId" value="@Model.TicketID" />
-        <select name="agentId">
-            <option value="0">-- None --</option>
-            @if (ViewBag.AvailableAgents != null && ((IEnumerable<OmnitakSupportHub.Models.User>)ViewBag.AvailableAgents).Any())
-            {
-                foreach (var agent in (IEnumerable<OmnitakSupportHub.Models.User>)ViewBag.AvailableAgents)
-                {
-                    var isSelected = Model.AssignedTo == agent.UserID ? "selected" : "";
-                    <option value="@agent.UserID" selected="@isSelected">@agent.FullName</option>
+        .floating-orbs {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            background: var(--gradient-accent);
+            opacity: 0.05;
+            filter: blur(1px);
+            animation: float 25s infinite linear;
+        }
+
+            .orb:nth-child(1) {
+                width: 400px;
+                height: 400px;
+                top: -200px;
+                left: -200px;
+                animation-delay: 0s;
+            }
+
+            .orb:nth-child(2) {
+                width: 300px;
+                height: 300px;
+                top: 60%;
+                right: -150px;
+                animation-delay: -10s;
+            }
+
+            .orb:nth-child(3) {
+                width: 250px;
+                height: 250px;
+                bottom: -125px;
+                left: 40%;
+                animation-delay: -20s;
+            }
+
+        @@keyframes float {
+            0%
+
+        {
+            transform: translateY(0) rotate(0deg);
+        }
+
+        33% {
+            transform: translateY(-40px) rotate(120deg);
+        }
+
+        66% {
+            transform: translateY(20px) rotate(240deg);
+        }
+
+        100% {
+            transform: translateY(0) rotate(360deg);
+        }
+
+        }
+
+        /* Main Container */
+        .details-container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 24px;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Header Section */
+        .page-header {
+            background: var(--gradient-card);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 32px;
+            position: relative;
+            overflow: hidden;
+            animation: slideInDown 1s ease;
+        }
+
+            .page-header::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 4px;
+                background: var(--gradient-accent);
+                border-radius: 20px 20px 0 0;
+            }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .header-icon {
+            width: 60px;
+            height: 60px;
+            background: var(--gradient-accent);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: var(--shadow-glow);
+        }
+
+        .header-text h1 {
+            font-size: 32px;
+            font-weight: 800;
+            background: var(--gradient-accent);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+
+        .header-text p {
+            font-size: 16px;
+            color: var(--text-secondary);
+        }
+
+        .header-meta {
+            text-align: right;
+        }
+
+        .ticket-id {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--accent-electric);
+            margin-bottom: 4px;
+        }
+
+        .created-date {
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        /* Alert */
+        .alert {
+            padding: 20px 24px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            border-left: 4px solid;
+            backdrop-filter: blur(10px);
+            animation: slideInDown 0.8s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .alert-success {
+            background: rgba(76, 175, 80, 0.1);
+            border-left-color: var(--accent-success);
+            color: var(--accent-success);
+        }
+
+        /* Main Content Grid */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 32px;
+            margin-bottom: 32px;
+        }
+
+        /* Details Card */
+        .details-card {
+            background: var(--gradient-card);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            overflow: hidden;
+            animation: fadeInUp 1s ease;
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, var(--accent-electric) 0%, var(--accent-purple) 100%);
+            padding: 24px 32px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .card-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: white;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .card-content {
+            padding: 32px;
+        }
+
+        /* Details Table */
+        .details-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+            .details-table th,
+            .details-table td {
+                padding: 16px 0;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+                text-align: left;
+            }
+
+            .details-table th {
+                color: var(--text-primary);
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                font-size: 14px;
+                width: 30%;
+            }
+
+            .details-table td {
+                color: var(--text-secondary);
+                font-size: 16px;
+            }
+
+        /* Status and Priority Badges */
+        .badge {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: inline-block;
+        }
+
+        .priority-high {
+            background: rgba(244, 67, 54, 0.2);
+            color: var(--accent-danger);
+        }
+
+        .priority-medium {
+            background: rgba(255, 152, 0, 0.2);
+            color: var(--accent-warning);
+        }
+
+        .priority-low {
+            background: rgba(76, 175, 80, 0.2);
+            color: var(--accent-success);
+        }
+
+        .status-open {
+            background: rgba(0, 229, 255, 0.2);
+            color: var(--accent-electric);
+        }
+
+        .status-assigned {
+            background: rgba(255, 152, 0, 0.2);
+            color: var(--accent-warning);
+        }
+
+        .status-resolved {
+            background: rgba(76, 175, 80, 0.2);
+            color: var(--accent-success);
+        }
+
+        /* Actions Sidebar */
+        .actions-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .action-card {
+            background: var(--gradient-card);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            overflow: hidden;
+            animation: fadeInRight 1s ease;
+            animation-delay: 0.3s;
+            animation-fill-mode: both;
+        }
+
+        .action-card-header {
+            background: linear-gradient(135deg, var(--accent-purple) 0%, var(--accent-electric) 100%);
+            padding: 20px 24px;
+            color: white;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .action-card-content {
+            padding: 24px;
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+            font-weight: 600;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--surface-elevated);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+            .form-select:focus {
+                outline: none;
+                border-color: var(--accent-electric);
+                box-shadow: 0 0 0 3px rgba(0, 229, 255, 0.1);
+            }
+
+            .form-select option {
+                background: var(--surface-elevated);
+                color: var(--text-primary);
+            }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 14px;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background: var(--gradient-accent);
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 229, 255, 0.3);
+        }
+
+            .btn-primary:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 25px rgba(0, 229, 255, 0.4);
+            }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #F44336 0%, #D32F2F 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(244, 67, 54, 0.3);
+        }
+
+            .btn-danger:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 25px rgba(244, 67, 54, 0.4);
+            }
+
+        .btn-secondary {
+            background: var(--surface-elevated);
+            color: var(--text-primary);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+            .btn-secondary:hover {
+                background: var(--surface-card);
+                border-color: var(--accent-electric);
+            }
+
+        /* Back Button */
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            margin-bottom: 24px;
+        }
+
+            .back-button:hover {
+                color: var(--accent-electric);
+                transform: translateX(-4px);
+            }
+
+        /* Description Section */
+        .description-section {
+            background: var(--surface-glass);
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            border-left: 4px solid var(--accent-electric);
+        }
+
+        .description-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 14px;
+        }
+
+        .description-text {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            font-size: 16px;
+        }
+
+        /* Animations */
+        @@keyframes slideInDown {
+            from
+
+        {
+            opacity: 0;
+            transform: translateY(-30px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        }
+
+        @@keyframes fadeInUp {
+            from
+
+        {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        }
+
+        @@keyframes fadeInRight {
+            from
+
+        {
+            opacity: 0;
+            transform: translateX(30px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        }
+
+        /* Responsive Design */
+        @@media (max-width: 1024px) {
+            .content-grid
+
+        {
+            grid-template-columns: 1fr;
+        }
+
+        .actions-sidebar {
+            order: -1;
+        }
+
+        }
+
+        @@media (max-width: 768px) {
+            .details-container
+
+        {
+            padding: 0 16px;
+        }
+
+        .page-header {
+            padding: 24px;
+        }
+
+        .header-content {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .header-meta {
+            text-align: left;
+        }
+
+        .card-content {
+            padding: 20px;
+        }
+
+        .action-card-content {
+            padding: 16px;
+        }
+
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--accent-electric);
+            animation: spin 0.8s ease-in-out infinite;
+        }
+
+        @@keyframes spin {
+            to
+
+        {
+            transform: rotate(360deg);
+        }
+
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="background-container">
+        <div class="floating-orbs">
+            <div class="orb"></div>
+            <div class="orb"></div>
+            <div class="orb"></div>
+        </div>
+    </div>
+
+    <div class="details-container">
+        <!-- Back Button -->
+        <a asp-controller="ManagerDashboard" asp-action="Index" class="back-button">
+            <i class="bi bi-arrow-left"></i>
+            Back to Dashboard
+        </a>
+
+        <!-- Page Header -->
+        <div class="page-header">
+            <div class="header-content">
+                <div class="header-title">
+                    <div class="header-icon">
+                        <i class="bi bi-ticket-detailed"></i>
+                    </div>
+                    <div class="header-text">
+                        <h1>@Model.Title</h1>
+                        <p>Ticket Details & Management</p>
+                    </div>
+                </div>
+                <div class="header-meta">
+                    <div class="ticket-id">#@Model.TicketID</div>
+                    <div class="created-date">Created @Model.CreatedAt.ToString("MMM dd, yyyy")</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Success Alert -->
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success">
+                <i class="bi bi-check-circle"></i>
+                @TempData["SuccessMessage"]
+            </div>
+        }
+
+        <!-- Main Content Grid -->
+        <div class="content-grid">
+            <!-- Ticket Details -->
+            <div class="details-card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="bi bi-info-circle"></i>
+                        Ticket Information
+                    </h3>
+                </div>
+                <div class="card-content">
+                    <table class="details-table">
+                        <tr>
+                            <th>Status</th>
+                            <td>
+                                <span class="badge status-@(Model.Status?.StatusName?.ToLower().Replace(" ", "") ?? "open")">
+                                    @(Model.Status?.StatusName ?? "Open")
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Priority</th>
+                            <td>
+                                <span class="badge priority-@(Model.Priority?.PriorityName?.ToLower() ?? "low")">
+                                    @(Model.Priority?.PriorityName ?? "Low")
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Category</th>
+                            <td>@Model.Category?.CategoryName</td>
+                        </tr>
+                        <tr>
+                            <th>Support Team</th>
+                            <td>@Model.Team?.TeamName</td>
+                        </tr>
+                        <tr>
+                            <th>Created By</th>
+                            <td>@Model.CreatedByUser?.FullName</td>
+                        </tr>
+                        <tr>
+                            <th>Assigned To</th>
+                            <td>
+                                @if (Model.AssignedTo != null)
+                                {
+                                    <span style="color: var(--text-primary);">@Model.AssignedToUser?.FullName</span>
+                                }
+                                else
+                                {
+                                    <span style="color: var(--text-muted);">Unassigned</span>
+                                }
+                            </td>
+                        </tr>
+                    </table>
+
+                    @if (!string.IsNullOrEmpty(Model.Description))
+                    {
+                        <div class="description-section">
+                            <div class="description-title">Description</div>
+                            <div class="description-text">@Model.Description</div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Actions Sidebar -->
+            <div class="actions-sidebar">
+                <!-- Assign Agent -->
+                <div class="action-card">
+                    <div class="action-card-header">
+                        <i class="bi bi-person-plus"></i>
+                        Assign Agent
+                    </div>
+                    <div class="action-card-content">
+                        <form asp-action="AssignAgent" method="post">
+                            <input type="hidden" name="ticketId" value="@Model.TicketID" />
+                            <div class="form-group">
+                                <label class="form-label">Select Agent</label>
+                                <select name="agentId" class="form-select">
+                                    <option value="0">-- Unassigned --</option>
+                                    @if (ViewBag.AvailableAgents != null && ((IEnumerable<OmnitakSupportHub.Models.User>)ViewBag.AvailableAgents).Any())
+                                    {
+                                        foreach (var agent in (IEnumerable<OmnitakSupportHub.Models.User>)ViewBag.AvailableAgents)
+                                        {
+                                            @if (Model.AssignedTo == agent.UserID)
+                                            {
+                                                <option value="@agent.UserID" selected>@agent.FullName</option>
+                                            }
+                                            else
+                                            {
+                                                <option value="@agent.UserID">@agent.FullName</option>
+                                            }
+                                        }
+                                    }
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-person-check"></i>
+                                Assign/Reassign
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Set Priority -->
+                <div class="action-card">
+                    <div class="action-card-header">
+                        <i class="bi bi-flag"></i>
+                        Set Priority
+                    </div>
+                    <div class="action-card-content">
+                        <form asp-action="SetPriority" method="post">
+                            <input type="hidden" name="ticketId" value="@Model.TicketID" />
+                            <div class="form-group">
+                                <label class="form-label">Priority Level</label>
+                                <select name="priorityId" class="form-select">
+                                    @if (ViewBag.Priorities != null)
+                                    {
+                                        foreach (var p in ViewBag.Priorities)
+                                        {
+                                            @if (Model.PriorityID.ToString() == p.Value?.ToString())
+                                            {
+                                                <option value="@p.Value" selected>@p.Text</option>
+                                            }
+                                            else
+                                            {
+                                                <option value="@p.Value">@p.Text</option>
+                                            }
+                                        }
+                                    }
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-arrow-up"></i>
+                                Update Priority
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Close Ticket -->
+                <div class="action-card">
+                    <div class="action-card-header">
+                        <i class="bi bi-x-circle"></i>
+                        Close Ticket
+                    </div>
+                    <div class="action-card-content">
+                        <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 16px; line-height: 1.4;">
+                            This action will mark the ticket as resolved and close it permanently.
+                        </p>
+                        <form asp-action="CloseTicket" method="post">
+                            <input type="hidden" name="ticketId" value="@Model.TicketID" />
+                            <button type="submit" class="btn btn-danger">
+                                <i class="bi bi-check2-circle"></i>
+                                Close Ticket
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize page animations
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeAnimations();
+            setupFormInteractions();
+        });
+
+        function initializeAnimations() {
+            // Add staggered animations to action cards
+            const actionCards = document.querySelectorAll('.action-card');
+            actionCards.forEach((card, index) => {
+                card.style.opacity = '0';
+                setTimeout(() => {
+                    card.style.opacity = '1';
+                    card.style.animation = `fadeInRight 0.8s ease forwards`;
+                }, index * 200);
+            });
+        }
+
+        function setupFormInteractions() {
+            // Add hover effects to form elements
+            const selects = document.querySelectorAll('.form-select');
+            selects.forEach(select => {
+                select.addEventListener('focus', function() {
+                    this.style.borderColor = 'var(--accent-electric)';
+                    this.style.boxShadow = '0 0 0 3px rgba(0, 229, 255, 0.1)';
+                });
+
+                select.addEventListener('blur', function() {
+                    this.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+                    this.style.boxShadow = 'none';
+                });
+            });
+
+            // Add glow effect to buttons on hover
+            const buttons = document.querySelectorAll('.btn');
+            buttons.forEach(btn => {
+                btn.addEventListener('mouseenter', function() {
+                    if (this.classList.contains('btn-primary')) {
+                        this.style.boxShadow = '0 0 30px rgba(0, 229, 255, 0.5), 0 8px 25px rgba(0, 0, 0, 0.3)';
+                    } else if (this.classList.contains('btn-danger')) {
+                        this.style.boxShadow = '0 0 30px rgba(244, 67, 54, 0.5), 0 8px 25px rgba(0, 0, 0, 0.3)';
+                    }
+                });
+
+                btn.addEventListener('mouseleave', function() {
+                    if (this.classList.contains('btn-primary')) {
+                        this.style.boxShadow = '0 4px 15px rgba(0, 229, 255, 0.3)';
+                    } else if (this.classList.contains('btn-danger')) {
+                        this.style.boxShadow = '0 4px 15px rgba(244, 67, 54, 0.3)';
+                    }
+                });
+            });
+        }
+
+        function confirmClose() {
+            return confirm('Are you sure you want to close this ticket? This action cannot be undone.');
+        }
+
+        // Add particle effect on mouse move (matching dashboard)
+        document.addEventListener('mousemove', function(e) {
+            if (Math.random() > 0.9) { // Reduce frequency
+                const particle = document.createElement('div');
+                particle.style.cssText = `
+                    position: fixed;
+                    width: 3px;
+                    height: 3px;
+                    background: var(--accent-electric);
+                    border-radius: 50%;
+                    pointer-events: none;
+                    z-index: 9999;
+                    opacity: 0.6;
+                    animation: particleFade 1.5s ease-out forwards;
+                `;
+                particle.style.left = e.clientX + 'px';
+                particle.style.top = e.clientY + 'px';
+
+                document.body.appendChild(particle);
+
+                setTimeout(() => {
+                    particle.remove();
+                }, 1500);
+            }
+        });
+
+        // Add particle fade animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @@keyframes particleFade {
+                0% {
+                    opacity: 0.6;
+                    transform: scale(1);
+                }
+                100% {
+                    opacity: 0;
+                    transform: scale(0);
                 }
             }
-        </select>
-        <button type="submit" class="btn btn-primary">Assign/Reassign</button>
-    </form>
+        `;
+        document.head.appendChild(style);
 
-    <div class="section-header">Set Priority</div>
-    <form asp-action="SetPriority" method="post" class="form-section">
-        <input type="hidden" name="ticketId" value="@Model.TicketID" />
-        <select name="priorityId">
-            @foreach (var p in ViewBag.Priorities)
-            {
-                <option value="@p.Value" selected="@(Model.PriorityID.ToString() == p.Value?.ToString())">@p.Text</option>
-            }
-        </select>
-        <button type="submit" class="btn btn-primary">Update Priority</button>
-    </form>
-
-    <div class="section-header">Close Ticket</div>
-    <form asp-action="CloseTicket" method="post" class="form-section">
-        <input type="hidden" name="ticketId" value="@Model.TicketID" />
-        <button type="submit" class="btn btn-danger">Close Ticket</button>
-    </form>
-
-    <a asp-controller="ManagerDashboard" asp-action="Index" class="btn btn-secondary">← Back to Dashboard</a>
-</div>
+        // Auto-hide success messages
+        setTimeout(function() {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                alert.style.opacity = '0';
+                alert.style.transform = 'translateY(-20px)';
+                setTimeout(() => alert.remove(), 300);
+            });
+        }, 5000);
+    </script>
+</body>
+</html>

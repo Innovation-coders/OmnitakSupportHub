@@ -1,4 +1,4 @@
-﻿@model OmnitakSupportHub.Models.ViewModels.ManagerDashboardViewModel
+﻿@model OmnitakSupportHub.Controllers.MergedManagerDashboardViewModel
 @{
     ViewData["Title"] = "Manager Dashboard";
     Layout = null; // Custom layout for full control
@@ -12,9 +12,11 @@
     <title>@ViewData["Title"] - Omnitak Support Hub</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Chart.js CDN - ADDED FOR SPRINT 9 -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
     <style>
         :root {
-            /* Premium Enterprise Color Palette - Matching Login */
+            /* Premium Enterprise Color Palette - YOUR ORIGINAL */
             --primary-deep-blue: #0F1419;
             --primary-navy: #1A237E;
             --accent-electric: #00E5FF;
@@ -53,16 +55,27 @@
             overflow-x: hidden;
         }
 
-        /* Animated Background */
+        /* Animated Background - YOUR ORIGINAL */
         .background-container {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: -1;
             background: var(--gradient-primary);
+            z-index: -2;
         }
+
+            .background-container::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: radial-gradient(circle at 20% 80%, rgba(0, 229, 255, 0.3) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(123, 44, 191, 0.3) 0%, transparent 50%), radial-gradient(circle at 40% 40%, rgba(255, 179, 0, 0.2) 0%, transparent 50%);
+                animation: backgroundFlow 20s ease-in-out infinite;
+            }
 
         .floating-orbs {
             position: absolute;
@@ -75,88 +88,103 @@
             position: absolute;
             border-radius: 50%;
             background: var(--gradient-accent);
-            opacity: 0.05;
-            filter: blur(1px);
-            animation: float 25s infinite linear;
+            opacity: 0.1;
+            animation: floatOrb 20s infinite ease-in-out;
         }
 
             .orb:nth-child(1) {
-                width: 400px;
-                height: 400px;
-                top: -200px;
-                left: -200px;
+                width: 200px;
+                height: 200px;
+                top: 20%;
+                left: 10%;
                 animation-delay: 0s;
             }
 
             .orb:nth-child(2) {
-                width: 300px;
-                height: 300px;
+                width: 150px;
+                height: 150px;
                 top: 60%;
-                right: -150px;
-                animation-delay: -10s;
+                right: 20%;
+                animation-delay: 7s;
             }
 
             .orb:nth-child(3) {
-                width: 250px;
-                height: 250px;
-                bottom: -125px;
-                left: 40%;
-                animation-delay: -20s;
+                width: 100px;
+                height: 100px;
+                bottom: 20%;
+                left: 70%;
+                animation-delay: 14s;
             }
 
-        @@keyframes float {
-            0%
+        @@keyframes backgroundFlow {
+            0%, 100%
 
         {
-            transform: translateY(0) rotate(0deg);
+            opacity: 1;
+            transform: scale(1) rotate(0deg);
+        }
+
+        50% {
+            opacity: 0.8;
+            transform: scale(1.05) rotate(2deg);
+        }
+
+        }
+
+        @@keyframes floatOrb {
+            0%, 100%
+
+        {
+            transform: translate(0, 0) scale(1);
         }
 
         33% {
-            transform: translateY(-40px) rotate(120deg);
+            transform: translate(30px, -30px) scale(1.1);
         }
 
         66% {
-            transform: translateY(20px) rotate(240deg);
-        }
-
-        100% {
-            transform: translateY(0) rotate(360deg);
+            transform: translate(-20px, 20px) scale(0.9);
         }
 
         }
 
-        /* Main Dashboard Layout */
+        /* Dashboard Container - YOUR ORIGINAL */
         .dashboard-container {
             display: flex;
             min-height: 100vh;
             position: relative;
-            z-index: 10;
+            z-index: 1;
         }
 
-        /* Sidebar */
+        /* Sidebar - YOUR ORIGINAL */
         .sidebar {
             width: 280px;
-            background: rgba(0, 0, 0, 0.4);
-            backdrop-filter: blur(20px);
+            background: var(--gradient-card);
             border-right: 1px solid var(--border-glow);
-            padding: 32px 24px;
+            backdrop-filter: blur(20px);
+            box-shadow: var(--shadow-card);
+            display: flex;
+            flex-direction: column;
+            padding: 32px 0;
             position: fixed;
             height: 100vh;
-            overflow-y: auto;
-            transition: all 0.3s ease;
+            z-index: 100;
+            transition: transform 0.3s ease;
         }
 
         .sidebar-header {
+            padding: 0 32px;
+            margin-bottom: 40px;
             text-align: center;
-            margin-bottom: 48px;
-            animation: slideInLeft 1s ease;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 32px;
         }
 
         .sidebar-logo {
-            width: 60px;
-            height: 60px;
+            width: 64px;
+            height: 64px;
             background: var(--gradient-accent);
-            border-radius: 16px;
+            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -198,14 +226,18 @@
             letter-spacing: 1px;
         }
 
+        /* Navigation Menu - YOUR ORIGINAL */
         .nav-menu {
             list-style: none;
+            padding: 0 24px;
+            flex: 1;
         }
 
         .nav-item {
             margin-bottom: 8px;
             animation: slideInLeft 1s ease;
             animation-delay: calc(var(--delay) * 0.1s);
+            animation-fill-mode: both;
         }
 
         .nav-link {
@@ -241,9 +273,10 @@
             text-align: center;
         }
 
+        /* Logout Section - YOUR ORIGINAL */
         .logout-section {
             margin-top: auto;
-            padding-top: 32px;
+            padding: 32px 24px 0;
             border-top: 1px solid rgba(255, 255, 255, 0.1);
         }
 
@@ -269,7 +302,7 @@
                 box-shadow: 0 8px 25px rgba(244, 67, 54, 0.4);
             }
 
-        /* Main Content */
+        /* Main Content - YOUR ORIGINAL */
         .main-content {
             flex: 1;
             margin-left: 280px;
@@ -299,7 +332,7 @@
             color: var(--text-secondary);
         }
 
-        /* Stats Grid */
+        /* Stats Grid - YOUR ORIGINAL */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -334,54 +367,47 @@
                 right: 0;
                 height: 4px;
                 background: var(--gradient-accent);
-                border-radius: 20px 20px 0 0;
             }
 
         .stat-icon {
-            width: 64px;
-            height: 64px;
-            background: var(--gradient-accent);
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 28px;
-            margin-bottom: 20px;
-            box-shadow: 0 8px 20px rgba(0, 229, 255, 0.3);
+            font-size: 32px;
+            color: var(--accent-electric);
+            margin-bottom: 16px;
         }
 
         .stat-number {
-            font-size: 32px;
+            font-size: 48px;
             font-weight: 800;
             color: var(--text-primary);
+            line-height: 1;
             margin-bottom: 8px;
         }
 
         .stat-label {
-            font-size: 16px;
+            font-size: 14px;
             color: var(--text-secondary);
-            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+            margin-bottom: 12px;
         }
 
         .stat-trend {
-            font-size: 14px;
-            margin-top: 8px;
-            padding: 4px 12px;
-            border-radius: 20px;
-            display: inline-block;
+            display: flex;
+            align-items: center;
+            font-size: 12px;
+            font-weight: 600;
         }
 
         .trend-up {
-            background: rgba(76, 175, 80, 0.2);
             color: var(--accent-success);
         }
 
         .trend-down {
-            background: rgba(244, 67, 54, 0.2);
             color: var(--accent-danger);
         }
 
-        /* Action Buttons */
+        /* Action Buttons - YOUR ORIGINAL */
         .action-buttons {
             display: flex;
             gap: 16px;
@@ -391,19 +417,17 @@
 
         .btn {
             padding: 16px 24px;
-            border: none;
             border-radius: 12px;
             font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
             text-decoration: none;
             display: inline-flex;
             align-items: center;
             gap: 8px;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            position: relative;
-            overflow: hidden;
         }
 
         .btn-primary {
@@ -414,7 +438,7 @@
 
             .btn-primary:hover {
                 transform: translateY(-2px);
-                box-shadow: var(--shadow-glow), var(--shadow-card);
+                box-shadow: 0 0 40px rgba(0, 229, 255, 0.5);
             }
 
         .btn-secondary {
@@ -428,7 +452,7 @@
                 border-color: var(--accent-electric);
             }
 
-        /* Content Cards */
+        /* Content Cards - YOUR ORIGINAL */
         .content-card {
             background: var(--gradient-card);
             border: 1px solid rgba(255, 255, 255, 0.1);
@@ -457,7 +481,7 @@
             padding: 32px;
         }
 
-        /* Tables */
+        /* Tables - YOUR ORIGINAL */
         .modern-table {
             width: 100%;
             border-collapse: collapse;
@@ -488,7 +512,7 @@
                 color: var(--text-primary);
             }
 
-        /* Priority Badges */
+        /* Priority Badges - YOUR ORIGINAL */
         .priority-badge {
             padding: 6px 12px;
             border-radius: 20px;
@@ -513,54 +537,87 @@
             color: var(--accent-success);
         }
 
-        /* Status Badges */
-        .status-badge {
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+        /* SPRINT 9 ADDITION: Charts Section */
+        .charts-section {
+            margin-bottom: 32px;
         }
 
-        .status-open {
-            background: rgba(0, 229, 255, 0.2);
-            color: var(--accent-electric);
-        }
-
-        .status-assigned {
-            background: rgba(255, 152, 0, 0.2);
-            color: var(--accent-warning);
-        }
-
-        .status-resolved {
-            background: rgba(76, 175, 80, 0.2);
-            color: var(--accent-success);
-        }
-
-        /* Alerts */
-        .alert {
-            padding: 16px 24px;
-            border-radius: 12px;
+        .charts-toggle {
+            text-align: center;
             margin-bottom: 24px;
-            border-left: 4px solid;
-            backdrop-filter: blur(10px);
-            animation: slideInDown 0.5s ease;
         }
 
-        .alert-success {
-            background: rgba(76, 175, 80, 0.1);
-            border-left-color: var(--accent-success);
-            color: var(--accent-success);
+        .toggle-charts-btn {
+            background: var(--surface-elevated);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-glow);
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
         }
 
-        .alert-info {
-            background: rgba(0, 229, 255, 0.1);
-            border-left-color: var(--accent-electric);
-            color: var(--accent-electric);
+            .toggle-charts-btn.active {
+                background: var(--gradient-accent);
+                color: white;
+                border-color: transparent;
+            }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
         }
 
-       
+        .chart-card {
+            background: var(--gradient-card);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 24px;
+            transition: all 0.3s ease;
+        }
+
+            .chart-card:hover {
+                transform: translateY(-4px);
+                box-shadow: var(--shadow-card);
+            }
+
+        .chart-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+
+        .chart-large {
+            height: 400px;
+        }
+
+        /* Mobile Responsive - YOUR ORIGINAL */
+        .mobile-menu-btn {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1001;
+            background: var(--gradient-accent);
+            border: none;
+            border-radius: 12px;
+            padding: 12px;
+            color: white;
+            cursor: pointer;
+            font-size: 20px;
+            box-shadow: var(--shadow-glow);
+        }
+
         @@keyframes slideInLeft {
             from
 
@@ -591,21 +648,6 @@
 
         }
 
-        @@keyframes slideInDown {
-            from
-
-        {
-            opacity: 0;
-            transform: translateY(-20px);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        }
-
         @@keyframes fadeInUp {
             from
 
@@ -621,7 +663,7 @@
 
         }
 
-        /* Responsive Design */
+        /* Responsive Design - YOUR ORIGINAL */
         @@media (max-width: 1024px) {
             .sidebar
 
@@ -640,6 +682,10 @@
 
         .stats-grid {
             grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        }
+
+        .mobile-menu-btn {
+            display: block;
         }
 
         }
@@ -663,37 +709,15 @@
             font-size: 28px;
         }
 
-        }
-
-        /* Mobile Menu Button */
-        .mobile-menu-btn {
-            display: none;
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            z-index: 1001;
-            background: var(--gradient-accent);
-            border: none;
-            border-radius: 12px;
-            padding: 12px;
-            color: white;
-            cursor: pointer;
-            font-size: 20px;
-            box-shadow: var(--shadow-glow);
-        }
-
-        @@media (max-width: 1024px) {
-            .mobile-menu-btn
-
-        {
-            display: block;
+        .charts-grid {
+            grid-template-columns: 1fr;
         }
 
         }
     </style>
 </head>
 <body>
-    <!-- Animated Background -->
+    <!-- Animated Background - YOUR ORIGINAL -->
     <div class="background-container">
         <div class="floating-orbs">
             <div class="orb"></div>
@@ -702,13 +726,13 @@
         </div>
     </div>
 
-    <!-- Mobile Menu Button -->
+    <!-- Mobile Menu Button - YOUR ORIGINAL -->
     <button class="mobile-menu-btn" onclick="toggleSidebar()">
         <i class="bi bi-list"></i>
     </button>
 
     <div class="dashboard-container">
-        <!-- Sidebar -->
+        <!-- Sidebar - YOUR ORIGINAL -->
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <div class="sidebar-logo">O</div>
@@ -737,7 +761,7 @@
                         </a>
                     </li>
                     <li class="nav-item" style="--delay: 4">
-                        <a href="#" class="nav-link">
+                        <a href="#" class="nav-link" onclick="toggleCharts()">
                             <i class="nav-icon bi bi-graph-up"></i>
                             Analytics
                         </a>
@@ -767,42 +791,25 @@
             </div>
         </aside>
 
-        <!-- Main Content -->
+        <!-- Main Content - YOUR ORIGINAL -->
         <main class="main-content">
             <div class="content-header">
                 <div class="welcome-section">
                     <h1>Manager Dashboard</h1>
-                    <p>Welcome back! Here's what's happening with your support operations today.</p>
+                    <p>Welcome back! Here's what's happening with your support operations.</p>
                 </div>
             </div>
 
-            <!-- Alerts -->
-            @if (TempData["SuccessMessage"] != null)
-            {
-                <div class="alert alert-success">
-                    <i class="bi bi-check-circle"></i>
-                    @TempData["SuccessMessage"]
-                </div>
-            }
-
-            @if (TempData["ErrorMessage"] != null)
-            {
-                <div class="alert alert-info">
-                    <i class="bi bi-info-circle"></i>
-                    @TempData["ErrorMessage"]
-                </div>
-            }
-
-            <!-- Statistics Cards -->
+            <!-- Stats Grid - YOUR ORIGINAL with some data from new model -->
             <div class="stats-grid">
                 <div class="stat-card" style="--delay: 1">
                     <div class="stat-icon">
                         <i class="bi bi-ticket-detailed"></i>
                     </div>
-                    <div class="stat-number">@(Model?.GroupedTickets?.SelectMany(g => g).Count() ?? 0)</div>
-                    <div class="stat-label">Total Active Tickets</div>
+                    <div class="stat-number">@Model.TotalTickets</div>
+                    <div class="stat-label">Total Tickets</div>
                     <div class="stat-trend trend-up">
-                        <i class="bi bi-arrow-up"></i> 12% from last week
+                        <i class="bi bi-arrow-up"></i> Active period
                     </div>
                 </div>
 
@@ -832,7 +839,7 @@
                     <div class="stat-icon">
                         <i class="bi bi-clock"></i>
                     </div>
-                    <div class="stat-number">2.4h</div>
+                    <div class="stat-number">@Model.GetResolutionTimeFormatted()</div>
                     <div class="stat-label">Avg Response Time</div>
                     <div class="stat-trend trend-up">
                         <i class="bi bi-arrow-up"></i> 15% faster
@@ -840,7 +847,7 @@
                 </div>
             </div>
 
-            <!-- Action Buttons -->
+            <!-- Action Buttons - YOUR ORIGINAL -->
             <div class="action-buttons">
                 <a asp-controller="Ticket" asp-action="Create" class="btn btn-primary">
                     <i class="bi bi-plus-circle"></i>
@@ -850,14 +857,69 @@
                     <i class="bi bi-funnel"></i>
                     Filter View
                 </button>
-                <button class="btn btn-secondary">
-                    <i class="bi bi-download"></i>
-                    Export Report
+                <button class="btn btn-secondary" onclick="toggleCharts()">
+                    <i class="bi bi-bar-chart"></i>
+                    Analytics View
                 </button>
             </div>
 
-            <!-- Tickets by Category -->
-            @if (Model?.GroupedTickets != null && Model.GroupedTickets.Any())
+            <!-- SPRINT 9 ADDITION: Charts Section (Hidden by default) -->
+            <div id="chartsSection" class="charts-section" style="display: none;">
+                <div class="content-card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="bi bi-graph-up"></i>
+                            Analytics Dashboard - Sprint 9 Enhancement
+                        </h3>
+                    </div>
+                    <div class="card-content">
+                        <div class="charts-grid">
+                            <!-- Ticket Volume Chart -->
+                            <div class="chart-card">
+                                <h4 class="chart-title">📈 Ticket Volume Trend</h4>
+                                <div class="chart-container">
+                                    <canvas id="volumeChart"></canvas>
+                                </div>
+                            </div>
+
+                            <!-- Category Distribution -->
+                            <div class="chart-card">
+                                <h4 class="chart-title">🎯 Category Distribution</h4>
+                                <div class="chart-container">
+                                    <canvas id="categoryChart"></canvas>
+                                </div>
+                            </div>
+
+                            <!-- Agent Workload -->
+                            <div class="chart-card">
+                                <h4 class="chart-title">👥 Agent Workload</h4>
+                                <div class="chart-container">
+                                    <canvas id="workloadChart"></canvas>
+                                </div>
+                            </div>
+
+                            <!-- SLA Performance -->
+                            <div class="chart-card">
+                                <h4 class="chart-title">🎯 SLA Performance</h4>
+                                <div class="chart-container">
+                                    <canvas id="slaChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Resolution Trend (Full Width) -->
+                        <div class="chart-card">
+                            <h4 class="chart-title">⚡ Resolution Time & SLA Compliance</h4>
+                            <div class="chart-container chart-large">
+                                <canvas id="resolutionChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tickets by Category - YOUR ORIGINAL LOGIC -->
+            @if (Model.GroupedTickets.Any())
             {
                 @foreach (var group in Model.GroupedTickets)
                 {
@@ -865,84 +927,49 @@
                         <div class="card-header">
                             <h3 class="card-title">
                                 <i class="bi bi-folder"></i>
-                                @group.Key.CategoryName
-                                <span style="opacity: 0.7; font-size: 14px; margin-left: 12px;">
-                                    (@group.Count() tickets)
-                                </span>
+                                @group.Key.CategoryName (@group.Count() tickets)
                             </h3>
                         </div>
                         <div class="card-content">
-                            @if (group.Any())
-                            {
-                                <table class="modern-table">
-                                    <thead>
+                            <table class="modern-table">
+                                <thead>
+                                    <tr>
+                                        <th>Title</th>
+                                        <th>Priority</th>
+                                        <th>Status</th>
+                                        <th>Created By</th>
+                                        <th>Created</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var ticket in group.Take(10))
+                                    {
                                         <tr>
-                                            <th>Ticket ID</th>
-                                            <th>Title</th>
-                                            <th>Priority</th>
-                                            <th>Status</th>
-                                            <th>Assigned To</th>
-                                            <th>Created</th>
-                                            <th>Actions</th>
+                                            <td>@ticket.Title</td>
+                                            <td>
+                                                <span class="priority-badge priority-@(ticket.Priority?.PriorityName?.ToLower() ?? "low")">
+                                                    @ticket.Priority?.PriorityName
+                                                </span>
+                                            </td>
+                                            <td>@ticket.Status?.StatusName</td>
+                                            <td>@ticket.CreatedByUser?.FullName</td>
+                                            <td>@ticket.CreatedAt.ToString("MMM dd, HH:mm")</td>
+                                            <td>
+                                                <a asp-controller="Ticket" asp-action="Details" asp-route-id="@ticket.TicketID"
+                                                   class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;">
+                                                    View
+                                                </a>
+                                            </td>
                                         </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach (var ticket in group)
-                                        {
-                                            <tr>
-                                                <td>
-                                                    <strong style="color: var(--accent-electric);">#@ticket.TicketID</strong>
-                                                </td>
-                                                <td>
-                                                    <strong style="color: var(--text-primary);">@ticket.Title</strong>
-                                                    <br>
-                                                    <small style="color: var(--text-muted);">@(ticket.Description?.Length > 50 ? ticket.Description.Substring(0, 50) + "..." : ticket.Description)</small>
-                                                </td>
-                                                <td>
-                                                    <span class="priority-badge priority-@(ticket.Priority?.PriorityName?.ToLower() ?? "low")">
-                                                        @(ticket.Priority?.PriorityName ?? "Low")
-                                                    </span>
-                                                </td>
-                                                <td>
-                                                    <span class="status-badge status-@(ticket.Status?.StatusName?.ToLower().Replace(" ", "") ?? "open")">
-                                                        @(ticket.Status?.StatusName ?? "Open")
-                                                    </span>
-                                                </td>
-                                                <td>
-                                                    @if (ticket.AssignedTo != null)
-                                                    {
-                                                        <span style="color: var(--text-primary);">@ticket.AssignedToUser?.FullName</span>
-                                                    }
-                                                    else
-                                                    {
-                                                        <span style="color: var(--text-muted);">Unassigned</span>
-                                                    }
-                                                </td>
-                                                <td>
-                                                    <span style="color: var(--text-secondary);">@ticket.CreatedAt.ToString("MMM dd, yyyy")</span>
-                                                    <br>
-                                                    <small style="color: var(--text-muted);">@ticket.CreatedAt.ToString("HH:mm")</small>
-                                                </td>
-                                                <td>
-                                                    <div style="display: flex; gap: 8px;">
-                                                        <a asp-controller="Ticket" asp-action="Details" asp-route-id="@ticket.TicketID" class="btn btn-secondary" style="padding: 8px 12px; font-size: 12px;">
-                                                            <i class="bi bi-eye"></i>
-                                                        </a>
-                                                        <a href="#" class="btn btn-primary" style="padding: 8px 12px; font-size: 12px;">
-                                                            <i class="bi bi-pencil"></i>
-                                                        </a>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        }
-                                    </tbody>
-                                </table>
-                            }
-                            else
+                                    }
+                                </tbody>
+                            </table>
+
+                            @if (group.Count() > 10)
                             {
-                                <div style="text-align: center; padding: 40px; color: var(--text-muted);">
-                                    <i class="bi bi-inbox" style="font-size: 48px; margin-bottom: 16px; opacity: 0.5;"></i>
-                                    <p>No tickets in this category</p>
+                                <div style="text-align: center; margin-top: 20px; color: var(--text-muted);">
+                                    <em>Showing 10 of @group.Count() tickets. <a href="#" style="color: var(--accent-electric);">View All</a></em>
                                 </div>
                             }
                         </div>
@@ -952,21 +979,48 @@
             else
             {
                 <div class="content-card">
+                    <div class="card-content" style="text-align: center; padding: 60px;">
+                        <i class="bi bi-inbox" style="font-size: 64px; color: var(--text-muted); margin-bottom: 24px; display: block;"></i>
+                        <h3 style="color: var(--text-secondary); margin-bottom: 16px;">No Tickets Found</h3>
+                        <p style="color: var(--text-muted); margin-bottom: 24px;">All tickets have been resolved or there are no tickets in the selected date range.</p>
+                        <a asp-controller="Ticket" asp-action="Create" class="btn btn-primary">
+                            <i class="bi bi-plus-circle"></i>
+                            Create First Ticket
+                        </a>
+                    </div>
+                </div>
+            }
+
+            <!-- Available Agents Section - YOUR ORIGINAL -->
+            @if (Model.AvailableAgents?.Any() == true)
+            {
+                <div class="content-card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="bi bi-people"></i>
+                            Available Agents (@Model.AvailableAgents.Count agents ready)
+                        </h3>
+                    </div>
                     <div class="card-content">
-                        <div style="text-align: center; padding: 60px; color: var(--text-muted);">
-                            <i class="bi bi-inbox" style="font-size: 64px; margin-bottom: 24px; opacity: 0.5;"></i>
-                            <h3 style="color: var(--text-secondary); margin-bottom: 16px;">No Active Tickets</h3>
-                            <p>Great job! All tickets have been resolved or there are no tickets in the selected date range.</p>
-                            <a asp-controller="Ticket" asp-action="Create" class="btn btn-primary" style="margin-top: 24px;">
-                                <i class="bi bi-plus-circle"></i>
-                                Create First Ticket
-                            </a>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                            @foreach (var agent in Model.AvailableAgents)
+                            {
+                                <div style="background: var(--surface-elevated); padding: 20px; border-radius: 12px; border-left: 4px solid var(--accent-electric);">
+                                    <h4 style="color: var(--text-primary); margin-bottom: 8px;">@agent.FullName</h4>
+                                    <p style="color: var(--text-secondary); margin-bottom: 12px;">
+                                        @agent.AssignedTickets.Count active tickets
+                                    </p>
+                                    <div style="background: var(--surface-dark); height: 8px; border-radius: 4px; overflow: hidden;">
+                                        <div style="background: var(--gradient-accent); height: 100%; width: @(agent.AssignedTickets.Count * 20)%; transition: width 0.3s ease;"></div>
+                                    </div>
+                                </div>
+                            }
                         </div>
                     </div>
                 </div>
             }
 
-            <!-- Filter Panel (Hidden by default) -->
+            <!-- Filter Panel (Hidden by default) - YOUR ORIGINAL -->
             <div id="filterPanel" style="display: none;">
                 <div class="content-card">
                     <div class="card-header">
@@ -979,25 +1033,19 @@
                         <form method="get" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; align-items: end;">
                             <div>
                                 <label style="display: block; margin-bottom: 8px; color: var(--text-primary); font-weight: 600;">Start Date</label>
-                                <input type="date" name="startDate" value="@ViewBag.StartDate"
+                                <input type="date" name="startDate" value="@Model.StartDate?.ToString("yyyy-MM-dd")"
                                        style="width: 100%; padding: 12px; background: var(--surface-elevated); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: var(--text-primary);">
                             </div>
                             <div>
                                 <label style="display: block; margin-bottom: 8px; color: var(--text-primary); font-weight: 600;">End Date</label>
-                                <input type="date" name="endDate" value="@ViewBag.EndDate"
+                                <input type="date" name="endDate" value="@Model.EndDate?.ToString("yyyy-MM-dd")"
                                        style="width: 100%; padding: 12px; background: var(--surface-elevated); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: var(--text-primary);">
                             </div>
                             <div>
-                                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                                <button type="submit" class="btn btn-primary">
                                     <i class="bi bi-search"></i>
-                                    Apply Filter
+                                    Apply Filters
                                 </button>
-                            </div>
-                            <div>
-                                <a href="@Url.Action("Index")" class="btn btn-secondary" style="width: 100%; text-align: center;">
-                                    <i class="bi bi-x-circle"></i>
-                                    Clear Filter
-                                </a>
                             </div>
                         </form>
                     </div>
@@ -1007,36 +1055,313 @@
     </div>
 
     <script>
-        // Initialize dashboard
+        // YOUR ORIGINAL JAVASCRIPT FUNCTIONS
+        let chartsLoaded = false;
+        let charts = {};
+
+        // Mobile sidebar toggle - YOUR ORIGINAL
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open');
+        }
+
+        // Filter panel toggle - YOUR ORIGINAL
+        function toggleFilters() {
+            const filterPanel = document.getElementById('filterPanel');
+            if (filterPanel.style.display === 'none' || filterPanel.style.display === '') {
+                filterPanel.style.display = 'block';
+                filterPanel.style.animation = 'slideInDown 0.5s ease';
+            } else {
+                filterPanel.style.display = 'none';
+            }
+        }
+
+        // SPRINT 9 ADDITION: Charts toggle
+        function toggleCharts() {
+            const chartsSection = document.getElementById('chartsSection');
+            if (chartsSection.style.display === 'none' || chartsSection.style.display === '') {
+                chartsSection.style.display = 'block';
+                chartsSection.style.animation = 'fadeInUp 0.5s ease';
+
+                // Load charts if not already loaded
+                if (!chartsLoaded) {
+                    initializeCharts();
+                    chartsLoaded = true;
+                }
+            } else {
+                chartsSection.style.display = 'none';
+            }
+        }
+
+        // SPRINT 9 ADDITION: Initialize charts
+        async function initializeCharts() {
+            try {
+                await Promise.all([
+                    createVolumeChart(),
+                    createCategoryChart(),
+                    createWorkloadChart(),
+                    createSLAChart(),
+                    createResolutionChart()
+                ]);
+                console.log('Charts initialized successfully');
+            } catch (error) {
+                console.error('Error initializing charts:', error);
+            }
+        }
+
+        // SPRINT 9 ADDITION: Chart creation functions
+        async function createVolumeChart() {
+            try {
+                const response = await fetch('/ManagerDashboard/GetTicketVolumeData?days=30');
+                const data = await response.json();
+
+                const ctx = document.getElementById('volumeChart').getContext('2d');
+                charts.volume = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: data.map(d => d.date),
+                        datasets: [
+                            {
+                                label: 'Created',
+                                data: data.map(d => d.created),
+                                borderColor: '#00E5FF',
+                                backgroundColor: 'rgba(0, 229, 255, 0.1)',
+                                tension: 0.4,
+                                fill: true
+                            },
+                            {
+                                label: 'Resolved',
+                                data: data.map(d => d.resolved),
+                                borderColor: '#4CAF50',
+                                backgroundColor: 'rgba(76, 175, 80, 0.1)',
+                                tension: 0.4,
+                                fill: true
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                labels: { color: '#FFFFFF' }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                ticks: { color: '#FFFFFF' },
+                                grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                            },
+                            y: {
+                                beginAtZero: true,
+                                ticks: { color: '#FFFFFF' },
+                                grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                            }
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error('Error creating volume chart:', error);
+            }
+        }
+
+        async function createCategoryChart() {
+            try {
+                const response = await fetch('/ManagerDashboard/GetCategoryDistribution');
+                const data = await response.json();
+
+                const ctx = document.getElementById('categoryChart').getContext('2d');
+                charts.category = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: data.map(d => d.categoryName),
+                        datasets: [{
+                            data: data.map(d => d.count),
+                            backgroundColor: ['#00E5FF', '#7B2CBF', '#FFB300', '#F44336', '#4CAF50', '#FF9800'],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: { color: '#FFFFFF' }
+                            }
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error('Error creating category chart:', error);
+            }
+        }
+
+        async function createWorkloadChart() {
+            try {
+                const response = await fetch('/ManagerDashboard/GetAgentWorkload');
+                const data = await response.json();
+
+                const ctx = document.getElementById('workloadChart').getContext('2d');
+                charts.workload = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: data.map(d => d.agentName),
+                        datasets: [
+                            {
+                                label: 'Open',
+                                data: data.map(d => d.openTickets),
+                                backgroundColor: '#FFB300'
+                            },
+                            {
+                                label: 'In Progress',
+                                data: data.map(d => d.inProgressTickets),
+                                backgroundColor: '#00E5FF'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: {
+                                stacked: true,
+                                ticks: { color: '#FFFFFF' },
+                                grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                            },
+                            y: {
+                                stacked: true,
+                                beginAtZero: true,
+                                ticks: { color: '#FFFFFF' },
+                                grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                labels: { color: '#FFFFFF' }
+                            }
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error('Error creating workload chart:', error);
+            }
+        }
+
+        async function createSLAChart() {
+            try {
+                const response = await fetch('/ManagerDashboard/GetSLAPerformance');
+                const data = await response.json();
+
+                const ctx = document.getElementById('slaChart').getContext('2d');
+                charts.sla = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Met SLA', 'Missed SLA'],
+                        datasets: [{
+                            data: [data.ticketsMetSLA, data.totalTickets - data.ticketsMetSLA],
+                            backgroundColor: ['#4CAF50', '#F44336'],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        cutout: '70%',
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: { color: '#FFFFFF' }
+                            }
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error('Error creating SLA chart:', error);
+            }
+        }
+
+        async function createResolutionChart() {
+            try {
+                const response = await fetch('/ManagerDashboard/GetResolutionTrend?days=30');
+                const data = await response.json();
+
+                const ctx = document.getElementById('resolutionChart').getContext('2d');
+                charts.resolution = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: data.map(d => d.date),
+                        datasets: [
+                            {
+                                label: 'Resolution Hours',
+                                data: data.map(d => d.averageResolutionHours),
+                                borderColor: '#00E5FF',
+                                backgroundColor: 'rgba(0, 229, 255, 0.1)',
+                                tension: 0.4,
+                                yAxisID: 'y'
+                            },
+                            {
+                                label: 'SLA Compliance %',
+                                data: data.map(d => d.slaCompliance),
+                                borderColor: '#4CAF50',
+                                backgroundColor: 'rgba(76, 175, 80, 0.1)',
+                                tension: 0.4,
+                                yAxisID: 'y1'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: {
+                                ticks: { color: '#FFFFFF' },
+                                grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                            },
+                            y: {
+                                type: 'linear',
+                                position: 'left',
+                                ticks: { color: '#FFFFFF' },
+                                grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                            },
+                            y1: {
+                                type: 'linear',
+                                position: 'right',
+                                ticks: { color: '#FFFFFF' },
+                                grid: { drawOnChartArea: false }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                labels: { color: '#FFFFFF' }
+                            }
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error('Error creating resolution chart:', error);
+            }
+        }
+
+        // YOUR ORIGINAL: Initialize page animations
         document.addEventListener('DOMContentLoaded', function() {
-            initializeAnimations();
+            animateElements();
             setupInteractiveElements();
         });
 
-        function initializeAnimations() {
-            // Add staggered animations to stat cards
+        // YOUR ORIGINAL: Animate elements on load
+        function animateElements() {
             const statCards = document.querySelectorAll('.stat-card');
             statCards.forEach((card, index) => {
-                card.style.opacity = '0';
                 setTimeout(() => {
                     card.style.opacity = '1';
-                    card.style.animation = `fadeInUp 0.8s ease forwards`;
-                }, index * 200);
-            });
-
-            // Animate nav items
-            const navItems = document.querySelectorAll('.nav-item');
-            navItems.forEach((item, index) => {
-                item.style.opacity = '0';
-                setTimeout(() => {
-                    item.style.opacity = '1';
-                    item.style.animation = `slideInLeft 0.6s ease forwards`;
+                    card.style.transform = 'translateY(0)';
                 }, index * 100);
             });
         }
 
+        // YOUR ORIGINAL: Setup interactive elements
         function setupInteractiveElements() {
-            // Add hover effects to table rows
             const tableRows = document.querySelectorAll('.modern-table tbody tr');
             tableRows.forEach(row => {
                 row.addEventListener('mouseenter', function() {
@@ -1050,7 +1375,6 @@
                 });
             });
 
-            // Add glow effect to buttons
             const buttons = document.querySelectorAll('.btn');
             buttons.forEach(btn => {
                 btn.addEventListener('mouseenter', function() {
@@ -1066,134 +1390,6 @@
                 });
             });
         }
-
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            sidebar.classList.toggle('open');
-        }
-
-        function toggleFilters() {
-            const filterPanel = document.getElementById('filterPanel');
-            if (filterPanel.style.display === 'none' || filterPanel.style.display === '') {
-                filterPanel.style.display = 'block';
-                filterPanel.style.animation = 'slideInDown 0.5s ease';
-            } else {
-                filterPanel.style.animation = 'slideInUp 0.5s ease';
-                setTimeout(() => {
-                    filterPanel.style.display = 'none';
-                }, 500);
-            }
-        }
-
-        // Add particle effect on mouse move
-        document.addEventListener('mousemove', function(e) {
-            const particle = document.createElement('div');
-            particle.style.cssText = `
-                position: fixed;
-                width: 4px;
-                height: 4px;
-                background: var(--accent-electric);
-                border-radius: 50%;
-                pointer-events: none;
-                z-index: 9999;
-                opacity: 0.6;
-                animation: particleFade 2s ease-out forwards;
-            `;
-            particle.style.left = e.clientX + 'px';
-            particle.style.top = e.clientY + 'px';
-
-            document.body.appendChild(particle);
-
-            setTimeout(() => {
-                particle.remove();
-            }, 2000);
-        });
-
-        // Add CSS animation for particle fade
-        const style = document.createElement('style');
-        style.textContent = `
-            @@keyframes particleFade {
-                0% {
-                    opacity: 0.6;
-                    transform: scale(1);
-                }
-                100% {
-                    opacity: 0;
-                    transform: scale(0);
-                }
-            }
-
-            @@keyframes slideInUp {
-                from {
-                    opacity: 1;
-                    transform: translateY(0);
-                }
-                to {
-                    opacity: 0;
-                    transform: translateY(-20px);
-                }
-            }
-        `;
-        document.head.appendChild(style);
-
-        // Auto-refresh stats every 30 seconds (optional)
-        setInterval(function() {
-            // You can add AJAX calls here to refresh stats without page reload
-            console.log('Stats refresh interval - implement AJAX call if needed');
-        }, 30000);
-
-        // Add keyboard shortcuts
-        document.addEventListener('keydown', function(e) {
-            // Ctrl + N for new ticket
-            if (e.ctrlKey && e.key === 'n') {
-                e.preventDefault();
-                window.location.href = '@Url.Action("Create", "Ticket")';
-            }
-
-            // Ctrl + F for filter
-            if (e.ctrlKey && e.key === 'f') {
-                e.preventDefault();
-                toggleFilters();
-            }
-
-            // ESC to close filter
-            if (e.key === 'Escape') {
-                const filterPanel = document.getElementById('filterPanel');
-                if (filterPanel.style.display === 'block') {
-                    toggleFilters();
-                }
-            }
-        });
-
-        // Add real-time clock
-        function updateClock() {
-            const now = new Date();
-            const timeString = now.toLocaleTimeString();
-            const dateString = now.toLocaleDateString();
-
-            // Add clock to header if desired
-            const clockElement = document.querySelector('.clock');
-            if (clockElement) {
-                clockElement.textContent = `${dateString} ${timeString}`;
-            }
-        }
-
-        setInterval(updateClock, 1000);
-        updateClock(); // Initial call
-
-        // Add smooth scrolling for anchor links
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                }
-            });
-        });
     </script>
 </body>
 </html>

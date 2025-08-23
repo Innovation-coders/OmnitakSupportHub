@@ -12,7 +12,7 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
+builder.Services.AddScoped<IReportingService, ReportingService>();
 builder.Services.AddControllersWithViews();
 builder.Services.AddControllers();
 builder.Services.AddAuthentication(options =>

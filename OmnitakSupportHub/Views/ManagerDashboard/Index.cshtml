@@ -12,11 +12,11 @@
     <title>@ViewData["Title"] - Omnitak Support Hub</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
-    <!-- Chart.js CDN - ADDED FOR SPRINT 9 -->
+    <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
     <style>
         :root {
-            /* Premium Enterprise Color Palette - YOUR ORIGINAL */
+            /* Premium Enterprise Color Palette */
             --primary-deep-blue: #0F1419;
             --primary-navy: #1A237E;
             --accent-electric: #00E5FF;
@@ -55,7 +55,7 @@
             overflow-x: hidden;
         }
 
-        /* Animated Background - YOUR ORIGINAL */
+        /* Animated Background */
         .background-container {
             position: fixed;
             top: 0;
@@ -226,7 +226,7 @@
             letter-spacing: 1px;
         }
 
-        /* Navigation Menu - YOUR ORIGINAL */
+        /* Navigation Menu  */
         .nav-menu {
             list-style: none;
             padding: 0 24px;
@@ -273,7 +273,7 @@
             text-align: center;
         }
 
-        /* Logout Section - YOUR ORIGINAL */
+        /* Logout Section */
         .logout-section {
             margin-top: auto;
             padding: 32px 24px 0;
@@ -302,7 +302,7 @@
                 box-shadow: 0 8px 25px rgba(244, 67, 54, 0.4);
             }
 
-        /* Main Content - YOUR ORIGINAL */
+        /* Main Content */
         .main-content {
             flex: 1;
             margin-left: 280px;
@@ -332,7 +332,7 @@
             color: var(--text-secondary);
         }
 
-        /* Stats Grid - YOUR ORIGINAL */
+        /* Stats Grid */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -407,7 +407,7 @@
             color: var(--accent-danger);
         }
 
-        /* Action Buttons - YOUR ORIGINAL */
+        /* Action Buttons */
         .action-buttons {
             display: flex;
             gap: 16px;
@@ -452,7 +452,7 @@
                 border-color: var(--accent-electric);
             }
 
-        /* Content Cards - YOUR ORIGINAL */
+        /* Content Cards */
         .content-card {
             background: var(--gradient-card);
             border: 1px solid rgba(255, 255, 255, 0.1);
@@ -481,7 +481,7 @@
             padding: 32px;
         }
 
-        /* Tables - YOUR ORIGINAL */
+        /* Tables */
         .modern-table {
             width: 100%;
             border-collapse: collapse;
@@ -512,7 +512,7 @@
                 color: var(--text-primary);
             }
 
-        /* Priority Badges - YOUR ORIGINAL */
+        /* Priority Badges */
         .priority-badge {
             padding: 6px 12px;
             border-radius: 20px;
@@ -537,7 +537,7 @@
             color: var(--accent-success);
         }
 
-        /* SPRINT 9 ADDITION: Charts Section */
+        /* Charts Section */
         .charts-section {
             margin-bottom: 32px;
         }
@@ -601,7 +601,7 @@
             height: 400px;
         }
 
-        /* Mobile Responsive - YOUR ORIGINAL */
+        /* Mobile Responsive */
         .mobile-menu-btn {
             display: none;
             position: fixed;
@@ -663,7 +663,7 @@
 
         }
 
-        /* Responsive Design - YOUR ORIGINAL */
+        /* Responsive Design */
         @@media (max-width: 1024px) {
             .sidebar
 
@@ -717,7 +717,7 @@
     </style>
 </head>
 <body>
-    <!-- Animated Background - YOUR ORIGINAL -->
+    <!-- Animated Background -->
     <div class="background-container">
         <div class="floating-orbs">
             <div class="orb"></div>
@@ -726,13 +726,13 @@
         </div>
     </div>
 
-    <!-- Mobile Menu Button - YOUR ORIGINAL -->
+    <!-- Mobile Menu Button -->
     <button class="mobile-menu-btn" onclick="toggleSidebar()">
         <i class="bi bi-list"></i>
     </button>
 
     <div class="dashboard-container">
-        <!-- Sidebar - YOUR ORIGINAL -->
+        <!-- Sidebar -->
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <div class="sidebar-logo">O</div>
@@ -791,7 +791,7 @@
             </div>
         </aside>
 
-        <!-- Main Content - YOUR ORIGINAL -->
+        <!-- Main Content -->
         <main class="main-content">
             <div class="content-header">
                 <div class="welcome-section">
@@ -800,7 +800,7 @@
                 </div>
             </div>
 
-            <!-- Stats Grid - YOUR ORIGINAL with some data from new model -->
+            <!-- Stats Grid -->
             <div class="stats-grid">
                 <div class="stat-card" style="--delay: 1">
                     <div class="stat-icon">
@@ -847,7 +847,7 @@
                 </div>
             </div>
 
-            <!-- Action Buttons - YOUR ORIGINAL -->
+            <!-- Action Buttons  -->
             <div class="action-buttons">
                 <a asp-controller="Ticket" asp-action="Create" class="btn btn-primary">
                     <i class="bi bi-plus-circle"></i>
@@ -863,13 +863,13 @@
                 </button>
             </div>
 
-            <!-- SPRINT 9 ADDITION: Charts Section (Hidden by default) -->
+            <!-- Charts Section (Hidden by default) -->
             <div id="chartsSection" class="charts-section" style="display: none;">
                 <div class="content-card">
                     <div class="card-header">
                         <h3 class="card-title">
                             <i class="bi bi-graph-up"></i>
-                            Analytics Dashboard - Sprint 9 Enhancement
+                            Analytics Dashboard
                         </h3>
                     </div>
                     <div class="card-content">
@@ -918,7 +918,7 @@
                 </div>
             </div>
 
-            <!-- Tickets by Category - YOUR ORIGINAL LOGIC -->
+            <!-- Tickets by Category -->
             @if (Model.GroupedTickets.Any())
             {
                 @foreach (var group in Model.GroupedTickets)

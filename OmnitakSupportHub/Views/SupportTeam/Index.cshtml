@@ -1,0 +1,22 @@
+﻿@model IEnumerable<OmnitakSupportHub.Models.SupportTeam>
+<h2>Support Teams</h2>
+<a asp-action="Create" class="btn btn-primary mb-3">Create New Team</a>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Specialization</th>
+            <th>Members</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var team in Model)
+        {
+            <tr>
+                <td>@team.TeamName</td>
+                <td>@team.Specialization</td>
+                <td>@team.Users.Count()</td>
+            </tr>
+        }
+    </tbody>
+</table>

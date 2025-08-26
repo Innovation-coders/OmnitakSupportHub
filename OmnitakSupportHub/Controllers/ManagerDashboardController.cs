@@ -313,26 +313,28 @@ namespace OmnitakSupportHub.Controllers
             }
         }
 
-        // Unassigned Tickets Partial View
         [HttpGet]
-        public async Task<IActionResult> UnassignedTickets()
+        public async Task<IActionResult> AuditTrail(int? ticketId, int? agentId, DateTime? startDate, DateTime? endDate)
         {
-            var unassignedTickets = await _context.Tickets
-                .Include(t => t.Category)
-                .Include(t => t.Priority)
-                .Include(t => t.Status)
-                .Include(t => t.CreatedByUser)
-                .Where(t => t.AssignedTo == null && t.Status.StatusName != "Closed" && t.Status.StatusName != "Resolved")
-                .ToListAsync();
+            var query = _context.AuditLogs
+                .Include(a => a.User)
+                .AsQueryable();
 
-            var agents = await _context.Users
-                .Where(u => u.IsActive && u.Role.RoleName == "Support Agent")
-                .ToListAsync();
+            if (ticketId.HasValue)
+                query = query.Where(a => a.TargetType == "Ticket" && a.TargetID == ticketId.Value);
 
-            ViewBag.Agents = agents;
-            return PartialView("_UnassignedTickets", unassignedTickets);
+            if (agentId.HasValue)
+                query = query.Where(a => a.UserID == agentId.Value);
+
+            if (startDate.HasValue)
+                query = query.Where(a => a.PerformedAt >= startDate.Value);
+
+            if (endDate.HasValue)
+                query = query.Where(a => a.PerformedAt <= endDate.Value);
+
+            var logs = await query.OrderByDescending(a => a.PerformedAt).Take(100).ToListAsync();
+            return View("AuditTrail", logs);
         }
-
     }
 
     

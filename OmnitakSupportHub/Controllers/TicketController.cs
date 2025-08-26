@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using OmnitakSupportHub.Models;
 using OmnitakSupportHub.Models.ViewModels;
+using OmnitakSupportHub.Services;
+using System.Security.Claims;
 
 namespace OmnitakSupportHub.Controllers
 {
@@ -11,10 +13,12 @@ namespace OmnitakSupportHub.Controllers
     public class TicketController : Controller
     {
         private readonly OmnitakContext _context;
+        private readonly IAuthService _authService;
 
-        public TicketController(OmnitakContext context)
+        public TicketController(OmnitakContext context, IAuthService authService)
         {
             _context = context;
+            _authService = authService;
         }
 
         // GET: /Ticket
@@ -455,24 +459,26 @@ namespace OmnitakSupportHub.Controllers
         [Authorize(Roles = "Support Manager")]
         public async Task<IActionResult> AssignAgent(int ticketId, int agentId)
         {
-            var ticket = await _context.Tickets
-                .Include(t => t.Status)
-                .FirstOrDefaultAsync(t => t.TicketID == ticketId);
-
+            var ticket = await _context.Tickets.Include(t => t.Status).FirstOrDefaultAsync(t => t.TicketID == ticketId);
             if (ticket == null) return NotFound();
 
-            if (agentId == 0)
-            {
-                ticket.AssignedTo = null;
-                TempData["SuccessMessage"] = "Ticket unassigned successfully!";
-            }
-            else
-            {
-                ticket.AssignedTo = agentId;
-                TempData["SuccessMessage"] = "Ticket assigned/reassigned successfully!";
-            }
+            int managerId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+            string details = agentId == 0
+                ? $"Ticket {ticketId} unassigned by manager {managerId}"
+                : $"Ticket {ticketId} assigned to agent {agentId} by manager {managerId}";
 
+            ticket.AssignedTo = agentId == 0 ? null : agentId;
             await _context.SaveChangesAsync();
+
+            await _authService.CreateAuditLogAsync(
+                managerId,
+                AuditActions.TicketAssigned,
+                "Ticket",
+                ticketId,
+                details
+            );
+
+            TempData["SuccessMessage"] = agentId == 0 ? "Ticket unassigned successfully!" : "Ticket assigned/reassigned successfully!";
             return RedirectToAction(nameof(Details), new { id = ticketId });
         }
 
@@ -530,6 +536,36 @@ namespace OmnitakSupportHub.Controllers
             await _context.SaveChangesAsync();
 
             TempData["SuccessMessage"] = "Ticket closed!";
+            return RedirectToAction(nameof(Details), new { id = ticketId });
+        }
+
+        // Escalate action
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Support Manager")]
+        public async Task<IActionResult> Escalate(int ticketId, string reason)
+        {
+            var ticket = await _context.Tickets.Include(t => t.Status).FirstOrDefaultAsync(t => t.TicketID == ticketId);
+            if (ticket == null) return NotFound();
+
+            int managerId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+
+            // Optionally update status, priority, or escalate flag
+            ticket.StatusID = await _context.Statuses.Where(s => s.StatusName == "Escalated").Select(s => s.StatusID).FirstOrDefaultAsync();
+            await _context.SaveChangesAsync();
+
+            await _authService.CreateAuditLogAsync(
+                managerId,
+                AuditActions.TicketEscalated,
+                "Ticket",
+                ticketId,
+                $"Escalated by manager {managerId}. Reason: {reason}"
+            );
+
+            // Notify agent/team lead (pseudo-code)
+            // await _notificationService.NotifyEscalation(ticket.AssignedTo, ticketId, reason);
+
+            TempData["SuccessMessage"] = "Ticket escalated!";
             return RedirectToAction(nameof(Details), new { id = ticketId });
         }
     }

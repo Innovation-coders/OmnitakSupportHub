@@ -1,0 +1,1508 @@
+﻿@using OmnitakSupportHub.Models.ViewModels
+@model UserKnowledgeBaseViewModel
+@{
+    ViewData["Title"] = "Knowledge Base";
+    Layout = null; // Custom layout for full control
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"] - Knowledge Hub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root {
+            /* Premium Enterprise Color Palette - Matching UserDashboard */
+            --primary-deep-blue: #0F1419;
+            --primary-navy: #1A237E;
+            --accent-electric: #00E5FF;
+            --accent-purple: #7B2CBF;
+            --accent-gold: #FFB300;
+            --accent-success: #4CAF50;
+            --accent-warning: #FF9800;
+            --accent-danger: #F44336;
+            --accent-info: #2196F3;
+            --surface-dark: #121212;
+            --surface-elevated: #1E1E1E;
+            --surface-card: #242424;
+            --surface-glass: rgba(255, 255, 255, 0.05);
+            --surface-glass-strong: rgba(255, 255, 255, 0.1);
+            --text-primary: #FFFFFF;
+            --text-secondary: rgba(255, 255, 255, 0.7);
+            --text-muted: rgba(255, 255, 255, 0.5);
+            --gradient-primary: linear-gradient(135deg, #0F1419 0%, #1A237E 50%, #7B2CBF 100%);
+            --gradient-accent: linear-gradient(45deg, #00E5FF, #7B2CBF);
+            --gradient-card: linear-gradient(135deg, #1E1E1E 0%, #242424 100%);
+            --gradient-electric: linear-gradient(45deg, #00E5FF 0%, #0091EA 100%);
+            --gradient-purple: linear-gradient(45deg, #7B2CBF 0%, #9C27B0 100%);
+            --gradient-success: linear-gradient(45deg, #4CAF50 0%, #00C853 100%);
+            --shadow-glow: 0 0 40px rgba(0, 229, 255, 0.3);
+            --shadow-deep: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+            --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.3);
+            --shadow-electric: 0 0 30px rgba(0, 229, 255, 0.4);
+            --shadow-purple: 0 0 30px rgba(123, 44, 191, 0.4);
+            --border-glow: rgba(0, 229, 255, 0.3);
+            --space-xs: 4px;
+            --space-sm: 8px;
+            --space-md: 16px;
+            --space-lg: 24px;
+            --space-xl: 32px;
+            --space-2xl: 48px;
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 20px;
+            --radius-2xl: 24px;
+            --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-normal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-slow: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--primary-deep-blue);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* Premium Animated Background */
+        .background-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: var(--gradient-primary);
+            overflow: hidden;
+        }
+
+        .floating-orbs {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            background: linear-gradient(45deg, rgba(0, 229, 255, 0.1), rgba(123, 44, 191, 0.1));
+            animation: float 15s infinite ease-in-out;
+            backdrop-filter: blur(20px);
+        }
+
+            .orb:nth-child(1) {
+                width: 600px;
+                height: 600px;
+                top: -10%;
+                left: -10%;
+                animation-delay: 0s;
+                background: radial-gradient(circle, rgba(0, 229, 255, 0.1) 0%, transparent 70%);
+            }
+
+            .orb:nth-child(2) {
+                width: 400px;
+                height: 400px;
+                top: 50%;
+                right: -15%;
+                animation-delay: -5s;
+                background: radial-gradient(circle, rgba(123, 44, 191, 0.1) 0%, transparent 70%);
+            }
+
+            .orb:nth-child(3) {
+                width: 300px;
+                height: 300px;
+                bottom: -10%;
+                left: 50%;
+                animation-delay: -10s;
+                background: radial-gradient(circle, rgba(255, 179, 0, 0.1) 0%, transparent 70%);
+            }
+
+        @@keyframes float {
+            0%, 100%
+
+        {
+            transform: translate(0, 0) rotate(0deg) scale(1);
+        }
+
+        25% {
+            transform: translate(30px, -50px) rotate(90deg) scale(1.1);
+        }
+
+        50% {
+            transform: translate(-20px, -30px) rotate(180deg) scale(0.9);
+        }
+
+        75% {
+            transform: translate(-40px, 20px) rotate(270deg) scale(1.05);
+        }
+
+        }
+
+        /* Particle Effects */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: var(--accent-electric);
+            border-radius: 50%;
+            animation: particleFloat 10s infinite linear;
+            box-shadow: 0 0 6px var(--accent-electric);
+        }
+
+        @@keyframes particleFloat {
+            0%
+
+        {
+            transform: translateY(100vh) translateX(0) scale(0);
+            opacity: 0;
+        }
+
+        10% {
+            opacity: 1;
+        }
+
+        90% {
+            opacity: 1;
+        }
+
+        100% {
+            transform: translateY(-100px) translateX(100px) scale(1);
+            opacity: 0;
+        }
+
+        }
+
+        /* Main Container */
+        .knowledge-container {
+            min-height: 100vh;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Navigation Header */
+        .nav-header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(20px);
+            background: rgba(15, 20, 25, 0.9);
+            border-bottom: 1px solid var(--surface-glass-strong);
+            padding: var(--space-lg) 0;
+        }
+
+        .nav-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 var(--space-xl);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            font-size: 24px;
+            font-weight: 800;
+            background: var(--gradient-accent);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+            .nav-brand .brand-icon {
+                width: 40px;
+                height: 40px;
+                background: var(--gradient-electric);
+                border-radius: var(--radius-md);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 20px;
+                color: white;
+                box-shadow: var(--shadow-electric);
+                animation: brandPulse 3s infinite ease-in-out;
+            }
+
+        @@keyframes brandPulse {
+            0%, 100%
+
+        {
+            transform: scale(1);
+            box-shadow: var(--shadow-electric);
+        }
+
+        50% {
+            transform: scale(1.05);
+            box-shadow: 0 0 40px rgba(0, 229, 255, 0.6);
+        }
+
+        }
+
+        .back-btn {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            padding: var(--space-md) var(--space-lg);
+            background: var(--surface-glass);
+            border: 1px solid var(--border-glow);
+            border-radius: var(--radius-xl);
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all var(--transition-normal);
+            backdrop-filter: blur(10px);
+        }
+
+            .back-btn:hover {
+                background: var(--surface-glass-strong);
+                color: var(--text-primary);
+                transform: translateY(-2px);
+                box-shadow: var(--shadow-glow);
+                text-decoration: none;
+            }
+
+        /* Hero Section */
+        .hero-section {
+            padding: var(--space-2xl) 0;
+            text-align: center;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding-left: var(--space-xl);
+            padding-right: var(--space-xl);
+        }
+
+        .hero-title {
+            font-size: clamp(3rem, 8vw, 5rem);
+            font-weight: 900;
+            background: var(--gradient-accent);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: var(--space-lg);
+            animation: heroSlideUp 1s ease-out;
+            line-height: 1.1;
+            letter-spacing: -0.02em;
+        }
+
+        .hero-subtitle {
+            font-size: 1.5rem;
+            color: var(--text-secondary);
+            margin-bottom: var(--space-xl);
+            animation: heroSlideUp 1s ease-out 0.2s both;
+            font-weight: 400;
+        }
+
+        .hero-welcome {
+            font-size: 1rem;
+            color: var(--text-muted);
+            margin-bottom: var(--space-2xl);
+            animation: heroSlideUp 1s ease-out 0.4s both;
+        }
+
+        @@keyframes heroSlideUp {
+            from
+
+        {
+            opacity: 0;
+            transform: translateY(40px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        }
+
+        /* Search Section */
+        .search-section {
+            max-width: 1400px;
+            margin: 0 auto var(--space-2xl);
+            padding: 0 var(--space-xl);
+            animation: searchSlideUp 1s ease-out 0.6s both;
+        }
+
+        @@keyframes searchSlideUp {
+            from
+
+        {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        }
+
+        .search-container {
+            background: var(--gradient-card);
+            border: 1px solid var(--surface-glass-strong);
+            border-radius: var(--radius-2xl);
+            padding: var(--space-xl);
+            backdrop-filter: blur(20px);
+            box-shadow: var(--shadow-card);
+            position: relative;
+            overflow: hidden;
+        }
+
+            .search-container::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+                animation: shimmer 3s infinite;
+            }
+
+        @@keyframes shimmer {
+            0%
+
+        {
+            left: -100%;
+        }
+
+        100% {
+            left: 100%;
+        }
+
+        }
+
+        .search-box {
+            position: relative;
+            margin-bottom: var(--space-lg);
+        }
+
+        .search-input {
+            width: 100%;
+            padding: var(--space-lg) var(--space-lg) var(--space-lg) 60px;
+            background: var(--surface-elevated);
+            border: 2px solid transparent;
+            border-radius: var(--radius-xl);
+            font-size: 1.1rem;
+            color: var(--text-primary);
+            transition: all var(--transition-normal);
+            backdrop-filter: blur(10px);
+            font-weight: 500;
+        }
+
+            .search-input:focus {
+                outline: none;
+                border-color: var(--accent-electric);
+                background: var(--surface-card);
+                box-shadow: 0 0 30px rgba(0, 229, 255, 0.3);
+                transform: translateY(-2px);
+            }
+
+            .search-input::placeholder {
+                color: var(--text-muted);
+            }
+
+        .search-icon {
+            position: absolute;
+            left: var(--space-lg);
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--accent-electric);
+            font-size: 1.5rem;
+            animation: searchIconFloat 2s infinite ease-in-out;
+        }
+
+        @@keyframes searchIconFloat {
+            0%, 100%
+
+        {
+            transform: translateY(-50%);
+        }
+
+        50% {
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        }
+
+        .filters-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: var(--space-lg);
+            align-items: end;
+        }
+
+        .filter-group {
+            position: relative;
+        }
+
+        .filter-label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: var(--space-sm);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .filter-select {
+            width: 100%;
+            padding: var(--space-md) var(--space-lg);
+            background: var(--surface-elevated);
+            border: 2px solid transparent;
+            border-radius: var(--radius-lg);
+            color: var(--text-primary);
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all var(--transition-normal);
+            cursor: pointer;
+        }
+
+            .filter-select:focus {
+                outline: none;
+                border-color: var(--accent-purple);
+                box-shadow: 0 0 20px rgba(123, 44, 191, 0.3);
+                transform: translateY(-1px);
+            }
+
+        .search-btn {
+            padding: var(--space-lg) var(--space-xl);
+            background: var(--gradient-electric);
+            border: none;
+            border-radius: var(--radius-lg);
+            color: white;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all var(--transition-normal);
+            box-shadow: var(--shadow-electric);
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+            .search-btn:hover {
+                background: var(--gradient-accent);
+                transform: translateY(-3px);
+                box-shadow: 0 0 40px rgba(0, 229, 255, 0.5);
+            }
+
+            .search-btn:active {
+                transform: translateY(-1px);
+            }
+
+        /* Content Layout */
+        .content-layout {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 var(--space-xl);
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: var(--space-2xl);
+            align-items: start;
+        }
+
+        /* Articles Grid */
+        .articles-main {
+            animation: articlesSlideUp 1s ease-out 0.8s both;
+        }
+
+        @@keyframes articlesSlideUp {
+            from
+
+        {
+            opacity: 0;
+            transform: translateY(40px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        }
+
+        .articles-grid {
+            display: grid;
+            gap: var(--space-xl);
+        }
+
+        .article-card {
+            background: var(--gradient-card);
+            border: 1px solid var(--surface-glass-strong);
+            border-radius: var(--radius-xl);
+            padding: var(--space-xl);
+            transition: all var(--transition-normal);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(20px);
+            animation: articleSlideIn 0.6s ease-out;
+            animation-fill-mode: both;
+        }
+
+            .article-card:nth-child(1) {
+                animation-delay: 0.1s;
+            }
+
+            .article-card:nth-child(2) {
+                animation-delay: 0.2s;
+            }
+
+            .article-card:nth-child(3) {
+                animation-delay: 0.3s;
+            }
+
+            .article-card:nth-child(4) {
+                animation-delay: 0.4s;
+            }
+
+            .article-card:nth-child(5) {
+                animation-delay: 0.5s;
+            }
+
+        @@keyframes articleSlideIn {
+            from
+
+        {
+            opacity: 0;
+            transform: translateX(-30px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        }
+
+        .article-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-accent);
+            transform: scaleX(0);
+            transition: transform var(--transition-normal);
+            transform-origin: left;
+        }
+
+        .article-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4), 0 0 30px rgba(0, 229, 255, 0.2);
+            border-color: var(--accent-electric);
+        }
+
+            .article-card:hover::before {
+                transform: scaleX(1);
+            }
+
+        .article-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: var(--space-md);
+            text-decoration: none;
+            line-height: 1.3;
+            transition: all var(--transition-fast);
+        }
+
+            .article-title:hover {
+                color: var(--accent-electric);
+                text-decoration: none;
+            }
+
+        .article-excerpt {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: var(--space-lg);
+            font-size: 1rem;
+        }
+
+        .article-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: var(--space-lg);
+            border-top: 1px solid var(--surface-glass-strong);
+        }
+
+        .article-category {
+            background: var(--gradient-success);
+            color: white;
+            padding: var(--space-sm) var(--space-md);
+            border-radius: var(--radius-lg);
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: var(--shadow-card);
+        }
+
+        .article-date {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: var(--space-xs);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: sticky;
+            top: 120px;
+            animation: sidebarSlideIn 1s ease-out 1s both;
+        }
+
+        @@keyframes sidebarSlideIn {
+            from
+
+        {
+            opacity: 0;
+            transform: translateX(30px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        }
+
+        .sidebar-card {
+            background: var(--gradient-card);
+            border: 1px solid var(--surface-glass-strong);
+            border-radius: var(--radius-xl);
+            padding: var(--space-xl);
+            margin-bottom: var(--space-xl);
+            backdrop-filter: blur(20px);
+            box-shadow: var(--shadow-card);
+            transition: all var(--transition-normal);
+        }
+
+            .sidebar-card:hover {
+                transform: translateY(-4px);
+                box-shadow: var(--shadow-deep);
+            }
+
+        .sidebar-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: var(--space-lg);
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+        }
+
+            .sidebar-title i {
+                color: var(--accent-electric);
+                font-size: 1.5rem;
+            }
+
+        /* Stats */
+        .stats-display {
+            text-align: center;
+            background: var(--gradient-purple);
+            border-radius: var(--radius-lg);
+            padding: var(--space-xl);
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .stats-display::before {
+                content: '';
+                position: absolute;
+                top: -50%;
+                left: -50%;
+                width: 200%;
+                height: 200%;
+                background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+                animation: statsShine 4s infinite;
+            }
+
+        @@keyframes statsShine {
+            0%
+
+        {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+
+        }
+
+        .stats-number {
+            font-size: 3rem;
+            font-weight: 900;
+            display: block;
+            margin-bottom: var(--space-sm);
+            position: relative;
+            z-index: 1;
+        }
+
+        .stats-label {
+            font-size: 1rem;
+            opacity: 0.9;
+            font-weight: 500;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Category Filter */
+        .category-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-sm);
+        }
+
+        .category-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--space-md) var(--space-lg);
+            background: var(--surface-elevated);
+            border: 2px solid transparent;
+            border-radius: var(--radius-lg);
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all var(--transition-normal);
+            position: relative;
+            overflow: hidden;
+        }
+
+            .category-item::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 100%;
+                background: var(--gradient-accent);
+                transition: left var(--transition-normal);
+                z-index: -1;
+            }
+
+            .category-item:hover,
+            .category-item.active {
+                color: white;
+                transform: translateX(8px);
+                text-decoration: none;
+                border-color: var(--accent-electric);
+            }
+
+                .category-item:hover::before,
+                .category-item.active::before {
+                    left: 0;
+                }
+
+        .category-count {
+            background: rgba(255, 255, 255, 0.2);
+            padding: var(--space-xs) var(--space-sm);
+            border-radius: var(--radius-sm);
+            font-size: 0.85rem;
+            font-weight: 600;
+            min-width: 24px;
+            text-align: center;
+        }
+
+        /* Recent Articles */
+        .recent-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-lg);
+        }
+
+        .recent-item {
+            display: block;
+            padding: var(--space-lg);
+            background: var(--surface-elevated);
+            border: 1px solid transparent;
+            border-radius: var(--radius-lg);
+            text-decoration: none;
+            color: var(--text-secondary);
+            transition: all var(--transition-normal);
+            position: relative;
+        }
+
+            .recent-item:hover {
+                background: var(--surface-card);
+                border-color: var(--accent-purple);
+                transform: translateY(-2px);
+                box-shadow: 0 8px 25px rgba(123, 44, 191, 0.2);
+                text-decoration: none;
+            }
+
+        .recent-title {
+            font-weight: 600;
+            font-size: 1rem;
+            color: var(--text-primary);
+            margin-bottom: var(--space-sm);
+            line-height: 1.4;
+            transition: color var(--transition-fast);
+        }
+
+        .recent-item:hover .recent-title {
+            color: var(--accent-purple);
+        }
+
+        .recent-meta {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+        }
+
+        /* No Results State */
+        .no-results {
+            text-align: center;
+            padding: var(--space-2xl);
+            color: var(--text-secondary);
+            animation: noResultsFadeIn 1s ease-out;
+        }
+
+            .no-results i {
+                font-size: 5rem;
+                color: var(--accent-electric);
+                margin-bottom: var(--space-lg);
+                opacity: 0.5;
+                animation: noResultsFloat 3s infinite ease-in-out;
+            }
+
+        @@keyframes noResultsFadeIn {
+            from
+
+        {
+            opacity: 0;
+            transform: scale(0.9);
+        }
+
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        }
+
+        @@keyframes noResultsFloat {
+            0%, 100%
+
+        {
+            transform: translateY(0);
+        }
+
+        50% {
+            transform: translateY(-10px);
+        }
+
+        }
+
+        .no-results h3 {
+            font-size: 1.8rem;
+            margin-bottom: var(--space-md);
+            font-weight: 700;
+        }
+
+        /* Alerts */
+        .alert {
+            border-radius: var(--radius-lg);
+            border: none;
+            padding: var(--space-lg) var(--space-xl);
+            margin-bottom: var(--space-lg);
+            backdrop-filter: blur(20px);
+            animation: alertSlideDown 0.5s ease-out;
+        }
+
+        @@keyframes alertSlideDown {
+            from
+
+        {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        }
+
+        .alert-success {
+            background: linear-gradient(135deg, rgba(76, 175, 80, 0.2), rgba(0, 200, 83, 0.2));
+            border-left: 4px solid var(--accent-success);
+            color: var(--accent-success);
+        }
+
+        .alert-danger {
+            background: linear-gradient(135deg, rgba(244, 67, 54, 0.2), rgba(229, 57, 53, 0.2));
+            border-left: 4px solid var(--accent-danger);
+            color: var(--accent-danger);
+        }
+
+        /* Responsive Design */
+        @@media (max-width: 1024px) {
+            .content-layout
+
+        {
+            grid-template-columns: 1fr;
+            gap: var(--space-xl);
+        }
+
+        .sidebar {
+            position: static;
+            order: -1;
+        }
+
+        .filters-row {
+            grid-template-columns: 1fr;
+            gap: var(--space-md);
+        }
+
+        .nav-content {
+            padding: 0 var(--space-lg);
+        }
+
+        .hero-section,
+        .search-section,
+        .content-layout {
+            padding-left: var(--space-lg);
+            padding-right: var(--space-lg);
+        }
+
+        }
+
+        @@media (max-width: 768px) {
+            .hero-title
+
+        {
+            font-size: 2.5rem;
+        }
+
+        .hero-subtitle {
+            font-size: 1.2rem;
+        }
+
+        .search-container {
+            padding: var(--space-lg);
+        }
+
+        .filters-row {
+            grid-template-columns: 1fr;
+        }
+
+        .search-btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .nav-content {
+            flex-direction: column;
+            gap: var(--space-md);
+            text-align: center;
+        }
+
+        .hero-section,
+        .search-section,
+        .content-layout {
+            padding-left: var(--space-md);
+            padding-right: var(--space-md);
+        }
+
+        }
+
+        /* Scroll Animations */
+        .scroll-reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease-out;
+        }
+
+            .scroll-reveal.revealed {
+                opacity: 1;
+                transform: translateY(0);
+            }
+
+        /* Loading States */
+        .loading-shimmer {
+            background: linear-gradient(90deg, var(--surface-card) 25%, var(--surface-elevated) 50%, var(--surface-card) 75%);
+            background-size: 200% 100%;
+            animation: shimmerLoad 2s infinite;
+        }
+
+        @@keyframes shimmerLoad {
+            0%
+
+        {
+            background-position: 200% 0;
+        }
+
+        100% {
+            background-position: -200% 0;
+        }
+
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--surface-dark);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--gradient-accent);
+            border-radius: 4px;
+        }
+
+            ::-webkit-scrollbar-thumb:hover {
+                background: var(--accent-electric);
+            }
+    </style>
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="background-container">
+        <div class="floating-orbs">
+            <div class="orb"></div>
+            <div class="orb"></div>
+            <div class="orb"></div>
+        </div>
+    </div>
+
+    <!-- Floating Particles -->
+    <div class="particles" id="particles"></div>
+
+    <div class="knowledge-container">
+        <!-- Navigation Header -->
+        <nav class="nav-header">
+            <div class="nav-content">
+                <div class="nav-brand">
+                    <div class="brand-icon">
+                        <i class="bi bi-book-half"></i>
+                    </div>
+                    Knowledge Hub
+                </div>
+                <a href="@Url.Action("Index", "UserDashboard")" class="back-btn">
+                    <i class="bi bi-arrow-left"></i>
+                    Back to Dashboard
+                </a>
+            </div>
+        </nav>
+
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <h1 class="hero-title">Knowledge Hub</h1>
+            <p class="hero-subtitle">Your gateway to instant solutions and expert insights</p>
+            <div class="hero-welcome">
+                <i class="bi bi-person-circle"></i>
+                Welcome back, @Model.UserName
+            </div>
+        </section>
+
+        <!-- Success/Error Messages -->
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div style="max-width: 1400px; margin: 0 auto; padding: 0 var(--space-xl);">
+                <div class="alert alert-success">
+                    <i class="bi bi-check-circle me-2"></i>
+                    @TempData["SuccessMessage"]
+                </div>
+            </div>
+        }
+
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div style="max-width: 1400px; margin: 0 auto; padding: 0 var(--space-xl);">
+                <div class="alert alert-danger">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    @TempData["ErrorMessage"]
+                </div>
+            </div>
+        }
+
+        <!-- Search Section -->
+        <section class="search-section">
+            <div class="search-container">
+                <form method="get" asp-action="KnowledgeBase">
+                    <div class="search-box">
+                        <i class="bi bi-search search-icon"></i>
+                        <input type="text" name="searchTerm" value="@Model.SearchTerm"
+                               placeholder="Search for solutions, guides, and answers..."
+                               class="search-input" />
+                    </div>
+
+                    <div class="filters-row">
+                        <div class="filter-group">
+                            <label class="filter-label">Category</label>
+                            <select name="categoryId" class="filter-select">
+                                <option value="">All Categories</option>
+                                @if (Model.Categories != null)
+                                {
+                                    @foreach (var category in Model.Categories)
+                                    {
+                                        <option value="@category.Value" selected="@category.Selected">
+                                            @category.Text
+                                        </option>
+                                    }
+                                }
+                            </select>
+                        </div>
+
+                        <div class="filter-group">
+                            <label class="filter-label">Sort By</label>
+                            <select name="sortBy" class="filter-select">
+                                <option value="newest" selected="@(Model.SortBy == "newest")">Newest First</option>
+                                <option value="title" selected="@(Model.SortBy == "title")">Alphabetical</option>
+                                <option value="category" selected="@(Model.SortBy == "category")">By Category</option>
+                                <option value="updated" selected="@(Model.SortBy == "updated")">Recently Updated</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" class="search-btn">
+                            <i class="bi bi-funnel"></i>
+                            Apply Filters
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <!-- Content Layout -->
+        <div class="content-layout">
+            <!-- Articles Main -->
+            <main class="articles-main">
+                @if (Model.Articles != null && Model.Articles.Any())
+                {
+                    <div class="articles-grid">
+                        @foreach (var article in Model.Articles)
+                        {
+                            <article class="article-card scroll-reveal"
+                                     onclick="window.location.href='@Url.Action("ArticleDetails", new { id = article.ArticleID })'">
+                                <h2 class="article-title">@article.Title</h2>
+
+                                <div class="article-excerpt">
+                                    @if (!string.IsNullOrEmpty(article.Content))
+                                    {
+                                        @if (article.Content.Length > 200)
+                                        {
+                                            @(article.Content.Substring(0, 200) + "...")
+                                        }
+                                        else
+                                        {
+                                            @article.Content
+                                        }
+                                    }
+                                </div>
+
+                                <div class="article-meta">
+                                    <div class="article-category">
+                                        <i class="bi bi-folder me-1"></i>
+                                        @(article.Category?.CategoryName ?? "General")
+                                    </div>
+                                    <div class="article-date">
+                                        <div>
+                                            <i class="bi bi-calendar me-1"></i>
+                                            @article.CreatedAt.ToString("MMM dd, yyyy")
+                                        </div>
+                                        <small>
+                                            <i class="bi bi-person me-1"></i>
+                                            @(article.CreatedByUser?.FullName ?? "Support Team")
+                                        </small>
+                                    </div>
+                                </div>
+                            </article>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="no-results">
+                        <i class="bi bi-search"></i>
+                        <h3>No articles found</h3>
+                        <p>Try adjusting your search terms or browse by category to discover helpful content.</p>
+                    </div>
+                }
+            </main>
+
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <!-- Statistics -->
+                <div class="sidebar-card">
+                    <div class="stats-display">
+                        <span class="stats-number" data-target="@Model.TotalArticles">0</span>
+                        <div class="stats-label">Knowledge Articles</div>
+                    </div>
+                </div>
+
+                <!-- Category Navigation -->
+                <div class="sidebar-card">
+                    <h3 class="sidebar-title">
+                        <i class="bi bi-funnel"></i>
+                        Browse Categories
+                    </h3>
+                    <div class="category-list">
+                        <a href="@Url.Action("KnowledgeBase")"
+                           class="category-item @(Model.SelectedCategoryId == null ? "active" : "")">
+                            <span>All Categories</span>
+                            <span class="category-count">@Model.TotalArticles</span>
+                        </a>
+                        @if (Model.Categories != null)
+                        {
+                            @foreach (var category in Model.Categories)
+                            {
+                                var count = Model.CategoryCounts != null && Model.CategoryCounts.ContainsKey(category.Text)
+                                ? Model.CategoryCounts[category.Text] : 0;
+                                <a href="@Url.Action("KnowledgeBase", new { categoryId = category.Value })"
+                                   class="category-item @(category.Selected ? "active" : "")">
+                                    <span>@category.Text</span>
+                                    <span class="category-count">@count</span>
+                                </a>
+                            }
+                        }
+                    </div>
+                </div>
+
+                <!-- Recent Articles -->
+                @if (Model.RecentArticles != null && Model.RecentArticles.Any())
+                {
+                    <div class="sidebar-card">
+                        <h3 class="sidebar-title">
+                            <i class="bi bi-clock"></i>
+                            Recently Added
+                        </h3>
+                        <div class="recent-list">
+                            @foreach (var article in Model.RecentArticles.Take(5))
+                            {
+                                <a href="@Url.Action("ArticleDetails", new { id = article.ArticleID })"
+                                   class="recent-item">
+                                    <div class="recent-title">@article.Title</div>
+                                    <div class="recent-meta">
+                                        <span>
+                                            <i class="bi bi-calendar"></i>
+                                            @article.CreatedAt.ToString("MMM dd")
+                                        </span>
+                                        <span>
+                                            <i class="bi bi-folder"></i>
+                                            @(article.Category?.CategoryName ?? "General")
+                                        </span>
+                                    </div>
+                                </a>
+                            }
+                        </div>
+                    </div>
+                }
+            </aside>
+        </div>
+    </div>
+
+    <script>
+        // Initialize premium interactions
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeParticles();
+            initializeScrollReveal();
+            initializeCounters();
+            initializeInteractivity();
+        });
+
+        // Create floating particles
+        function initializeParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const particleCount = 50;
+
+            for (let i = 0; i < particleCount; i++) {
+                setTimeout(() => {
+                    createParticle(particlesContainer);
+                }, i * 100);
+            }
+
+            // Continue creating particles
+            setInterval(() => {
+                if (particlesContainer.children.length < particleCount) {
+                    createParticle(particlesContainer);
+                }
+            }, 500);
+        }
+
+        function createParticle(container) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * 100 + 'vw';
+            particle.style.animationDelay = Math.random() * 10 + 's';
+            particle.style.animationDuration = (5 + Math.random() * 10) + 's';
+            container.appendChild(particle);
+
+            // Remove particle after animation
+            setTimeout(() => {
+                if (particle.parentNode) {
+                    particle.parentNode.removeChild(particle);
+                }
+            }, 15000);
+        }
+
+        // Scroll reveal animations
+        function initializeScrollReveal() {
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('revealed');
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('.scroll-reveal').forEach(el => {
+                observer.observe(el);
+            });
+        }
+
+        // Animated counters
+        function initializeCounters() {
+            const counters = document.querySelectorAll('[data-target]');
+
+            const observerOptions = {
+                threshold: 0.5
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const counter = entry.target;
+                        const target = parseInt(counter.getAttribute('data-target'));
+                        animateCounter(counter, target);
+                        observer.unobserve(counter);
+                    }
+                });
+            }, observerOptions);
+
+            counters.forEach(counter => observer.observe(counter));
+        }
+
+        function animateCounter(element, target) {
+            let current = 0;
+            const increment = target / 50;
+            const duration = 2000;
+            const stepTime = duration / 50;
+
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    current = target;
+                    clearInterval(timer);
+                }
+                element.textContent = Math.floor(current);
+            }, stepTime);
+        }
+
+        // Enhanced interactivity
+        function initializeInteractivity() {
+            // Add ripple effect to buttons
+            document.querySelectorAll('.search-btn, .category-item').forEach(button => {
+                button.addEventListener('click', createRipple);
+            });
+
+            // Add hover sound effects (optional)
+            document.querySelectorAll('.article-card').forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-8px) scale(1.02)';
+                });
+
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0) scale(1)';
+                });
+            });
+
+            // Keyboard navigation enhancement
+            document.addEventListener('keydown', function(e) {
+                if (e.key === '/') {
+                    e.preventDefault();
+                    document.querySelector('.search-input').focus();
+                }
+            });
+        }
+
+        function createRipple(e) {
+            const button = e.currentTarget;
+            const ripple = document.createElement('span');
+            const rect = button.getBoundingClientRect();
+            const size = Math.max(rect.width, rect.height);
+            const x = e.clientX - rect.left - size / 2;
+            const y = e.clientY - rect.top - size / 2;
+
+            ripple.style.width = ripple.style.height = size + 'px';
+            ripple.style.left = x + 'px';
+            ripple.style.top = y + 'px';
+            ripple.style.position = 'absolute';
+            ripple.style.borderRadius = '50%';
+            ripple.style.background = 'rgba(255, 255, 255, 0.3)';
+            ripple.style.pointerEvents = 'none';
+            ripple.style.animation = 'ripple 0.6s ease-out';
+
+            button.style.position = 'relative';
+            button.style.overflow = 'hidden';
+            button.appendChild(ripple);
+
+            setTimeout(() => {
+                ripple.remove();
+            }, 600);
+        }
+
+        // Add CSS for ripple animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @@keyframes ripple {
+                0% {
+                    transform: scale(0);
+                    opacity: 1;
+                }
+                100% {
+                    transform: scale(2);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

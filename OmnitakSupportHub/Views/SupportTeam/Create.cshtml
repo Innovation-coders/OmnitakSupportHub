@@ -1,0 +1,17 @@
+﻿@model OmnitakSupportHub.Models.SupportTeam
+<h2>Create Support Team</h2>
+<form asp-action="Create" method="post">
+    <div>
+        <label asp-for="TeamName"></label>
+        <input asp-for="TeamName" class="form-control" />
+    </div>
+    <div>
+        <label asp-for="Specialization"></label>
+        <input asp-for="Specialization" class="form-control" />
+    </div>
+    <div>
+        <label asp-for="Description"></label>
+        <input asp-for="Description" class="form-control" />
+    </div>
+    <button type="submit" class="btn btn-success">Create</button>
+</form>

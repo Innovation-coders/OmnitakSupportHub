@@ -170,6 +170,7 @@
             height: 100vh;
             z-index: 100;
             transition: transform 0.3s ease;
+            overflow-y: auto;
         }
 
         .sidebar-header {
@@ -770,6 +771,12 @@
                         <a asp-controller="SupportTeam" asp-action="Index" class="nav-link">
                             <i class="nav-icon bi bi-people"></i>
                             Team Management
+                        </a>
+                    </li>
+                    <li class="nav-item" style="--delay: 5">
+                        <a asp-controller="ManagerDashboard" asp-action="AuditTrail" class="nav-link">
+                            <i class="nav-icon bi bi-clipboard-data"></i>
+                            View Audit Trail
                         </a>
                     </li>
                     <li class="nav-item" style="--delay: 6">

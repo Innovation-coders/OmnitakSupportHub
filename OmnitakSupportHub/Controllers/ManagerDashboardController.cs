@@ -313,6 +313,28 @@ namespace OmnitakSupportHub.Controllers
             }
         }
 
+        [HttpGet]
+        public async Task<IActionResult> AuditTrail(int? ticketId, int? agentId, DateTime? startDate, DateTime? endDate)
+        {
+            var query = _context.AuditLogs
+                .Include(a => a.User)
+                .AsQueryable();
+
+            if (ticketId.HasValue)
+                query = query.Where(a => a.TargetType == "Ticket" && a.TargetID == ticketId.Value);
+
+            if (agentId.HasValue)
+                query = query.Where(a => a.UserID == agentId.Value);
+
+            if (startDate.HasValue)
+                query = query.Where(a => a.PerformedAt >= startDate.Value);
+
+            if (endDate.HasValue)
+                query = query.Where(a => a.PerformedAt <= endDate.Value);
+
+            var logs = await query.OrderByDescending(a => a.PerformedAt).Take(100).ToListAsync();
+            return View("AuditTrail", logs);
+        }
     }
 
     

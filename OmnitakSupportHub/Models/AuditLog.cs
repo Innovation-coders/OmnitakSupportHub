@@ -39,6 +39,7 @@ namespace OmnitakSupportHub.Models
         public const string TicketUpdated = "TICKET_UPDATED";
         public const string TicketAssigned = "TICKET_ASSIGNED";
         public const string TicketClosed = "TICKET_CLOSED";
+        public const string TicketEscalated = "TICKET_ESCALATED";
         public const string PasswordChanged = "PASSWORD_CHANGED";
         public const string RoleChanged = "ROLE_CHANGED";
     }

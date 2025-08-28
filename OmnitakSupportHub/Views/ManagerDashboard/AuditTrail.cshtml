@@ -1,36 +1,150 @@
 @model List<OmnitakSupportHub.Models.AuditLog>
-<div class="content-card">
+<style>
+    .audit-trail-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem 0;
+    }
+    .card-header {
+        background: linear-gradient(135deg, #00E5FF 0%, #7B2CBF 100%);
+        border-radius: 20px 20px 0 0;
+        padding: 2rem 2rem 1rem 2rem;
+        color: #fff;
+        box-shadow: 0 4px 24px rgba(0,229,255,0.08);
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    .card-title {
+        font-size: 2rem;
+        font-weight: 700;
+        margin: 0;
+        background: linear-gradient(45deg, #00E5FF, #7B2CBF);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    .filter-form {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        margin: 2rem 0 2.5rem 0;
+        align-items: center;
+    }
+    .filter-form input, .filter-form button {
+        padding: 0.75rem 1rem;
+        border-radius: 10px;
+        border: 1px solid #222;
+        font-size: 1rem;
+        background: rgba(255,255,255,0.07);
+        color: #fff;
+        outline: none;
+    }
+    .filter-form button {
+        background: linear-gradient(135deg, #00E5FF 0%, #7B2CBF 100%);
+        color: #fff;
+        font-weight: 600;
+        border: none;
+        box-shadow: 0 2px 12px rgba(0,229,255,0.12);
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+    .filter-form button:hover {
+        background: #FFB300;
+        color: #1A237E;
+    }
+    .audit-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+        gap: 2rem;
+    }
+    .audit-card {
+        background: linear-gradient(135deg, #1E1E1E 0%, #242424 100%);
+        border-radius: 20px;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.25), 0 0 40px rgba(0,229,255,0.08);
+        border: 1px solid rgba(0,229,255,0.08);
+        padding: 2rem 1.5rem 1.5rem 1.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        position: relative;
+        transition: box-shadow 0.2s;
+    }
+    .audit-card:hover {
+        box-shadow: 0 12px 40px rgba(0,229,255,0.18), 0 0 60px rgba(123,44,191,0.12);
+        border-color: #00E5FF;
+    }
+    .audit-action {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #00E5FF;
+    }
+    .audit-details {
+        color: #fff;
+        font-size: 1rem;
+        opacity: 0.92;
+        margin-bottom: 0.5rem;
+    }
+    .audit-meta {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        font-size: 0.95rem;
+        color: #7B2CBF;
+        opacity: 0.8;
+    }
+    .audit-user {
+        font-weight: 600;
+        color: #FFB300;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .audit-date {
+        color: #00E5FF;
+        font-size: 0.95rem;
+        font-weight: 500;
+    }
+</style>
+<div class="audit-trail-container">
     <div class="card-header">
-        <h3 class="card-title"><i class="bi bi-clipboard-data"></i> Audit Trail</h3>
+        <i class="bi bi-clipboard-data" style="font-size:2rem;"></i>
+        <span class="card-title">Audit Trail</span>
     </div>
     <div class="card-content">
-        <form method="get">
+        <form method="get" class="filter-form">
             <input type="number" name="ticketId" placeholder="Ticket ID" />
             <input type="number" name="agentId" placeholder="Agent ID" />
             <input type="date" name="startDate" />
             <input type="date" name="endDate" />
-            <button type="submit" class="btn btn-primary btn-sm">Filter</button>
+            <button type="submit">Filter</button>
         </form>
-        <table class="modern-table">
-            <thead>
-                <tr>
-                    <th>Action</th>
-                    <th>Details</th>
-                    <th>User</th>
-                    <th>Date</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var log in Model)
-                {
-                    <tr>
-                        <td>@log.Action</td>
-                        <td>@log.Details</td>
-                        <td>@log.User?.FullName</td>
-                        <td>@log.PerformedAt.ToString("MMM dd, HH:mm")</td>
-                    </tr>
-                }
-            </tbody>
-        </table>
+        <div class="audit-grid">
+            @foreach (var log in Model)
+            {
+                <div class="audit-card">
+                    <div class="audit-action">
+                        <i class="bi bi-check2-circle"></i>
+                        @log.Action
+                    </div>
+                    <div class="audit-details">
+                        @log.Details
+                    </div>
+                    <div class="audit-meta">
+                        <span class="audit-user">
+                            <i class="bi bi-person-circle"></i>
+                            @log.User?.FullName
+                        </span>
+                        <span class="audit-date">
+                            <i class="bi bi-clock"></i>
+                            @log.PerformedAt.ToString("MMM dd, HH:mm")
+                        </span>
+                    </div>
+                </div>
+            }
+        </div>
     </div>
 </div>

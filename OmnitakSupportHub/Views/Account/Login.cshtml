@@ -250,6 +250,23 @@
             padding-bottom: 2rem; 
         }
 
+        .login-card {
+            width: 100%;
+            max-width: 420px;
+            margin: 0 auto;
+            background: var(--surface-elevated, #1E1E1E);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.35), 0 0 40px rgba(0,229,255,0.08);
+            border: 1px solid rgba(255,255,255,0.08);
+            padding: 40px 32px 32px 32px;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            position: relative;
+            z-index: 2;
+            backdrop-filter: blur(8px);
+        }
+
         .form-header {
             text-align: center;
             margin-bottom: 48px;
@@ -505,52 +522,52 @@
 
     <div class="login-container">
         <div class="form-panel">
-            <form class="login-form" asp-action="Login" method="post">
-                @Html.AntiForgeryToken()
+            <div class="login-card">
+                <form class="login-form" asp-action="Login" method="post">
+                    @Html.AntiForgeryToken()
 
-                <div class="form-header">
-                    <h2 class="form-title">Welcome Back</h2>
-                    <p class="form-subtitle">Sign in to access your dashboard</p>
-                </div>
-
-                
-                <div asp-validation-summary="All" class="validation-summary-errors"></div>
-
-                <div class="form-group">
-                    <label asp-for="Email" class="form-label">Email Address</label>
-                    <input asp-for="Email" class="form-control" placeholder="Enter your email" autocomplete="email" />
-                    <span asp-validation-for="Email" class="text-danger"></span>
-                </div>
-
-                <div class="form-group">
-                    <label asp-for="Password" class="form-label">Password</label>
-                    <input asp-for="Password" class="form-control" type="password" placeholder="Enter your password" autocomplete="current-password" />
-                    <span asp-validation-for="Password" class="text-danger"></span>
-                </div>
-
-                <div class="form-options">
-                    <div class="form-check">
-                        <input asp-for="RememberMe" class="form-check-input" />
-                        <label asp-for="RememberMe" class="form-check-label">Keep me signed in</label>
+                    <div class="form-header">
+                        <h2 class="form-title">Welcome Back</h2>
+                        <p class="form-subtitle">Sign in to access your dashboard</p>
                     </div>
-                </div>
 
-                <button type="submit" class="btn">
-                    Sign In to Dashboard
-                </button>
+                    <div asp-validation-summary="All" class="validation-summary-errors"></div>
 
-                <div class="divider">
-                    <div class="divider-line"></div>
-                    <span class="divider-text">New to Omnitak?</span>
-                    <div class="divider-line"></div>
-                </div>
+                    <div class="form-group">
+                        <label asp-for="Email" class="form-label">Email Address</label>
+                        <input asp-for="Email" class="form-control" placeholder="Enter your email" autocomplete="email" />
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
 
-             
-                <div class="register-link">
-                    <p style="color: var(--text-secondary); margin-bottom: 0.5rem;">Don't have an account?</p>
-                    <a asp-action="Register">Create New Account</a>
-                </div>
-            </form>
+                    <div class="form-group">
+                        <label asp-for="Password" class="form-label">Password</label>
+                        <input asp-for="Password" class="form-control" type="password" placeholder="Enter your password" autocomplete="current-password" />
+                        <span asp-validation-for="Password" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-options">
+                        <div class="form-check">
+                            <input asp-for="RememberMe" class="form-check-input" />
+                            <label asp-for="RememberMe" class="form-check-label">Keep me signed in</label>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn">
+                        Sign In to Dashboard
+                    </button>
+
+                    <div class="divider">
+                        <div class="divider-line"></div>
+                        <span class="divider-text">New to Omnitak?</span>
+                        <div class="divider-line"></div>
+                    </div>
+
+                    <div class="register-link">
+                        <p style="color: var(--text-secondary); margin-bottom: 0.5rem;">Don't have an account?</p>
+                        <a asp-action="Register">Create New Account</a>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 

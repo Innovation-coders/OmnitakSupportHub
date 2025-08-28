@@ -143,11 +143,11 @@ app.MapControllerRoute(
       pattern: "{controller=Home}/{action=Index}/{id?}");
 
 
-app.MapGet("/", context =>
-{
-    context.Response.Redirect("/Account/Login");
-    return Task.CompletedTask;
-});
+//app.MapGet("/", context =>
+//{
+//    context.Response.Redirect("/Account/Login");
+//    return Task.CompletedTask;
+//});
 
 
 using (var scope = app.Services.CreateScope())

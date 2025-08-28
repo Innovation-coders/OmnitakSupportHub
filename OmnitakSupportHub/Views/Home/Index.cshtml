@@ -44,8 +44,8 @@
 
     .landing-desc {
         font-size: 1.25rem;
-        color: rgba(255,255,255,0.8);
-        margin-bottom: 2rem;
+        color: rgba(255,255,255,0.85);
+        margin-bottom: 2.5rem;
         max-width: 600px;
         margin-left: auto;
         margin-right: auto;
@@ -63,6 +63,7 @@
         transition: all 0.3s;
         text-decoration: none;
         display: inline-block;
+        margin-bottom: 3rem;
     }
 
         .login-btn:hover {
@@ -115,6 +116,7 @@
             left: 45%;
             animation-delay: -24s;
         }
+
     @@keyframes float {
         0%
 
@@ -134,7 +136,79 @@
         transform: translateY(0) rotate(360deg);
     }
 
-    }</style>
+    }
+
+    .features-section {
+        margin: 0 auto 0;
+        max-width: 500px;
+        text-align: left;
+        background: rgba(255,255,255,0.02);
+        border-radius: 24px;
+        padding: 2rem 2rem 1rem 2rem;
+        box-shadow: 0 0 24px rgba(0,229,255,0.08);
+    }
+
+    .company-logo {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg,#00E5FF 0%,#1A237E 100%);
+        border-radius: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 32px;
+        font-weight: 800;
+        color: white;
+        margin: 0 auto 32px auto;
+        box-shadow: var(--shadow-glow);
+    }
+
+    .features-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        background: var(--gradient-accent);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        text-align: center;
+    }
+
+    .features-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .feature-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+        padding: 16px;
+        background: rgba(255,255,255,0.05);
+        border-radius: 16px;
+    }
+
+    .feature-icon {
+        width: 48px;
+        height: 48px;
+        background: linear-gradient(135deg,#00E5FF 0%,#1A237E 100%);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 20px;
+        font-size: 20px;
+        color: white;
+        flex-shrink: 0;
+    }
+
+    .feature-text {
+        font-size: 16px;
+        color: #fff;
+        font-weight: 500;
+    }
+</style>
 
 <div class="animated-bg">
     <div class="orb"></div>
@@ -152,29 +226,26 @@
         <i class="bi bi-box-arrow-in-right"></i> Login to Portal
     </a>
 
-    <div class="home-brand-panel" style="margin: 3rem auto 0; max-width: 500px;">
-        <div class="company-logo" style="width:80px;height:80px;background:linear-gradient(135deg,#00E5FF 0%,#1A237E 100%);border-radius:24px;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:800;color:white;margin-bottom:40px;box-shadow:0 0 40px rgba(0,229,255,0.3);">O</div>
-        <h2 style="font-size:2rem;font-weight:700;margin-bottom:0.5rem;background:linear-gradient(45deg,#00E5FF,#7B2CBF);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Omnitak Support Hub</h2>
-        <p style="font-size:1.1rem;color:rgba(255,255,255,0.85);margin-bottom:2rem;">
-            Enterprise-grade IT support platform designed for modern businesses.
-        </p>
-        <ul style="list-style:none;padding:0;">
-            <li style="display:flex;align-items:center;margin-bottom:24px;padding:20px;background:rgba(255,255,255,0.05);border-radius:16px;">
-                <span style="width:48px;height:48px;background:linear-gradient(135deg,#00E5FF 0%,#1A237E 100%);border-radius:12px;display:flex;align-items:center;justify-content:center;margin-right:20px;font-size:20px;color:white;">🚀</span>
-                <span style="font-size:16px;color:#fff;font-weight:500;">AI-Powered Ticket Resolution</span>
+    <section class="features-section" aria-labelledby="features-title">
+        <div class="company-logo">O</div>
+        <h2 class="features-title" id="features-title">Why Omnitak?</h2>
+        <ul class="features-list">
+            <li class="feature-item">
+                <span class="feature-icon">🚀</span>
+                <span class="feature-text">AI-Powered Ticket Resolution</span>
             </li>
-            <li style="display:flex;align-items:center;margin-bottom:24px;padding:20px;background:rgba(255,255,255,0.05);border-radius:16px;">
-                <span style="width:48px;height:48px;background:linear-gradient(135deg,#00E5FF 0%,#1A237E 100%);border-radius:12px;display:flex;align-items:center;justify-content:center;margin-right:20px;font-size:20px;color:white;">📊</span>
-                <span style="font-size:16px;color:#fff;font-weight:500;">Real-Time Analytics Dashboard</span>
+            <li class="feature-item">
+                <span class="feature-icon">📊</span>
+                <span class="feature-text">Real-Time Analytics Dashboard</span>
             </li>
-            <li style="display:flex;align-items:center;margin-bottom:24px;padding:20px;background:rgba(255,255,255,0.05);border-radius:16px;">
-                <span style="width:48px;height:48px;background:linear-gradient(135deg,#00E5FF 0%,#1A237E 100%);border-radius:12px;display:flex;align-items:center;justify-content:center;margin-right:20px;font-size:20px;color:white;">🔐</span>
-                <span style="font-size:16px;color:#fff;font-weight:500;">Enterprise Security Standards</span>
+            <li class="feature-item">
+                <span class="feature-icon">🔐</span>
+                <span class="feature-text">Enterprise Security Standards</span>
             </li>
-            <li style="display:flex;align-items:center;margin-bottom:24px;padding:20px;background:rgba(255,255,255,0.05);border-radius:16px;">
-                <span style="width:48px;height:48px;background:linear-gradient(135deg,#00E5FF 0%,#1A237E 100%);border-radius:12px;display:flex;align-items:center;justify-content:center;margin-right:20px;font-size:20px;color:white;">⚡</span>
-                <span style="font-size:16px;color:#fff;font-weight:500;">Lightning-Fast Response Times</span>
+            <li class="feature-item">
+                <span class="feature-icon">⚡</span>
+                <span class="feature-text">Lightning-Fast Response Times</span>
             </li>
         </ul>
-    </div>
+    </section>
 </div>

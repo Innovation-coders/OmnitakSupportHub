@@ -1,17 +1,102 @@
 ﻿@model OmnitakSupportHub.Models.User
-
 @{
     ViewData["Title"] = "Unassign IT Staff Specialization";
 }
-
-<h2>Remove Specialization</h2>
-
-<div class="alert alert-warning">
-    <p>Are you sure you want to remove <strong>@Model.FullName</strong> from team <strong>@Model.Team?.TeamName</strong>?</p>
+<style>
+    :root {
+        --primary-deep-blue: #0F1419;
+        --primary-navy: #1A237E;
+        --accent-electric: #00E5FF;
+        --accent-gold: #FFB300;
+        --surface-card: #242424;
+        --text-primary: #FFFFFF;
+        --text-secondary: rgba(255,255,255,0.7);
+        --gradient-accent: linear-gradient(45deg, #00E5FF, #7B2CBF);
+        --shadow-card: 0 8px 32px rgba(0,229,255,0.08);
+        --border-glow: rgba(0,229,255,0.3);
+    }
+    body {
+        background: var(--gradient-accent);
+        color: var(--text-primary);
+        font-family: 'Inter', sans-serif;
+    }
+    .admin-card {
+        max-width: 600px;
+        margin: 40px auto;
+        background: var(--surface-card);
+        border-radius: 24px;
+        box-shadow: var(--shadow-card);
+        padding: 2.5rem 2rem;
+        color: var(--text-primary);
+    }
+    .form-title {
+        font-size: 2rem;
+        font-weight: 800;
+        background: var(--gradient-accent);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 1.5rem;
+        text-align: center;
+    }
+    .delete-warning {
+        background: rgba(244,67,54,0.08);
+        color: #F44336;
+        border-left: 5px solid #F44336;
+        margin-bottom: 1rem;
+        padding: 1rem;
+        border-radius: 12px;
+        text-align: center;
+        font-weight: 600;
+    }
+    .form-actions {
+        display: flex;
+        gap: 20px;
+        justify-content: center;
+        margin-top: 30px;
+    }
+    .btn-danger {
+        background: #F44336;
+        color: #fff;
+        border-radius: 12px;
+        font-weight: 600;
+        box-shadow: var(--shadow-card);
+        padding: 12px 24px;
+        border: none;
+        text-decoration: none;
+        transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+    }
+    .btn-danger:hover {
+        background: var(--accent-gold);
+        color: var(--primary-navy);
+        box-shadow: 0 8px 32px rgba(255,179,0,0.18);
+    }
+    .btn-secondary {
+        background: var(--surface-card);
+        color: var(--text-secondary);
+        border: 2px solid var(--border-glow);
+        border-radius: 12px;
+        font-weight: 600;
+        box-shadow: var(--shadow-card);
+        padding: 12px 24px;
+        text-decoration: none;
+        transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+    }
+    .btn-secondary:hover {
+        background: var(--accent-electric);
+        color: #fff;
+    }
+</style>
+<div class="admin-card">
+    <div class="form-title">Unassign IT Staff Specialization</div>
+    <form asp-action="DeleteConfirmed" method="post">
+        <input type="hidden" asp-for="UserID" />
+        <div class="delete-warning">
+            Are you sure you want to remove <strong>@Model.FullName</strong> from team <strong>@Model.Team?.TeamName</strong>?
+        </div>
+        <div class="form-actions">
+            <button type="submit" class="btn-danger">Yes, Remove</button>
+            <a asp-action="Index" class="btn-secondary">Cancel</a>
+        </div>
+    </form>
 </div>
-
-<form asp-action="DeleteConfirmed" method="post">
-    <input type="hidden" asp-for="UserID" />
-    <button type="submit" class="btn btn-danger">Yes, Remove</button>
-    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
-</form>

@@ -3,13 +3,35 @@
     ViewData["Title"] = "User Management";
 }
 <style>
+    :root {
+        --primary-deep-blue: #0F1419;
+        --primary-navy: #1A237E;
+        --accent-electric: #00E5FF;
+        --accent-purple: #7B2CBF;
+        --accent-gold: #FFB300;
+        --surface-card: #242424;
+        --text-primary: #FFFFFF;
+        --text-secondary: rgba(255,255,255,0.7);
+        --gradient-primary: linear-gradient(135deg, #0F1419 0%, #1A237E 50%, #7B2CBF 100%);
+        --gradient-accent: linear-gradient(45deg, #00E5FF, #7B2CBF);
+        --shadow-card: 0 8px 32px rgba(0, 229, 255, 0.08);
+        --border-glow: rgba(0, 229, 255, 0.3);
+    }
+
+    body {
+        background: var(--gradient-primary);
+        color: var(--text-primary);
+        font-family: 'Inter', sans-serif;
+    }
+
     .admin-card {
         max-width: 1200px;
         margin: 40px auto;
-        background: linear-gradient(135deg, #f8fafc 0%, #e0e4e8 100%);
+        background: var(--surface-card);
         border-radius: 24px;
-        box-shadow: 0 8px 32px rgba(16,185,129,0.08), 0 0 40px rgba(16,185,129,0.08);
+        box-shadow: var(--shadow-card);
         padding: 2.5rem 2rem;
+        color: var(--text-primary);
     }
 
     .admin-header {
@@ -22,26 +44,29 @@
     .admin-title {
         font-size: 2.2rem;
         font-weight: 800;
-        color: #10b981;
+        background: var(--gradient-accent);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
         margin: 0;
         letter-spacing: 1px;
     }
 
     .btn-back {
-        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        background: var(--gradient-accent);
         color: #fff;
         border-radius: 12px;
         padding: 0.75rem 1.5rem;
         font-weight: 600;
         border: none;
-        box-shadow: 0 2px 12px rgba(16,185,129,0.12);
+        box-shadow: var(--shadow-card);
         text-decoration: none;
         transition: background 0.2s;
     }
 
         .btn-back:hover {
-            background: #FFB300;
-            color: #1A237E;
+            background: var(--accent-gold);
+            color: var(--primary-navy);
         }
 
     .stats-grid {
@@ -52,12 +77,12 @@
     }
 
     .stat-card {
-        background: linear-gradient(135deg, #10b981, #059669);
+        background: var(--gradient-accent);
         color: white;
         padding: 25px;
         border-radius: 16px;
         text-align: center;
-        box-shadow: 0 4px 16px rgba(16,185,129,0.08);
+        box-shadow: var(--shadow-card);
     }
 
     .users-grid {
@@ -67,11 +92,11 @@
     }
 
     .user-card {
-        background: #fff;
-        border: 2px solid #e2e8f0;
+        background: var(--surface-card);
+        border: 2px solid var(--border-glow);
         border-radius: 16px;
         padding: 25px;
-        box-shadow: 0 4px 16px rgba(16,185,129,0.08);
+        box-shadow: var(--shadow-card);
         transition: all 0.3s ease;
         position: relative;
         overflow: hidden;
@@ -79,8 +104,8 @@
 
         .user-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 8px 32px rgba(16,185,129,0.12);
-            border-color: #10b981;
+            box-shadow: 0 8px 32px rgba(0,229,255,0.12);
+            border-color: var(--accent-electric);
         }
 
     .user-info {
@@ -92,37 +117,37 @@
 
     .user-details h4 {
         margin: 0 0 8px 0;
-        color: #10b981;
+        color: var(--accent-electric);
         font-size: 1.3rem;
         font-weight: 700;
     }
 
     .user-details p {
         margin: 0;
-        color: #64748b;
+        color: var(--text-secondary);
         font-size: 0.95rem;
     }
 
     .department-tag {
-        background: linear-gradient(135deg, #34d399, #6ee7b7);
-        color: #065f46;
+        background: var(--accent-purple);
+        color: #fff;
         padding: 8px 16px;
         border-radius: 12px;
         font-weight: 600;
         text-align: center;
         font-size: 0.9rem;
-        box-shadow: 0 2px 8px rgba(16,185,129,0.05);
+        box-shadow: var(--shadow-card);
     }
 
     .current-role {
-        background: linear-gradient(135deg, #065f46, #059669);
-        color: white;
+        background: var(--accent-gold);
+        color: #1A237E;
         padding: 8px 16px;
         border-radius: 12px;
         font-weight: 600;
         text-align: center;
         font-size: 0.9rem;
-        box-shadow: 0 2px 8px rgba(16,185,129,0.05);
+        box-shadow: var(--shadow-card);
     }
 
     .role-selector {
@@ -133,36 +158,36 @@
 
     .role-select {
         padding: 8px 12px;
-        border: 2px solid #e2e8f0;
+        border: 2px solid var(--border-glow);
         border-radius: 8px;
-        background: #fff;
-        color: #0f172a;
+        background: var(--surface-card);
+        color: var(--text-primary);
         font-size: 0.95rem;
         min-width: 150px;
         transition: border-color 0.3s ease;
     }
 
         .role-select:focus {
-            border-color: #10b981;
+            border-color: var(--accent-electric);
             outline: none;
         }
 
     .update-btn {
         padding: 8px 16px;
-        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        background: var(--gradient-accent);
         color: white;
         border: none;
         border-radius: 8px;
         font-weight: 600;
         cursor: pointer;
         transition: all 0.3s ease;
-        box-shadow: 0 2px 8px rgba(16,185,129,0.05);
+        box-shadow: var(--shadow-card);
     }
 
         .update-btn:hover {
-            background: linear-gradient(135deg, #059669 0%, #065f46 100%);
+            background: var(--accent-gold);
+            color: var(--primary-navy);
             transform: translateY(-1px);
-            box-shadow: 0 4px 16px rgba(16,185,129,0.08);
         }
 
     .alert {
@@ -171,10 +196,10 @@
         border-radius: 12px;
         font-size: 1rem;
         font-weight: 600;
-        border-left: 5px solid #10b981;
-        background: rgba(16,185,129,0.1);
-        color: #10b981;
-        box-shadow: 0 2px 8px rgba(16,185,129,0.05);
+        border-left: 5px solid var(--accent-electric);
+        background: rgba(0,229,255,0.1);
+        color: var(--accent-electric);
+        box-shadow: var(--shadow-card);
     }
 </style>
 <div class="admin-card">

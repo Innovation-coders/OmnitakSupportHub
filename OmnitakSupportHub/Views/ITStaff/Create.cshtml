@@ -2,45 +2,147 @@
 @{
     ViewData["Title"] = "Assign IT Staff Specialization";
 }
-
-<div class="p-4" style="background-color: #e6f2e6; border-radius: 8px;">
-    <a asp-controller="AdminDashboard" asp-action="Index" class="btn btn-outline-success mb-3 fw-bold">
-        ← Back to Admin Dashboard
-    </a>
-    <h2 class="mb-4 text-success">@ViewData["Title"]</h2>
-
+<style>
+    :root {
+        --primary-deep-blue: #0F1419;
+        --primary-navy: #1A237E;
+        --accent-electric: #00E5FF;
+        --accent-gold: #FFB300;
+        --surface-card: #242424;
+        --text-primary: #FFFFFF;
+        --text-secondary: rgba(255,255,255,0.7);
+        --gradient-accent: linear-gradient(45deg, #00E5FF, #7B2CBF);
+        --shadow-card: 0 8px 32px rgba(0,229,255,0.08);
+        --border-glow: rgba(0,229,255,0.3);
+    }
+    body {
+        background: var(--gradient-accent);
+        color: var(--text-primary);
+        font-family: 'Inter', sans-serif;
+    }
+    .admin-card {
+        max-width: 600px;
+        margin: 40px auto;
+        background: var(--surface-card);
+        border-radius: 24px;
+        box-shadow: var(--shadow-card);
+        padding: 2.5rem 2rem;
+        color: var(--text-primary);
+    }
+    .form-title {
+        font-size: 2rem;
+        font-weight: 800;
+        background: var(--gradient-accent);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 1.5rem;
+        text-align: center;
+    }
+    .form-group {
+        margin-bottom: 25px;
+    }
+    .form-label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: var(--text-primary);
+        font-size: 1rem;
+    }
+    .form-control, select {
+        width: 100%;
+        padding: 12px 16px;
+        border: 2px solid var(--border-glow);
+        border-radius: 8px;
+        font-size: 1rem;
+        background: var(--surface-card);
+        color: var(--text-primary);
+        transition: border-color 0.3s;
+        box-sizing: border-box;
+    }
+    .form-control:focus, select:focus {
+        outline: none;
+        border-color: var(--accent-electric);
+        box-shadow: 0 0 0 3px rgba(0,229,255,0.1);
+    }
+    .invalid-feedback {
+        color: #F44336;
+        font-size: 0.875rem;
+        margin-top: 5px;
+        display: block;
+    }
+    .form-actions {
+        display: flex;
+        gap: 20px;
+        justify-content: center;
+        margin-top: 30px;
+    }
+    .btn {
+        display: inline-block;
+        padding: 12px 24px;
+        font-size: 1rem;
+        border-radius: 12px;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+        text-decoration: none;
+        transition: background 0.2s;
+        box-shadow: var(--shadow-card);
+    }
+    .btn-warning {
+        background: var(--accent-gold);
+        color: var(--primary-navy);
+    }
+    .btn-warning:hover {
+        background: var(--accent-electric);
+        color: #fff;
+    }
+    .btn-danger {
+        background: #F44336;
+        color: #fff;
+    }
+    .btn-danger:hover {
+        background: var(--accent-gold);
+        color: var(--primary-navy);
+    }
+    .btn-secondary {
+        background: var(--surface-card);
+        color: var(--text-secondary);
+        border: 2px solid var(--border-glow);
+    }
+    .btn-secondary:hover {
+        background: var(--accent-electric);
+        color: #fff;
+    }
+</style>
+<div class="admin-card">
+    <div class="form-title">Assign IT Staff Specialization</div>
     <form asp-action="Create" method="post">
-        <div class="form-group mb-3">
-            <label asp-for="SelectedUserId" class="form-label fw-bold">Select IT Staff</label>
+        <div class="form-group">
+            <label asp-for="SelectedUserId" class="form-label">Select IT Staff</label>
             <select asp-for="SelectedUserId" class="form-control" asp-items="Model.AvailableUsers">
                 <option value="">-- Select IT Staff --</option>
             </select>
-            <span asp-validation-for="SelectedUserId" class="text-danger"></span>
+            <span asp-validation-for="SelectedUserId" class="invalid-feedback"></span>
         </div>
-
-        <div class="form-group mb-3">
-            <label asp-for="SelectedSupportTeamId" class="form-label fw-bold">Assign to Existing Team</label>
+        <div class="form-group">
+            <label asp-for="SelectedSupportTeamId" class="form-label">Assign to Existing Team</label>
             <select asp-for="SelectedSupportTeamId" class="form-control" asp-items="Model.AvailableSupportTeams">
                 <option value="">-- Select Team --</option>
             </select>
-            <span asp-validation-for="SelectedSupportTeamId" class="text-danger"></span>
+            <span asp-validation-for="SelectedSupportTeamId" class="invalid-feedback"></span>
         </div>
-
-        <div class="form-group mb-4">
-            <label asp-for="NewSupportTeamName" class="form-label fw-bold">Or Create New Team</label>
+        <div class="form-group">
+            <label asp-for="NewSupportTeamName" class="form-label">Or Create New Team</label>
             <input asp-for="NewSupportTeamName" class="form-control" placeholder="Enter new team name (optional)" />
-            <span asp-validation-for="NewSupportTeamName" class="text-danger"></span>
+            <span asp-validation-for="NewSupportTeamName" class="invalid-feedback"></span>
         </div>
-
-        <div class="d-flex gap-2">
-            <button type="submit" class="btn btn-warning text-dark fw-bold">Assign Specialization</button>
-            <a asp-action="Index" class="btn btn-danger fw-bold">Cancel</a>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-warning">Assign Specialization</button>
+            <a asp-action="Index" class="btn btn-danger">Cancel</a>
         </div>
     </form>
 </div>
-
 @section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+    <partial name="_ValidationScriptsPartial" />
 }

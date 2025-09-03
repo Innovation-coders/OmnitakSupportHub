@@ -1,0 +1,240 @@
+﻿
+<div id="simple-chatbot" style="position: fixed; bottom: 20px; right: 20px; z-index: 9999;">
+
+    <button id="chat-toggle" style="
+        width: 60px; height: 60px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        border: none;
+        color: white;
+        font-size: 24px;
+        cursor: pointer;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        transition: transform 0.3s ease;">
+        <i class="bi bi-robot"></i>
+    </button>
+
+   
+    <div id="chat-window" style="
+        position: absolute;
+        bottom: 80px;
+        right: 0;
+        width: 350px;
+        height: 450px;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+        display: none;
+        flex-direction: column;
+        overflow: hidden;">
+
+        <!-- Header -->
+        <div style="
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px;
+            font-weight: 600;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span>IT Support Assistant</span>
+                <button id="chat-close" style="background: none; border: none; color: white; font-size: 18px; cursor: pointer;">
+                    <i class="bi bi-x"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Messages Area -->
+        <div id="chat-messages" style="
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            background: #f8fafc;">
+        </div>
+
+        <!-- Input Area -->
+        <div style="
+            padding: 15px;
+            border-top: 1px solid #e2e8f0;
+            background: white;">
+            <div style="display: flex; gap: 10px;">
+                <input type="text" id="chat-input" placeholder="Type your message..." style="
+                    flex: 1;
+                    padding: 10px;
+                    border: 1px solid #e2e8f0;
+                    border-radius: 20px;
+                    outline: none;">
+                <button id="chat-send" style="
+                    background: linear-gradient(135deg, #667eea, #764ba2);
+                    border: none;
+                    color: white;
+                    width: 40px;
+                    height: 40px;
+                    border-radius: 50%;
+                    cursor: pointer;">
+                    <i class="bi bi-send"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Simple Chatbot JavaScript
+    document.addEventListener('DOMContentLoaded', function() {
+        const chatToggle = document.getElementById('chat-toggle');
+        const chatWindow = document.getElementById('chat-window');
+        const chatClose = document.getElementById('chat-close');
+        const chatInput = document.getElementById('chat-input');
+        const chatSend = document.getElementById('chat-send');
+        const chatMessages = document.getElementById('chat-messages');
+
+        let sessionId = 'session_' + Date.now();
+        let conversationStarted = false;
+
+        // Toggle chat window
+        chatToggle.addEventListener('click', function() {
+            if (chatWindow.style.display === 'none' || !chatWindow.style.display) {
+                chatWindow.style.display = 'flex';
+                if (!conversationStarted) {
+                    startConversation();
+                }
+            } else {
+                chatWindow.style.display = 'none';
+            }
+        });
+
+        // Close chat
+        chatClose.addEventListener('click', function() {
+            chatWindow.style.display = 'none';
+        });
+
+        // Send message on Enter or click
+        chatInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        chatSend.addEventListener('click', sendMessage);
+
+        async function startConversation() {
+            try {
+                const response = await fetch('/api/SimpleChatApi/start', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    sessionId = data.sessionId;
+                    addMessage(data.welcomeMessage, 'bot');
+                    conversationStarted = true;
+                }
+            } catch (error) {
+                console.error('Error starting conversation:', error);
+                addMessage('Hello! I\'m your IT Support Assistant. How can I help you today?', 'bot');
+            }
+        }
+
+        async function sendMessage() {
+            const message = chatInput.value.trim();
+            if (!message) return;
+
+            // Add user message to chat
+            addMessage(message, 'user');
+            chatInput.value = '';
+
+            // Show typing indicator
+            addMessage('Typing...', 'bot', true);
+
+            try {
+                const response = await fetch('/api/AiChat/send', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message, sessionId })
+                });
+
+                // Remove typing indicator
+                removeLastMessage();
+
+                if (response.ok) {
+                    const data = await response.json();
+                    addMessage(data.response, 'bot');
+                } else {
+                    addMessage('Sorry, I\'m having trouble right now. Please try creating a support ticket.', 'bot');
+                }
+            } catch (error) {
+                removeLastMessage();
+                addMessage('Sorry, I\'m having trouble connecting. Please try creating a support ticket.', 'bot');
+            }
+        }
+
+        function addMessage(message, type, isTyping = false) {
+            const messageDiv = document.createElement('div');
+            messageDiv.style.marginBottom = '15px';
+
+            if (type === 'user') {
+                messageDiv.innerHTML = `
+                    <div style="text-align: right;">
+                        <div style="
+                            background: linear-gradient(135deg, #667eea, #764ba2);
+                            color: white;
+                            padding: 10px 15px;
+                            border-radius: 18px;
+                            display: inline-block;
+                            max-width: 80%;
+                            word-wrap: break-word;">
+                            ${message}
+                        </div>
+                    </div>`;
+            } else {
+                messageDiv.innerHTML = `
+                    <div style="display: flex; gap: 10px;">
+                        <div style="
+                            width: 30px;
+                            height: 30px;
+                            background: linear-gradient(135deg, #667eea, #764ba2);
+                            border-radius: 50%;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            color: white;
+                            font-size: 14px;">
+                            <i class="bi bi-robot"></i>
+                        </div>
+                        <div style="
+                            background: white;
+                            padding: 10px 15px;
+                            border-radius: 18px;
+                            max-width: 80%;
+                            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                            word-wrap: break-word;">
+                            ${message}
+                        </div>
+                    </div>`;
+            }
+
+            if (isTyping) {
+                messageDiv.setAttribute('data-typing', 'true');
+            }
+
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function removeLastMessage() {
+            const typingMessage = chatMessages.querySelector('[data-typing="true"]');
+            if (typingMessage) {
+                typingMessage.remove();
+            }
+        }
+
+        // Hover effect for toggle button
+        chatToggle.addEventListener('mouseenter', function() {
+            this.style.transform = 'scale(1.1)';
+        });
+
+        chatToggle.addEventListener('mouseleave', function() {
+            this.style.transform = 'scale(1.0)';
+        });
+    });
+</script>

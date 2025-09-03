@@ -7,6 +7,7 @@ namespace OmnitakSupportHub
 {
     public class OmnitakContext : DbContext
     {
+        // === EXISTING DBSETS ===
         public DbSet<Role> Roles { get; set; }
         public DbSet<Department> Departments { get; set; }
         public DbSet<SupportTeam> SupportTeams { get; set; }
@@ -24,18 +25,25 @@ namespace OmnitakSupportHub
         public DbSet<ChatMessage> ChatMessages { get; set; }
         public DbSet<PasswordResetToken> PasswordResetTokens { get; set; }
 
+        // === NEW CHATBOT DBSETS ===
+        public DbSet<ChatbotConversation> ChatbotConversations { get; set; }
+        public DbSet<ChatbotMessage> ChatbotMessages { get; set; }
+
         public OmnitakContext(DbContextOptions<OmnitakContext> options) : base(options)
         {
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-         
+            // === EXISTING CONFIGURATIONS (PRESERVED) ===
             ConfigureUserRelationships(modelBuilder);
             ConfigureTicketRelationships(modelBuilder);
             ConfigureOtherRelationships(modelBuilder);
 
-            
+            // === NEW CHATBOT CONFIGURATION ===
+            ConfigureChatbotRelationships(modelBuilder);
+
+            // Prevent cascade delete (EXISTING)
             foreach (var fk in modelBuilder.Model.GetEntityTypes().SelectMany(e => e.GetForeignKeys()))
             {
                 if (fk.DeleteBehavior == DeleteBehavior.Cascade)
@@ -44,14 +52,12 @@ namespace OmnitakSupportHub
                 }
             }
 
-            
-
             base.OnModelCreating(modelBuilder);
         }
 
+        // === EXISTING RELATIONSHIP CONFIGURATIONS (PRESERVED) ===
         private void ConfigureUserRelationships(ModelBuilder modelBuilder)
         {
-            
             modelBuilder.Entity<User>(entity =>
             {
                 entity.HasOne(u => u.Role)
@@ -59,26 +65,22 @@ namespace OmnitakSupportHub
                       .HasForeignKey(u => u.RoleID)
                       .OnDelete(DeleteBehavior.Restrict);
 
-            
                 entity.HasOne(u => u.Department)
                       .WithMany(d => d.Users)
                       .HasForeignKey(u => u.DepartmentId)
                       .OnDelete(DeleteBehavior.Restrict);
 
-               
                 entity.HasOne(u => u.Team)
                       .WithMany(t => t.Users)
                       .HasForeignKey(u => u.TeamID)
                       .OnDelete(DeleteBehavior.Restrict);
 
-             
                 entity.HasOne(u => u.ApprovedByUser)
                       .WithMany(u => u.ApprovedUsers)
                       .HasForeignKey(u => u.ApprovedBy)
                       .OnDelete(DeleteBehavior.Restrict);
             });
 
-            
             modelBuilder.Entity<SupportTeam>(entity =>
             {
                 entity.HasOne(st => st.TeamLead)
@@ -92,49 +94,41 @@ namespace OmnitakSupportHub
         {
             modelBuilder.Entity<Ticket>(entity =>
             {
-              
                 entity.HasOne(t => t.CreatedByUser)
                       .WithMany(u => u.CreatedTickets)
                       .HasForeignKey(t => t.CreatedBy)
                       .OnDelete(DeleteBehavior.Restrict);
 
-               
                 entity.HasOne(t => t.AssignedToUser)
                       .WithMany(u => u.AssignedTickets)
                       .HasForeignKey(t => t.AssignedTo)
                       .OnDelete(DeleteBehavior.Restrict);
 
-              
                 entity.HasOne(t => t.Team)
                       .WithMany(st => st.Tickets)
                       .HasForeignKey(t => t.TeamID)
                       .OnDelete(DeleteBehavior.Restrict);
 
-               
                 entity.HasOne(t => t.Category)
                       .WithMany(c => c.Tickets)
                       .HasForeignKey(t => t.CategoryID)
                       .OnDelete(DeleteBehavior.Restrict);
 
-              
                 entity.HasOne(t => t.Status)
                       .WithMany(s => s.Tickets)
                       .HasForeignKey(t => t.StatusID)
                       .OnDelete(DeleteBehavior.Restrict);
 
-              
                 entity.HasOne(t => t.Priority)
                       .WithMany(p => p.Tickets)
                       .HasForeignKey(t => t.PriorityID)
                       .OnDelete(DeleteBehavior.Restrict);
             });
 
-         
             modelBuilder.Entity<TicketTimeline>(entity =>
             {
                 entity.HasKey(tt => tt.TimelineID);
 
-                
                 entity.HasOne(tt => tt.Ticket)
                       .WithMany(t => t.TicketTimelines)
                       .HasForeignKey(tt => tt.TicketID)
@@ -144,7 +138,6 @@ namespace OmnitakSupportHub
 
         private void ConfigureOtherRelationships(ModelBuilder modelBuilder)
         {
-          
             modelBuilder.Entity<ChatMessage>(entity =>
             {
                 entity.HasKey(cm => cm.MessageID);
@@ -160,7 +153,6 @@ namespace OmnitakSupportHub
                       .OnDelete(DeleteBehavior.Restrict);
             });
 
-       
             modelBuilder.Entity<KnowledgeBase>(entity =>
             {
                 entity.HasKey(kb => kb.ArticleID);
@@ -196,7 +188,6 @@ namespace OmnitakSupportHub
                       .OnDelete(DeleteBehavior.Restrict);
             });
 
-         
             modelBuilder.Entity<AuditLog>(entity =>
             {
                 entity.HasKey(al => al.LogID);
@@ -207,7 +198,6 @@ namespace OmnitakSupportHub
                       .OnDelete(DeleteBehavior.Restrict);
             });
 
-           
             modelBuilder.Entity<PasswordReset>(entity =>
             {
                 entity.HasKey(pr => pr.Token);
@@ -218,7 +208,6 @@ namespace OmnitakSupportHub
                       .OnDelete(DeleteBehavior.Restrict);
             });
 
-            
             modelBuilder.Entity<RoutingRule>(entity =>
             {
                 entity.HasKey(rr => rr.RuleID);
@@ -232,6 +221,53 @@ namespace OmnitakSupportHub
                       .WithMany(st => st.RoutingRules)
                       .HasForeignKey(rr => rr.TeamID)
                       .OnDelete(DeleteBehavior.Restrict);
+            });
+        }
+
+        // === NEW CHATBOT RELATIONSHIPS ===
+        private void ConfigureChatbotRelationships(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<ChatbotConversation>(entity =>
+            {
+                entity.HasKey(c => c.ConversationID);
+
+                // User relationship (optional for anonymous users)
+                entity.HasOne(c => c.User)
+                      .WithMany()
+                      .HasForeignKey(c => c.UserID)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                // Ticket relationship (for escalated conversations)
+                entity.HasOne(c => c.Ticket)
+                      .WithMany()
+                      .HasForeignKey(c => c.TicketID)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                // Index for session lookups
+                entity.HasIndex(c => c.SessionID).IsUnique();
+                entity.HasIndex(c => c.Status);
+            });
+
+            modelBuilder.Entity<ChatbotMessage>(entity =>
+            {
+                entity.HasKey(m => m.MessageID);
+
+                // Conversation relationship
+                entity.HasOne(m => m.Conversation)
+                      .WithMany(c => c.Messages)
+                      .HasForeignKey(m => m.ConversationID)
+                      .OnDelete(DeleteBehavior.Cascade); // Delete messages when conversation is deleted
+
+                // Knowledge base relationship (optional)
+                entity.HasOne(m => m.RelatedKnowledgeArticle)
+                      .WithMany()
+                      .HasForeignKey(m => m.RelatedKnowledgeArticleID)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                // Indexes for performance
+                entity.HasIndex(m => m.ConversationID);
+                entity.HasIndex(m => m.MessageType);
+                entity.HasIndex(m => m.SentAt);
             });
         }
     }

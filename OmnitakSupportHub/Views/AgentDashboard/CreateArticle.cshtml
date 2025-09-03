@@ -1,318 +1,630 @@
 ﻿@model OmnitakSupportHub.Models.ViewModels.CreateArticleViewModel
 @{
-    ViewData["Title"] = Model.IsEditing ? "Edit Article" : "Create New Article";
+    ViewData["Title"] = Model.IsEditing ? "Edit Article" : "Create Article";
+    Layout = null; // Custom layout for full control matching manager dashboard
 }
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Knowledge Base</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"] - Omnitak Support Hub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
-
     <style>
         :root {
-            --primary-blue: #2563eb;
-            --success-green: #16a34a;
-            --warning-orange: #ea580c;
-            --danger-red: #dc2626;
-            --info-cyan: #0891b2;
-            --light-gray: #f8fafc;
-            --medium-gray: #64748b;
-            --dark-gray: #334155;
-            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            --hover-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            /* Premium Enterprise Color Palette - Matching Manager Dashboard */
+            --primary-deep-blue: #0F1419;
+            --primary-navy: #1A237E;
+            --accent-electric: #00E5FF;
+            --accent-purple: #7B2CBF;
+            --accent-gold: #FFB300;
+            --accent-success: #4CAF50;
+            --accent-warning: #FF9800;
+            --accent-danger: #F44336;
+            --surface-dark: #121212;
+            --surface-elevated: #1E1E1E;
+            --surface-card: #242424;
+            --surface-glass: rgba(255, 255, 255, 0.05);
+            --text-primary: #FFFFFF;
+            --text-secondary: rgba(255, 255, 255, 0.7);
+            --text-muted: rgba(255, 255, 255, 0.5);
+            --gradient-primary: linear-gradient(135deg, #0F1419 0%, #1A237E 50%, #7B2CBF 100%);
+            --gradient-accent: linear-gradient(45deg, #00E5FF, #7B2CBF);
+            --gradient-card: linear-gradient(135deg, #1E1E1E 0%, #242424 100%);
+            --shadow-glow: 0 0 40px rgba(0, 229, 255, 0.3);
+            --shadow-deep: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+            --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.3);
+            --border-glow: rgba(0, 229, 255, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
         body {
-            background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Inter', sans-serif;
+            background: var(--gradient-primary);
+            color: var(--text-primary);
             min-height: 100vh;
         }
 
-        .create-header {
-            background: linear-gradient(135deg, var(--success-green) 0%, #15803d 100%);
-            color: white;
-            padding: 2rem 0;
-            box-shadow: var(--card-shadow);
+        /* Animated Background */
+        .background-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--gradient-primary);
+            z-index: -1;
         }
 
-        .form-card {
-            background: white;
-            border-radius: 16px;
-            box-shadow: var(--card-shadow);
-            margin-bottom: 1.5rem;
+        .floating-orbs {
+            position: absolute;
+            width: 100%;
+            height: 100%;
             overflow: hidden;
+        }
+
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            background: var(--gradient-accent);
+            opacity: 0.1;
+            animation: float 20s infinite linear;
+        }
+
+            .orb:nth-child(1) {
+                width: 300px;
+                height: 300px;
+                top: -150px;
+                left: -150px;
+                animation-delay: 0s;
+            }
+
+            .orb:nth-child(2) {
+                width: 200px;
+                height: 200px;
+                top: 50%;
+                right: -100px;
+                animation-delay: -7s;
+            }
+
+            .orb:nth-child(3) {
+                width: 400px;
+                height: 400px;
+                bottom: -200px;
+                left: 30%;
+                animation-delay: -14s;
+            }
+
+        @@keyframes float {
+            0%, 100%
+
+        {
+            transform: translateY(0px) rotate(0deg);
+        }
+
+        33% {
+            transform: translateY(-30px) rotate(120deg);
+        }
+
+        66% {
+            transform: translateY(15px) rotate(240deg);
+        }
+
+        }
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Header */
+        .page-header {
+            margin-bottom: 40px;
+            text-align: center;
+            animation: fadeInDown 0.8s ease;
+        }
+
+        .page-title {
+            font-size: 42px;
+            font-weight: 800;
+            background: var(--gradient-accent);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .page-subtitle {
+            font-size: 18px;
+            color: var(--text-secondary);
+            font-weight: 400;
+        }
+
+        /* Back Button */
+        .back-nav {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--accent-electric);
+            text-decoration: none;
+            font-weight: 500;
+            margin-bottom: 30px;
+            padding: 12px 20px;
+            border: 1px solid var(--border-glow);
+            border-radius: 8px;
+            background: var(--surface-glass);
+            backdrop-filter: blur(10px);
             transition: all 0.3s ease;
         }
 
-        .form-card:hover {
-            box-shadow: var(--hover-shadow);
+            .back-nav:hover {
+                color: var(--text-primary);
+                background: var(--surface-card);
+                transform: translateX(-5px);
+            }
+
+        /* Alert Messages */
+        .alert {
+            margin-bottom: 30px;
+            padding: 20px 25px;
+            border-radius: 12px;
+            font-size: 15px;
+            border: 1px solid;
+            backdrop-filter: blur(10px);
+            animation: fadeInUp 0.6s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
+
+        .alert-success {
+            background: rgba(76, 175, 80, 0.15);
+            border-color: var(--accent-success);
+            color: var(--accent-success);
+            box-shadow: 0 8px 32px rgba(76, 175, 80, 0.2);
+        }
+
+        .alert-danger {
+            background: rgba(244, 67, 54, 0.15);
+            border-color: var(--accent-danger);
+            color: var(--accent-danger);
+            box-shadow: 0 8px 32px rgba(244, 67, 54, 0.2);
+        }
+
+        /* Form Cards */
+        .form-card {
+            background: var(--surface-card);
+            border: 1px solid var(--border-glow);
+            border-radius: 16px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow-card);
+            backdrop-filter: blur(20px);
+            transition: all 0.3s ease;
+            animation: fadeInUp 0.8s ease;
+            overflow: hidden;
+        }
+
+            .form-card:hover {
+                transform: translateY(-5px);
+                box-shadow: var(--shadow-glow);
+            }
 
         .card-header-custom {
-            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-            padding: 1.5rem;
-            border-bottom: 1px solid #e2e8f0;
+            background: var(--gradient-accent);
+            color: white;
+            padding: 20px 30px;
+            border-bottom: 1px solid var(--border-glow);
         }
+
+            .card-header-custom h5 {
+                margin: 0;
+                font-size: 20px;
+                font-weight: 700;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+
+            .card-header-custom h6 {
+                margin: 0;
+                font-size: 16px;
+                font-weight: 600;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
 
         .form-section {
-            padding: 2rem;
+            padding: 30px;
         }
 
+        /* Form Elements */
         .form-label {
+            color: var(--text-primary);
             font-weight: 600;
-            color: var(--dark-gray);
-            margin-bottom: 0.5rem;
+            margin-bottom: 8px;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .form-control, .form-select {
-            border: 2px solid #e2e8f0;
+            background: var(--surface-elevated);
+            border: 1px solid var(--border-glow);
             border-radius: 8px;
-            padding: 0.75rem 1rem;
-            font-size: 0.95rem;
+            padding: 12px 16px;
+            color: var(--text-primary);
+            font-size: 15px;
             transition: all 0.3s ease;
         }
 
-        .form-control:focus, .form-select:focus {
-            border-color: var(--primary-blue);
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-            outline: none;
+            .form-control:focus, .form-select:focus {
+                outline: none;
+                border-color: var(--accent-electric);
+                box-shadow: 0 0 0 3px rgba(0, 229, 255, 0.1);
+                background: var(--surface-card);
+            }
+
+            .form-control::placeholder {
+                color: var(--text-muted);
+            }
+
+        .content-editor {
+            min-height: 300px;
+            resize: vertical;
+            font-family: 'Fira Code', 'Consolas', monospace;
         }
 
-        .btn-action {
-            padding: 0.75rem 1.5rem;
-            border-radius: 8px;
-            font-weight: 600;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            transition: all 0.3s ease;
-            border: none;
-            cursor: pointer;
-        }
-
-        .btn-success-custom {
-            background: linear-gradient(135deg, var(--success-green) 0%, #15803d 100%);
-            color: white;
-        }
-
-        .btn-success-custom:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--hover-shadow);
-            color: white;
-        }
-
-        .btn-outline-custom {
-            background: white;
-            color: var(--medium-gray);
-            border: 2px solid #e2e8f0;
-        }
-
-        .btn-outline-custom:hover {
-            background: var(--light-gray);
-            border-color: var(--primary-blue);
-            color: var(--primary-blue);
-            transform: translateY(-1px);
-        }
-
+        /* Help Text */
         .help-text {
-            font-size: 0.85rem;
-            color: var(--medium-gray);
-            margin-top: 0.25rem;
+            color: var(--text-muted);
+            font-size: 13px;
+            margin-top: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
 
         .character-count {
-            font-size: 0.8rem;
-            color: var(--medium-gray);
+            color: var(--text-muted);
+            font-size: 12px;
             text-align: right;
-            margin-top: 0.25rem;
+            margin-top: 5px;
         }
 
-        .character-count.warning {
-            color: var(--warning-orange);
-        }
-
-        .character-count.danger {
-            color: var(--danger-red);
-        }
-
-        .content-editor {
-            min-height: 400px;
-            resize: vertical;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-        }
-
+        /* Template Cards */
         .template-card {
-            background: white;
-            border: 2px solid #e2e8f0;
+            background: var(--surface-elevated);
+            border: 1px solid var(--border-glow);
             border-radius: 8px;
-            padding: 1rem;
+            padding: 15px;
             cursor: pointer;
             transition: all 0.3s ease;
             text-align: center;
+            margin-bottom: 10px;
         }
 
-        .template-card:hover {
-            border-color: var(--primary-blue);
-            background: #f8fafc;
-            transform: translateY(-2px);
-        }
+            .template-card:hover {
+                background: var(--surface-card);
+                border-color: var(--accent-electric);
+                transform: translateY(-2px);
+                box-shadow: 0 8px 25px rgba(0, 229, 255, 0.2);
+            }
 
         .template-title {
             font-weight: 600;
-            color: var(--dark-gray);
-            margin-bottom: 0.5rem;
+            font-size: 14px;
+            color: var(--text-primary);
+            margin-bottom: 5px;
         }
 
         .template-description {
-            font-size: 0.85rem;
-            color: var(--medium-gray);
+            font-size: 12px;
+            color: var(--text-muted);
         }
 
-        .auto-save-indicator {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: var(--success-green);
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            transform: translateX(200px);
-            transition: all 0.3s ease;
-            z-index: 1000;
-        }
-
-        .auto-save-indicator.show {
-            transform: translateX(0);
-        }
-
-        .fade-in {
-            animation: fadeIn 0.6s ease-out forwards;
-        }
-
-        @@keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .validation-summary {
-            background: #fef2f2;
-            border: 1px solid #fecaca;
-            color: #dc2626;
-            padding: 1rem;
+        /* Buttons */
+        .btn-action {
+            padding: 12px 24px;
+            border: none;
             border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+        }
+
+        .btn-success-custom {
+            background: linear-gradient(45deg, var(--accent-success), #66BB6A);
+            color: white;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+        }
+
+            .btn-success-custom:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 25px rgba(76, 175, 80, 0.4);
+            }
+
+        .btn-outline-custom {
+            background: transparent;
+            color: var(--accent-electric);
+            border: 1px solid var(--accent-electric);
+            box-shadow: 0 4px 15px rgba(0, 229, 255, 0.2);
+        }
+
+            .btn-outline-custom:hover {
+                background: var(--accent-electric);
+                color: var(--primary-deep-blue);
+                transform: translateY(-2px);
+                box-shadow: 0 8px 25px rgba(0, 229, 255, 0.4);
+            }
+
+        .btn-secondary-custom {
+            background: var(--surface-elevated);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-glow);
+        }
+
+            .btn-secondary-custom:hover {
+                background: var(--surface-card);
+                color: var(--text-primary);
+                border-color: var(--accent-electric);
+            }
+
+        /* Content Preview */
+        #contentPreview {
+            background: var(--surface-elevated);
+            border: 1px solid var(--border-glow);
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 15px;
+            display: none;
+        }
+
+        /* Validation Errors */
+        .field-validation-error {
+            color: var(--accent-danger);
+            font-size: 12px;
+            margin-top: 5px;
+            display: block;
+        }
+
+        .input-validation-error {
+            border-color: var(--accent-danger) !important;
+        }
+
+        /* Writing Tips */
+        .tips-list {
+            list-style: none;
+            padding: 0;
+        }
+
+            .tips-list li {
+                display: flex;
+                align-items: flex-start;
+                gap: 10px;
+                margin-bottom: 12px;
+                font-size: 13px;
+                color: var(--text-secondary);
+            }
+
+            .tips-list .bi-check-circle {
+                color: var(--accent-success);
+                margin-top: 2px;
+            }
+
+        /* Grid Layout */
+        .row {
+            display: flex;
+            flex-wrap: wrap;
+            margin: 0 -15px;
+        }
+
+        .col-lg-8 {
+            flex: 0 0 66.666667%;
+            max-width: 66.666667%;
+            padding: 0 15px;
+        }
+
+        .col-lg-4 {
+            flex: 0 0 33.333333%;
+            max-width: 33.333333%;
+            padding: 0 15px;
+        }
+
+        .col-6 {
+            flex: 0 0 50%;
+            max-width: 50%;
+            padding: 0 5px;
+        }
+
+        .g-2 > * {
+            padding: 0.25rem;
+        }
+
+        .d-grid {
+            display: grid;
+        }
+
+        .gap-2 {
+            gap: 0.5rem;
+        }
+
+        .mb-4 {
+            margin-bottom: 1.5rem;
+        }
+
+        .mb-3 {
             margin-bottom: 1rem;
         }
 
-        .field-validation-error {
-            color: var(--danger-red);
-            font-size: 0.85rem;
-            margin-top: 0.25rem;
+        .mt-3 {
+            margin-top: 1rem;
         }
 
-        .form-control.input-validation-error {
-            border-color: var(--danger-red);
+        /* Animation Classes */
+        @@keyframes fadeInDown {
+            from
+
+        {
+            opacity: 0;
+            transform: translateY(-30px);
         }
 
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        }
+
+        @@keyframes fadeInUp {
+            from
+
+        {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        }
+
+        .fade-in {
+            animation: fadeInUp 0.8s ease;
+        }
+
+        /* Responsive Design */
         @@media (max-width: 768px) {
-            .form-section {
-                padding: 1.5rem;
-            }
-            
-            .create-header {
-                padding: 1.5rem 0;
-            }
+            .container
+
+        {
+            padding: 20px 15px;
+        }
+
+        .page-title {
+            font-size: 28px;
+        }
+
+        .col-lg-8, .col-lg-4 {
+            flex: 0 0 100%;
+            max-width: 100%;
+        }
+
+        .form-section {
+            padding: 20px;
+        }
+
+        .card-header-custom {
+            padding: 15px 20px;
+        }
+
+        .col-6 {
+            flex: 0 0 100%;
+            max-width: 100%;
+            margin-bottom: 10px;
+        }
+
+        }
+
+        /* Loading State */
+        .btn-action:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        /* Success Animation */
+        .success-pulse {
+            animation: pulse 1.5s ease-in-out;
+        }
+
+        @@keyframes pulse {
+            0%
+
+        {
+            transform: scale(1);
+        }
+
+        50% {
+            transform: scale(1.05);
+        }
+
+        100% {
+            transform: scale(1);
+        }
+
         }
     </style>
 </head>
 <body>
-    
-    <div class="create-header">
-        <div class="container">
-            <div class="row align-items-center">
-                <div class="col-md-8">
-                    <h1 class="mb-2">
-                        <i class="bi bi-@(Model.IsEditing ? "pencil-square" : "plus-circle") me-2"></i>
-                        @ViewData["Title"]
-                    </h1>
-                    <p class="mb-0 opacity-75">
-                        @if (Model.IsEditing)
-                        {
-                            <span>Update this knowledge base article</span>
-                        }
-                        else
-                        {
-                            <span>Share your knowledge with the team</span>
-                        }
-                    </p>
-                </div>
-                <div class="col-md-4 text-end">
-                    <a href="/AgentDashboard/KnowledgeBase" class="btn btn-light me-2">
-                        <i class="bi bi-arrow-left me-1"></i>
-                        Cancel
-                    </a>
-                    @if (Model.IsEditing)
-                    {
-                        <a href="/AgentDashboard/ArticleDetails/@Model.ArticleID" class="btn btn-outline-light">
-                            <i class="bi bi-eye me-1"></i>
-                            View Article
-                        </a>
-                    }
-                </div>
-            </div>
+    <!-- Animated Background -->
+    <div class="background-container">
+        <div class="floating-orbs">
+            <div class="orb"></div>
+            <div class="orb"></div>
+            <div class="orb"></div>
         </div>
     </div>
 
-   
-    <div class="auto-save-indicator" id="autoSaveIndicator">
-        <i class="bi bi-check-circle me-1"></i>
-        Draft saved
-    </div>
+    <div class="container">
+        <!-- Back Navigation -->
+        <a href="/AgentDashboard/KnowledgeBase" class="back-nav">
+            <i class="bi bi-arrow-left"></i>
+            Back to Knowledge Base
+        </a>
 
-    <div class="container mt-4">
-       
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1 class="page-title">
+                <i class="bi bi-file-text me-3"></i>
+                @(Model.IsEditing ? "Edit Article" : "Create New Article")
+            </h1>
+            <p class="page-subtitle">
+                @(Model.IsEditing ? "Update your existing knowledge base article" : "Share your knowledge with the support team")
+            </p>
+        </div>
+
+        <!-- Alert Messages -->
         @if (TempData["SuccessMessage"] != null)
         {
-            <div class="alert alert-success fade-in">
-                <i class="bi bi-check-circle me-2"></i>
-                @TempData["SuccessMessage"]
+            <div class="alert alert-success">
+                <i class="bi bi-check-circle"></i>
+                <span>@TempData["SuccessMessage"]</span>
             </div>
         }
 
         @if (TempData["ErrorMessage"] != null)
         {
-            <div class="alert alert-danger fade-in">
-                <i class="bi bi-exclamation-triangle me-2"></i>
-                @TempData["ErrorMessage"]
+            <div class="alert alert-danger">
+                <i class="bi bi-exclamation-triangle"></i>
+                <span>@TempData["ErrorMessage"]</span>
             </div>
         }
 
-      
-        @if (!ViewData.ModelState.IsValid)
-        {
-            <div class="validation-summary fade-in">
-                <h6><i class="bi bi-exclamation-triangle me-2"></i>Please correct the following errors:</h6>
-                <ul class="mb-0">
-                    @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
-                    {
-                        <li>@error.ErrorMessage</li>
-                    }
-                </ul>
-            </div>
-        }
-
+        <!-- Main Form -->
         <form asp-action="@(Model.IsEditing ? "EditArticle" : "CreateArticle")" method="post" id="articleForm">
             @Html.AntiForgeryToken()
             @if (Model.IsEditing)
@@ -321,13 +633,13 @@
             }
 
             <div class="row">
-               
+                <!-- Main Form Column -->
                 <div class="col-lg-8">
-                    
+                    <!-- Article Details Card -->
                     <div class="form-card fade-in">
                         <div class="card-header-custom">
-                            <h5 class="mb-0">
-                                <i class="bi bi-file-text me-2"></i>
+                            <h5>
+                                <i class="bi bi-file-text"></i>
                                 Article Details
                             </h5>
                         </div>
@@ -336,7 +648,10 @@
                                 <label asp-for="Title" class="form-label">Article Title *</label>
                                 <input asp-for="Title" class="form-control" placeholder="Enter a clear, descriptive title..." maxlength="200" id="titleInput" />
                                 <span asp-validation-for="Title" class="field-validation-error"></span>
-                                <div class="help-text">Choose a title that clearly describes what this article covers</div>
+                                <div class="help-text">
+                                    <i class="bi bi-info-circle"></i>
+                                    Choose a title that clearly describes what this article covers
+                                </div>
                                 <div class="character-count" id="titleCount">0/200 characters</div>
                             </div>
 
@@ -346,16 +661,19 @@
                                     <option value="">Select a category...</option>
                                 </select>
                                 <span asp-validation-for="CategoryID" class="field-validation-error"></span>
-                                <div class="help-text">Choose the most relevant category for this article</div>
+                                <div class="help-text">
+                                    <i class="bi bi-tag"></i>
+                                    Choose the most relevant category for this article
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    
+                    <!-- Content Editor Card -->
                     <div class="form-card fade-in">
                         <div class="card-header-custom">
-                            <h5 class="mb-0">
-                                <i class="bi bi-textarea-t me-2"></i>
+                            <h5>
+                                <i class="bi bi-textarea-t"></i>
                                 Article Content
                             </h5>
                         </div>
@@ -365,34 +683,34 @@
                                 <textarea asp-for="Content" class="form-control content-editor" placeholder="Write your article content here... You can use Markdown formatting." id="contentEditor"></textarea>
                                 <span asp-validation-for="Content" class="field-validation-error"></span>
                                 <div class="help-text">
-                                    <i class="bi bi-info-circle me-1"></i>
+                                    <i class="bi bi-markdown"></i>
                                     You can use <strong>**bold**</strong>, <em>*italic*</em>, lists, and other Markdown formatting
                                 </div>
                             </div>
 
-                            
+                            <!-- Preview Toggle -->
                             <div class="mt-3">
-                                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="togglePreview()">
-                                    <i class="bi bi-eye me-1"></i>
+                                <button type="button" class="btn-action btn-secondary-custom" onclick="togglePreview()">
+                                    <i class="bi bi-eye"></i>
                                     Preview Content
                                 </button>
                             </div>
-                            <div id="contentPreview" class="mt-3 p-3 border rounded" style="display: none;">
-                                
+                            <div id="contentPreview" class="mt-3">
+                                <!-- Preview content will be inserted here -->
                             </div>
                         </div>
                     </div>
                 </div>
 
-              
+                <!-- Sidebar Column -->
                 <div class="col-lg-4">
-                    
+                    <!-- Article Templates -->
                     @if (!Model.IsEditing)
                     {
                         <div class="form-card fade-in">
                             <div class="card-header-custom">
-                                <h6 class="mb-0">
-                                    <i class="bi bi-journal-text me-2"></i>
+                                <h6>
+                                    <i class="bi bi-journal-text"></i>
                                     Article Templates
                                 </h6>
                             </div>
@@ -419,7 +737,7 @@
                                     <div class="col-6">
                                         <div class="template-card" onclick="useTemplate('reference')">
                                             <div class="template-title">Reference Guide</div>
-                                            <div class="template-description">Quick reference information</div>
+                                            <div class="template-description">Quick reference info</div>
                                         </div>
                                     </div>
                                 </div>
@@ -427,11 +745,11 @@
                         </div>
                     }
 
-                   
+                    <!-- Save Actions -->
                     <div class="form-card fade-in">
                         <div class="card-header-custom">
-                            <h6 class="mb-0">
-                                <i class="bi bi-floppy me-2"></i>
+                            <h6>
+                                <i class="bi bi-floppy"></i>
                                 Save Article
                             </h6>
                         </div>
@@ -453,35 +771,39 @@
                         </div>
                     </div>
 
-                
+                    <!-- Writing Tips -->
                     <div class="form-card fade-in">
                         <div class="card-header-custom">
-                            <h6 class="mb-0">
-                                <i class="bi bi-lightbulb me-2"></i>
+                            <h6>
+                                <i class="bi bi-lightbulb"></i>
                                 Writing Tips
                             </h6>
                         </div>
                         <div class="form-section">
-                            <ul class="list-unstyled small">
-                                <li class="mb-2">
-                                    <i class="bi bi-check-circle text-success me-2"></i>
-                                    Use clear, descriptive titles
+                            <ul class="tips-list">
+                                <li>
+                                    <i class="bi bi-check-circle"></i>
+                                    <span>Use clear, descriptive titles</span>
                                 </li>
-                                <li class="mb-2">
-                                    <i class="bi bi-check-circle text-success me-2"></i>
-                                    Include step-by-step instructions
+                                <li>
+                                    <i class="bi bi-check-circle"></i>
+                                    <span>Break content into sections with headings</span>
                                 </li>
-                                <li class="mb-2">
-                                    <i class="bi bi-check-circle text-success me-2"></i>
-                                    Add relevant screenshots if possible
+                                <li>
+                                    <i class="bi bi-check-circle"></i>
+                                    <span>Include step-by-step instructions</span>
                                 </li>
-                                <li class="mb-2">
-                                    <i class="bi bi-check-circle text-success me-2"></i>
-                                    Test your solutions before publishing
+                                <li>
+                                    <i class="bi bi-check-circle"></i>
+                                    <span>Add relevant screenshots or examples</span>
                                 </li>
-                                <li class="mb-2">
-                                    <i class="bi bi-check-circle text-success me-2"></i>
-                                    Keep language simple and clear
+                                <li>
+                                    <i class="bi bi-check-circle"></i>
+                                    <span>Test your solutions before publishing</span>
+                                </li>
+                                <li>
+                                    <i class="bi bi-check-circle"></i>
+                                    <span>Keep language simple and concise</span>
                                 </li>
                             </ul>
                         </div>
@@ -491,212 +813,209 @@
         </form>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        
-        const titleInput = document.getElementById('titleInput');
-        const titleCount = document.getElementById('titleCount');
-        
-        function updateTitleCount() {
-            const count = titleInput.value.length;
-            titleCount.textContent = `${count}/200 characters`;
-            
-            titleCount.className = 'character-count';
-            if (count > 180) {
-                titleCount.classList.add('warning');
-            }
-            if (count >= 200) {
-                titleCount.classList.add('danger');
-            }
-        }
-        
-        titleInput.addEventListener('input', updateTitleCount);
-        updateTitleCount(); 
+                // Character Counter
+                document.addEventListener('DOMContentLoaded', function() {
+                    const titleInput = document.getElementById('titleInput');
+                    const titleCount = document.getElementById('titleCount');
 
-       
-        let autoSaveTimer;
-        function startAutoSave() {
-            clearTimeout(autoSaveTimer);
-            autoSaveTimer = setTimeout(saveDraft, 30000); 
-        }
+                    if (titleInput && titleCount) {
+                        function updateCharacterCount() {
+                            const length = titleInput.value.length;
+                            titleCount.textContent = `${length}/200 characters`;
 
-        titleInput.addEventListener('input', startAutoSave);
-        document.getElementById('contentEditor').addEventListener('input', startAutoSave);
+                            if (length > 180) {
+                                titleCount.style.color = 'var(--accent-warning)';
+                            } else if (length > 200) {
+                                titleCount.style.color = 'var(--accent-danger)';
+                            } else {
+                                titleCount.style.color = 'var(--text-muted)';
+                            }
+                        }
 
-        function saveDraft() {
-           
-            const indicator = document.getElementById('autoSaveIndicator');
-            indicator.classList.add('show');
-            
-          
-            setTimeout(() => {
-                indicator.classList.remove('show');
-            }, 2000);
-            
-           
-            console.log('Draft saved');
-        }
+                        titleInput.addEventListener('input', updateCharacterCount);
+                        updateCharacterCount(); // Initial call
+                    }
+                });
 
-        
-        function useTemplate(templateType) {
-            const contentEditor = document.getElementById('contentEditor');
-            let template = '';
-            
-            switch(templateType) {
-                case 'troubleshooting':
-                    template = `# Problem Description
-Describe the issue or problem that needs to be resolved.
+                // Template Functions
+                function useTemplate(templateType) {
+                    const contentEditor = document.getElementById('contentEditor');
+                    let templateContent = '';
 
-## Symptoms
-- List the symptoms users might experience
-- Include error messages if applicable
+                    switch(templateType) {
+                        case 'troubleshooting':
+                            templateContent = `# Troubleshooting Guide: [Issue Name]
 
-## Solution Steps
-1. First step to resolve the issue
-2. Second step with detailed instructions
-3. Continue with additional steps as needed
+        ## Problem Description
+        Describe the issue users are experiencing.
 
-## Additional Information
-- Prerequisites or requirements
-- Related articles or resources
-- Contact information for further assistance`;
-                    break;
-                    
-                case 'howto':
-                    template = `# How to [Task Title]
-Brief description of what this guide will help users accomplish.
+        ## Symptoms
+        - List the symptoms users might observe
+        - Include error messages if applicable
 
-## Prerequisites
-- List any requirements
-- Tools or access needed
-- Knowledge assumptions
+        ## Solution Steps
+        1. **Step 1:** First action to take
+        2. **Step 2:** Second action to take
+        3. **Step 3:** Continue with detailed steps
 
-## Step-by-Step Instructions
-1. **Step 1**: Detailed description of the first action
-2. **Step 2**: Continue with clear, actionable steps
-3. **Step 3**: Include screenshots or examples where helpful
+        ## Alternative Solutions
+        If the above doesn't work, try:
+        - Alternative approach 1
+        - Alternative approach 2
 
-## Tips and Best Practices
-- Important tips for success
-- Common mistakes to avoid
-- Best practices to follow
+        ## Prevention
+        Tips to prevent this issue from occurring again.
 
-## Troubleshooting
-If you encounter issues:
-- Common problem 1 and solution
-- Common problem 2 and solution`;
-                    break;
-                    
-                case 'faq':
-                    template = `# Frequently Asked Questions
+        ## Related Articles
+        - Link to related knowledge base articles`;
+                            break;
 
-## General Questions
+                        case 'howto':
+                            templateContent = `# How-To Guide: [Process Name]
 
-**Q: Common question about the topic?**
-A: Clear, concise answer to the question.
+        ## Overview
+        Brief description of what this guide covers.
 
-**Q: Another frequently asked question?**
-A: Detailed response with helpful information.
+        ## Prerequisites
+        - List what users need before starting
+        - Required permissions or tools
 
-## Technical Questions
+        ## Step-by-Step Instructions
+        1. **Step 1:** Detailed first step
+           - Sub-point if needed
+           - Additional clarification
 
-**Q: Technical question users often ask?**
-A: Step-by-step answer or explanation.
+        2. **Step 2:** Continue with clear instructions
+        3. **Step 3:** Keep steps simple and focused
 
-**Q: More specific technical question?**
-A: Detailed technical response.
+        ## Tips & Best Practices
+        - Helpful tip 1
+        - Helpful tip 2
 
-## Additional Resources
-- Link to related articles
-- Contact information for further support`;
-                    break;
-                    
-                case 'reference':
-                    template = `# [Topic] Reference Guide
-Quick reference for [specific topic or process].
+        ## Troubleshooting
+        Common issues and solutions:
+        - **Issue:** Solution`;
+                            break;
 
-## Key Information
-| Item | Description | Notes |
-|------|-------------|-------|
-| Item 1 | Description | Additional info |
-| Item 2 | Description | Additional info |
+                        case 'faq':
+                            templateContent = `# Frequently Asked Questions: [Topic]
 
-## Important Commands/Steps
-- **Command 1**: Description and usage
-- **Command 2**: Description and usage
-- **Command 3**: Description and usage
+        ## Question 1: [Common Question]
+        **Answer:** Provide a clear, concise answer.
 
-## Quick Links
-- [Related Resource 1](#)
-- [Related Resource 2](#)
-- [Documentation](#)
+        ## Question 2: [Another Common Question]
+        **Answer:** Include relevant details and links.
 
-## Contact Information
-For questions or assistance: [contact details]`;
-                    break;
-            }
-            
-            contentEditor.value = template;
-            contentEditor.focus();
-        }
+        ## Question 3: [Technical Question]
+        **Answer:** Break down technical concepts simply.
 
-     
-        function togglePreview() {
-            const preview = document.getElementById('contentPreview');
-            const content = document.getElementById('contentEditor').value;
-            
-            if (preview.style.display === 'none') {
-                
-                let htmlContent = content
-                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                    .replace(/\*(.*?)\*/g, '<em>$1</em>')
-                    .replace(/^# (.*?)$/gm, '<h1>$1</h1>')
-                    .replace(/^## (.*?)$/gm, '<h2>$1</h2>')
-                    .replace(/^### (.*?)$/gm, '<h3>$1</h3>')
-                    .replace(/^\- (.*?)$/gm, '<li>$1</li>')
-                    .replace(/\n/g, '<br>');
-                
-                preview.innerHTML = htmlContent;
-                preview.style.display = 'block';
-            } else {
-                preview.style.display = 'none';
-            }
-        }
+        ## Additional Resources
+        - Link to detailed guides
+        - Related documentation`;
+                            break;
 
-       
-        document.getElementById('articleForm').addEventListener('submit', function(e) {
-            const title = titleInput.value.trim();
-            const content = document.getElementById('contentEditor').value.trim();
-            const category = document.querySelector('select[name="CategoryID"]').value;
-            
-            if (!title || !content || !category) {
-                e.preventDefault();
-                alert('Please fill in all required fields (Title, Category, and Content).');
-                return;
-            }
-            
-            if (title.length > 200) {
-                e.preventDefault();
-                alert('Title cannot exceed 200 characters.');
-                return;
-            }
-            
-            
-            const submitBtn = document.getElementById('submitBtn');
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="spinner-border spinner-border-sm me-2"></i>Saving...';
-        });
+                        case 'reference':
+                            templateContent = `# Reference Guide: [System/Process Name]
 
-      
-        document.addEventListener('DOMContentLoaded', function() {
-            updateTitleCount();
-            
-           
-            @if (!Model.IsEditing)
-            {
-                <text>titleInput.focus();</text>
-            }
-        });
+        ## Quick Overview
+        Brief summary of the system or process.
+
+        ## Key Information
+        | Item | Description | Notes |
+        |------|-------------|-------|
+        | Item 1 | Description | Additional info |
+        | Item 2 | Description | Additional info |
+
+        ## Common Commands/Actions
+        - **Action 1:** Description and usage
+        - **Action 2:** Description and usage
+
+        ## Important Notes
+        - Critical information users should know
+        - Warnings or cautions
+
+        ## Contact Information
+        When to escalate or who to contact for additional help.`;
+                            break;
+                    }
+
+                    if (contentEditor) {
+                        contentEditor.value = templateContent;
+                        contentEditor.focus();
+
+                        // Add success animation
+                        contentEditor.classList.add('success-pulse');
+                        setTimeout(() => {
+                            contentEditor.classList.remove('success-pulse');
+                        }, 1500);
+                    }
+                }
+
+                // Preview Toggle
+                function togglePreview() {
+                    const preview = document.getElementById('contentPreview');
+                    const contentEditor = document.getElementById('contentEditor');
+                    const button = event.target.closest('button');
+
+                    if (preview.style.display === 'none' || !preview.style.display) {
+                        // Show preview
+                        preview.style.display = 'block';
+                        preview.innerHTML = '<p><em>Preview functionality would be implemented here with a Markdown parser.</em></p><div style="background: var(--surface-elevated); padding: 15px; border-radius: 8px; margin-top: 10px;">' +
+                            contentEditor.value.replace(/\n/g, '<br>') + '</div>';
+                        button.innerHTML = '<i class="bi bi-eye-slash me-1"></i> Hide Preview';
+                    } else {
+                        // Hide preview
+                        preview.style.display = 'none';
+                        button.innerHTML = '<i class="bi bi-eye me-1"></i> Preview Content';
+                    }
+                }
+
+                // Save Draft Function
+                function saveDraft() {
+                    const submitBtn = document.getElementById('submitBtn');
+                    const originalText = submitBtn.innerHTML;
+
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Saving Draft...';
+
+                    // Simulate draft save (implement actual draft functionality)
+                    setTimeout(() => {
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalText;
+
+                        // Show success message
+                        const alertDiv = document.createElement('div');
+                        alertDiv.className = 'alert alert-success';
+                        alertDiv.innerHTML = '<i class="bi bi-check-circle"></i><span>Draft saved successfully!</span>';
+
+                        const container = document.querySelector('.container');
+                        const header = document.querySelector('.page-header');
+                        container.insertBefore(alertDiv, header.nextSibling);
+
+                        // Remove alert after 3 seconds
+                        setTimeout(() => {
+                            alertDiv.remove();
+                        }, 3000);
+                    }, 1000);
+                }
+
+                // Form Validation Enhancement
+                document.getElementById('articleForm').addEventListener('submit', function(e) {
+                    const submitBtn = document.getElementById('submitBtn');
+                    const originalText = submitBtn.innerHTML;
+
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Publishing...';
+
+                    // Re-enable button after form submission completes
+                    setTimeout(() => {
+                        if (submitBtn.disabled) {
+                            submitBtn.disabled = false;
+                            submitBtn.innerHTML = originalText;
+                        }
+                    }, 5000);
+                });
     </script>
 </body>
 </html>

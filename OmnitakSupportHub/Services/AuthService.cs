@@ -29,7 +29,7 @@ namespace OmnitakSupportHub.Services
                     Message = "Email address already exists."
                 };
 
-            // 2) create user (unapproved by default)
+            // 2) create user 
             var user = new User
             {
                 FullName = model.FullName,

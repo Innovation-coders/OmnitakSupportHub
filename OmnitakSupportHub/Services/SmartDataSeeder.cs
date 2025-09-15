@@ -336,7 +336,7 @@ namespace OmnitakSupportHub.Services
         {
             _logger.LogInformation("Starting data migration for existing entities...");
 
-            // Example: Add new fields to existing Users
+            //Add new fields to existing Users
             var usersWithoutNewFields = await _context.Users
                 .Where(u => u.ApprovedAt == null && u.IsApproved == true)
                 .ToListAsync();

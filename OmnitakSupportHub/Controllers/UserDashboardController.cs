@@ -33,10 +33,7 @@ namespace OmnitakSupportHub.Controllers
 
             return View(myTickets);
         }
-        // ADD THESE METHODS TO YOUR EXISTING UserDashboardController.cs
-        // Make sure you have these using statements at the top of your file:
-        // using Microsoft.AspNetCore.Mvc.Rendering;
-        // using OmnitakSupportHub.Models.ViewModels;
+
 
         [HttpGet]
         public async Task<IActionResult> KnowledgeBase(int? categoryId = null, string searchTerm = "", string sortBy = "newest")

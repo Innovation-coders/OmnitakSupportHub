@@ -61,13 +61,13 @@ namespace OmnitakSupportHub.Models.Validation
                 return new ValidationResult("Password cannot consist of the same character repeated.");
             }
 
-            // Simple repeated patterns (e.g., abababab, 12341234)
+            // Simple repeated patterns
             if (Regex.IsMatch(password, @"^(.+)\1+$"))
             {
                 return new ValidationResult("Password cannot be a repeated pattern.");
             }
 
-            // Sequential characters (e.g., abcdefgh, 12345678)
+            // Sequential characters 
             string lower = password.ToLower();
             string sequence = "abcdefghijklmnopqrstuvwxyz";
             string digits = "0123456789";

@@ -21,7 +21,7 @@ namespace OmnitakSupportHub.Models
         public bool CanManageKnowledgeBase { get; set; } = false;
         public bool CanViewReports { get; set; } = false;
         public bool CanManageTeams { get; set; } = false;
-        public bool IsSystemRole { get; set; } = false; // Prevents deletion of critical roles
+        public bool IsSystemRole { get; set; } = false; 
 
         // Navigation Properties
         public virtual ICollection<User> Users { get; set; } = new List<User>();

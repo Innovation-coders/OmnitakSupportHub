@@ -1,4 +1,4 @@
-﻿using OmnitakSupportHub.Models;    // for User
+﻿using OmnitakSupportHub.Models;  
 
 namespace OmnitakSupportHub.Models
 {

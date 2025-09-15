@@ -48,7 +48,7 @@ namespace OmnitakSupportHub.Services
             }
         }
 
-        /// Safely adds new lookup data (Categories, Statuses, etc.)
+        /// Safely adds new lookup data 
         public async Task AddLookupDataIfNotExistsAsync<T>(
             T[] newItems,
             Func<T, object> keySelector,

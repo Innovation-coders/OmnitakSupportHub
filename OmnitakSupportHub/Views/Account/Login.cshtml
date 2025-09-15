@@ -98,10 +98,18 @@
             }
 
         @@keyframes float {
-            0%
-
-        {
-            transform: translateY(0) rotate(0deg);
+            0% {
+                transform: translateY(0) rotate(0deg);
+            }
+            33% {
+                transform: translateY(-30px) rotate(120deg);
+            }
+            66% {
+                transform: translateY(15px) rotate(240deg);
+            }
+            100% {
+                transform: translateY(0) rotate(360deg);
+            }
         }
 
         33% {
@@ -163,10 +171,12 @@
         }
 
         @@keyframes pulse {
-            0%, 100%
-
-        {
-            transform: scale(1);
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
         }
 
         50% {

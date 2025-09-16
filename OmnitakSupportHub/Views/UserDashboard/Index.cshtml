@@ -15,7 +15,7 @@
 
     <style>
         :root {
-            /* Premium Enterprise Color Palette from ManagerDashboard */
+           
             --primary-deep-blue: #0F1419;
             --primary-navy: #1A237E;
             --accent-electric: #00E5FF;
@@ -977,6 +977,18 @@
 
             <nav>
                 <ul class="nav-menu">
+                   
+                    <li class="nav-item">
+                        <a asp-controller="Home" asp-action="Index" class="nav-link home-link">
+                            <i class="nav-icon bi bi-house-heart-fill"></i>
+                            Home
+                            <span class="home-badge">Main</span>
+                        </a>
+                    </li>
+                    
+                 
+                    <li class="nav-separator"></li>
+                    
                     <li class="nav-item">
                         <a href="#" class="nav-link active" onclick="showSection('dashboard')">
                             <i class="nav-icon bi bi-house-door"></i>
@@ -1320,5 +1332,7 @@
             });
         });
     </script>
+
+    @await Html.PartialAsync("EnhancedChatWidget")
 </body>
 </html>

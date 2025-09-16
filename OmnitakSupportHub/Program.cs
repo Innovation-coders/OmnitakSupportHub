@@ -66,6 +66,10 @@ builder.Services.AddScoped<MigrationHelper>();
 builder.Services.AddScoped<DatabaseManager>();
 
 
+
+builder.Services.AddScoped<ISimpleChatbotService, EnhancedChatbotService>();
+
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
